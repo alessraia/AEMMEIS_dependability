@@ -12,6 +12,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class WishListDAO {
+
+    /*@ public behavior
+      @   requires wishList != null
+      @        && wishList.getEmail() != null
+      @        && wishList.getEmail().length() > 0
+      @        && isbn != null
+      @        && isbn.length() == 13;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void doSave(WishList wishList, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -28,6 +38,15 @@ public class WishListDAO {
         }
     }
 
+    /*@ public behavior
+      @   requires email != null && email.length() > 0;
+      @   assignable \nothing;
+      @   ensures \result != null;
+      @   ensures \result.getLibri() != null;
+      @   ensures (\result.getEmail() == null)
+      @        || (\result.getEmail().equals(email));
+      @   signals (RuntimeException e) true;
+      @*/
     public WishList doRetrieveByEmail(String email) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -48,6 +67,12 @@ public class WishListDAO {
         }
     }
 
+    /*@ public behavior
+      @   requires email != null && email.length() > 0
+      @        && isbn != null && isbn.length() == 13;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void deleteLibro(String email, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -61,6 +86,11 @@ public class WishListDAO {
         }
     }
 
+    /*@ public behavior
+      @   requires email != null && email.length() > 0;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void deleteWishListByEmail(String email){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =

@@ -10,6 +10,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrdineDAO {
+
+    /*@ public behavior
+      @   requires ordine != null;
+      @   requires ordine.getIdOrdine() != null && ordine.getIdOrdine().length() > 0;
+      @   requires ordine.getCosto() != null && ordine.getCosto() >= 0.0;
+      @   requires ordine.getPuntiOttenuti() != null && ordine.getPuntiOttenuti() >= 0;
+      @   requires ordine.getPuntiSpesi() != null && ordine.getPuntiSpesi() >= 0;
+      @   requires ordine.getDataEffettuazione() != null;
+      @   requires ordine.getEmail() != null && ordine.getEmail().length() > 0;
+      @   requires ordine.getStato() != null && ordine.getStato().length() > 0;
+      @   requires ordine.getCitta() != null && ordine.getCitta().length() > 0;
+      @   requires ordine.getMatricola() != null && ordine.getMatricola().length() > 0;
+      @   requires ordine.getRigheOrdine() != null
+      @   assignable \nothing;
+      @   ensures true;
+      @   signals (RuntimeException e) true;
+      @*/
     public void doSave(Ordine ordine){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -36,6 +53,13 @@ public class OrdineDAO {
             rigaService.doSave(riga);
         }
     }
+
+    /*@ public behavior
+      @   requires idOrdine != null && idOrdine.length() > 0;
+      @   assignable \nothing;
+      @   ensures \result == null || (\result.getIdOrdine() != null && \result.getIdOrdine().equals(idOrdine) && \result.getRigheOrdine() != null);
+      @   signals (RuntimeException e) true;
+      @*/
     public Ordine doRetrieveById(String idOrdine) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -76,6 +100,13 @@ public class OrdineDAO {
         }
     }
 
+    /*@ public behavior
+    @   requires email != null && email.length() > 0;
+    @   assignable \nothing;
+    @   ensures \result != null
+    @        && (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    @   signals (RuntimeException e) true;
+    @*/
     public List<Ordine> doRetrieveByUtente(String email) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -91,6 +122,17 @@ public class OrdineDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /*@ public behavior
+    @   requires ordine != null
+    @        && ordine.getIdOrdine() != null && ordine.getIdOrdine().length() > 0
+    @        && ordine.getStato() != null
+    @        && ordine.getDataArrivo() != null
+             && ordine.getDataEffettuazione() != null && !ordine.getDataArrivo().isBefore(ordine.getDataEffettuazione());
+    @   assignable \nothing;
+    @   ensures true;
+    @   signals (RuntimeException e) true;
+    @*/
     //modifico stato e data arrivo dell'ordine
     public void updateOrdine(Ordine ordine){
         try(Connection con = ConPool.getConnection()){
@@ -104,6 +146,15 @@ public class OrdineDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /*@ public behavior
+    @   requires ordine != null
+    @        && ordine.getIdOrdine() != null && ordine.getIdOrdine().length() > 0
+    @        && ordine.getStato() != null;
+    @   assignable \nothing;
+    @   ensures true;
+    @   signals (RuntimeException e) true;
+    @*/
     public void updateStato(Ordine ordine){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE ordine SET stato = ? WHERE idOrdine = ?");
@@ -116,6 +167,14 @@ public class OrdineDAO {
         }
     }
 
+    /*@ public behavior
+    @   requires ordine != null
+    @        && ordine.getIdOrdine() != null && ordine.getIdOrdine().length() > 0
+    @        && ordine.getMatricola() != null;
+    @   assignable \nothing;
+    @   ensures true;
+    @   signals (RuntimeException e) true;
+    @*/
     public void updateOrdineMatricola(Ordine ordine){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE ordine SET matricola = ? WHERE idOrdine = ?");
@@ -128,6 +187,12 @@ public class OrdineDAO {
         }
     }
 
+    /*@ public behavior
+    @   requires email != null && email.length() > 0;
+    @   assignable \nothing;
+    @   ensures true;
+    @   signals (RuntimeException e) true;
+    @*/
     public void deleteOrdiniByEmail(String email){
         List<Ordine> ordini = this.doRetrieveByUtente(email);
         RigaOrdineDAO service = new RigaOrdineDAO();
@@ -144,6 +209,13 @@ public class OrdineDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /*@ public behavior
+    @   requires idOrdine != null && idOrdine.length() > 0;
+    @   assignable \nothing;
+    @   ensures true;
+    @   signals (RuntimeException e) true;
+    @*/
     //aggiunto questo
     public void deleteOrdine(String idOrdine){
         RigaOrdineDAO service = new RigaOrdineDAO();
@@ -159,6 +231,13 @@ public class OrdineDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /*@ public behavior
+    @   assignable \nothing;
+    @   ensures \result != null
+    @        && (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    @   signals (RuntimeException e) true;
+    @*/
     public List<String> doRetrivedAllByIdOrdini(){
         List<String> idOrdini = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {

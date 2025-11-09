@@ -17,7 +17,15 @@ import java.security.NoSuchAlgorithmException;
 
 
 public class UtenteDAO {
-
+    /*@ public behavior
+      @   requires email != null && email.length() > 0;
+      @   assignable \nothing;
+      @   ensures \result == null
+      @        || (\result.getEmail() != null
+      @            && \result.getEmail().equals(email) && \result.getNomeUtente() != null
+      @            && \result.getCodiceSicurezza() != null && \result.getTipo() != null && \result.getTelefoni() != null);
+      @   signals (RuntimeException e) true;
+      @*/
     public Utente doRetrieveById(String email) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -39,6 +47,16 @@ public class UtenteDAO {
         }
     }
 
+    /*@ public behavior
+     @   requires email != null && email.length() > 0
+     @         && password != null && password.length() > 0;
+     @   assignable \nothing;
+     @   ensures \result == null
+     @        || (\result.getEmail() != null
+     @            && \result.getEmail().equals(email) && \result.getNomeUtente() != null
+     @            && \result.getCodiceSicurezza() != null && \result.getTipo() != null && \result.getTelefoni() != null);
+     @   signals (RuntimeException e) true;
+     @*/
     public Utente doRetrieveByEmailPassword(String email, String password) {
         try (Connection con = ConPool.getConnection()) {
 
@@ -63,6 +81,18 @@ public class UtenteDAO {
     }
 
 
+    /*@ public behavior
+      @   requires utente != null
+      @        && utente.getEmail() != null
+      @        && utente.getEmail().length() > 0
+      @        && utente.getNomeUtente() != null
+      @        && utente.getEmail() != null && utente.getEmail().length() > 0
+      @        && utente.getCodiceSicurezza() != null && utente.getCodiceSicurezza().length() > 0
+      @        && utente.getTipo() != null && utente.getTipo().length() > 0
+      @        && utente.getTelefoni() != null;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void doSave(Utente utente) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -86,6 +116,17 @@ public class UtenteDAO {
 
     }
 
+    /*@ public behavior
+      @   assignable \nothing;
+      @   ensures \result != null;
+      @   ensures (\forall int i; 0 <= i && i < \result.size();
+      @               \result.get(i) != null
+      @               && \result.get(i).getEmail() != null && \result.get(i).getEmail().length() > 0);
+      @               && \result.get(i).getNomeUtente() != null
+      @               && \result.get(i).getCodiceSicurezza() != null && \result.get(i).getCodiceSicurezza().length() > 0
+      @               && \result.get(i).getTipo() != null && \result.get(i).getTipo().length() > 0;
+      @   signals (RuntimeException e) true;
+      @*/
     public List<Utente> doRetrieveAll() {
         List<Utente> utenti = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -107,6 +148,18 @@ public class UtenteDAO {
         }
     }
 
+    /*@ public behavior
+     @   requires utente != null
+      @        && utente.getEmail() != null
+      @        && utente.getEmail().length() > 0
+      @        && utente.getNomeUtente() != null
+      @        && utente.getEmail() != null && utente.getEmail().length() > 0
+      @        && utente.getCodiceSicurezza() != null && utente.getCodiceSicurezza().length() > 0
+      @        && utente.getTipo() != null && utente.getTipo().length() > 0
+      @        && utente.getTelefoni() != null;
+     @   assignable \nothing;
+     @   signals (RuntimeException e) true;
+     @*/
     public void updateUtente(Utente utente){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE utente SET nomeUtente = ?, tipo = ? WHERE email = ?");
@@ -132,6 +185,14 @@ public class UtenteDAO {
         }
     }
 
+    /*@ public behavior
+      @   requires utente != null
+      @        && utente.getEmail() != null
+      @        && utente.getEmail().length() > 0
+      @        && utente.getCodiceSicurezza() != null && utente.getCodiceSicurezza().length() > 0;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void updateUtentePassword(Utente utente){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE utente SET codiceSicurezza = ? WHERE email = ?");
@@ -145,6 +206,11 @@ public class UtenteDAO {
         }
     }
 
+    /*@ public behavior
+      @   requires email != null && email.length() > 0;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void deleteUtente(String email){
 
         if(this.doRetrieveById(email).getTipo().equalsIgnoreCase("premium")){
@@ -177,6 +243,12 @@ public class UtenteDAO {
         }
     }
 
+    /*@ public behavior
+      @   requires email != null && email.length() > 0
+      @        && numeroTelefono != null && numeroTelefono.length() > 0;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void deleteTelefono(String email, String numeroTelefono){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -190,6 +262,11 @@ public class UtenteDAO {
         }
     }
 
+    /*@ public behavior
+      @   requires email != null && email.length() > 0;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void deleteTelefoni(String email){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -202,6 +279,12 @@ public class UtenteDAO {
         }
     }
 
+    /*@ public normal_behavior
+      @   requires email != null && email.length() > 0
+      @        && numeroTelefono != null && numeroTelefono.length() == 10;
+      @   assignable \nothing;
+      @   signals (RuntimeException e) true;
+      @*/
     public void addTelefono(String email, String numeroTelefono){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -219,6 +302,15 @@ public class UtenteDAO {
 
 //mi serve una funzione che cerchi i numeri di telefono di un utente e li salvi nella lista
 //così da non perdere l'informazione quando si fa il login.
+
+    /*@ public behavior
+     @   requires email != null && email.length() > 0;
+     @   assignable \nothing;
+     @   ensures \result != null;
+     @   ensures (\forall int i; 0 <= i && i < \result.size();
+     @               \result.get(i) != null && \result.get(i).length == 10;
+     @   signals (RuntimeException e) true;
+     @*/
     public List<String> cercaTelefoni(String email) {
         List<String> telefoni = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -235,6 +327,13 @@ public class UtenteDAO {
         }
     }
 
+    /*@ public normal_behavior
+      @   assignable \nothing;
+      @   ensures \result != null;
+      @   ensures (\forall int i; 0 <= i && i < \result.size();
+      @               \result.get(i) != null && \result.get(i).length() == 10);
+      @   signals (RuntimeException e) true;
+      @*/
     public List<String> doRetrieveAllTelefoni() {
         List<String> telefoni = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
