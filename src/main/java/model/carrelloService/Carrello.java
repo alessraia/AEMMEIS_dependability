@@ -17,7 +17,7 @@ public class Carrello {
       @   ensures \result == this.idCarrello;
       @   assignable \nothing;
       @*/
-    public String getIdCarrello() {
+    public /*@ pure @*/ String getIdCarrello() {
         return idCarrello;
     }
 
@@ -36,7 +36,7 @@ public class Carrello {
       @   ensures \result == this.totale;
       @   assignable \nothing;
       @*/
-    public double getTotale() {
+    public /*@ pure @*/ double getTotale() {
         return totale;
     }
 
@@ -55,7 +55,7 @@ public class Carrello {
       @   ensures \result == this.email;
       @   assignable \nothing;
       @*/
-    public String getEmail() {
+    public /*@ pure @*/ String getEmail() {
         return email;
     }
 
@@ -74,7 +74,7 @@ public class Carrello {
       @   ensures \result == this.righeCarrello;
       @   assignable \nothing;
       @*/
-    public List<RigaCarrello> getRigheCarrello() {
+    public /*@ pure @*/ List<RigaCarrello> getRigheCarrello() {
         return righeCarrello;
     }
 

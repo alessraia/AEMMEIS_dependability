@@ -86,7 +86,7 @@ public class CarrelloDAO {
      @          || (\result.getIdCarrello() != null && !\result.getIdCarrello().isEmpty()
      @          && \result.getEmail() != null && !\result.getEmail().isEmpty()
      @          && \result.getTotale() >= 0
-     @          && \result.getRigheCarrello != null
+     @          && \result.getRigheCarrello() != null
      @ );
      @ signals_only RuntimeException;
     @*/
@@ -119,7 +119,7 @@ public class CarrelloDAO {
      @          || (\result.getIdCarrello() != null && !\result.getIdCarrello().isEmpty()
      @          && \result.getEmail() != null && !\result.getEmail().isEmpty()
      @          && \result.getTotale() >= 0
-     @          && \result.getRigheCarrello != null
+     @          && \result.getRigheCarrello() != null
      @ );
      @ signals_only RuntimeException;
     @*/

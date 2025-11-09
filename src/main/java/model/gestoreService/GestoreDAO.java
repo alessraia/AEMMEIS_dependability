@@ -15,7 +15,7 @@ public class GestoreDAO {
     /*@
      @ public behavior
      @ requires gestore != null;
-     @ requires gestore.getMatricola() != null && !gestore.getMatricola().isEmpty;
+     @ requires gestore.getMatricola() != null && !gestore.getMatricola().isEmpty();
      @ requires gestore.getStipendio() >= 0;
      @ signals_only RuntimeException;
     @*/
@@ -54,7 +54,7 @@ public class GestoreDAO {
     /*@
     @ public behavior
     @ requires gestore != null;
-    @ requires gestore.getMatricola() != null && !gestore.getMatricola().isEmpty;
+    @ requires gestore.getMatricola() != null && !gestore.getMatricola().isEmpty();
     @ requires gestore.getStipendio() >= 0;
     @ signals_only RuntimeException;
    @*/
@@ -75,7 +75,7 @@ public class GestoreDAO {
      @ public behavior
      @ ensures \result != null;
      @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
-     @ signals_only RunTimeException;
+     @ signals_only RuntimeException;
     @*/
     public List<Gestore> doRetrivedAll(){
         List<Gestore> gestori = new ArrayList<>();
@@ -99,7 +99,7 @@ public class GestoreDAO {
     /*@
      @ public behavior
      @ requires matricola != null;
-     @ ensures (\result == null) || (\result != null && \result.getMatricola() != null && \result.getMatricola().equals(matricola) && \result.getStipendio()!=null && !Double.isNAN(\result.getStipendio()));
+     @ ensures (\result == null) || (\result != null && \result.getMatricola() != null && \result.getMatricola().equals(matricola) && \result.getStipendio() >= 0);
      @ signals_only RuntimeException;
     @*/
     public Gestore doRetrieveById(String matricola) {

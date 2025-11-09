@@ -19,7 +19,7 @@ public class Tessera {
       @   ensures \result == this.numero;
       @   assignable \nothing;
       @*/
-    public String getNumero() {
+    public /*@ pure @*/ String getNumero() {
         return numero;
     }
 
@@ -38,7 +38,7 @@ public class Tessera {
       @   ensures \result == this.dataCreazione;
       @   assignable \nothing;
       @*/
-    public LocalDate getDataCreazione() {
+    public /*@ pure @*/ LocalDate getDataCreazione() {
         return dataCreazione;
     }
 
@@ -57,7 +57,7 @@ public class Tessera {
       @   ensures \result == this.dataScadenza;
       @   assignable \nothing;
       @*/
-    public LocalDate getDataScadenza() {
+    public /*@ pure @*/ LocalDate getDataScadenza() {
         return dataScadenza;
     }
 
@@ -76,7 +76,7 @@ public class Tessera {
       @   ensures \result == this.punti;
       @   assignable \nothing;
       @*/
-    public int getPunti() {
+    public /*@ pure @*/ int getPunti() {
         return punti;
     }
 
@@ -95,7 +95,7 @@ public class Tessera {
       @   ensures \result == this.email;
       @   assignable \nothing;
       @*/
-    public String getEmail() {
+    public /*@ pure @*/ String getEmail() {
         return email;
     }
 

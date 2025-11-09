@@ -15,7 +15,7 @@ public class RigaCarrello {
       @   ensures \result == this.idCarrello;
       @   assignable \nothing;
       @*/
-    public String getIdCarrello() {
+    public /*@ pure @*/ String getIdCarrello() {
         return idCarrello;
     }
 
@@ -34,7 +34,7 @@ public class RigaCarrello {
       @   ensures \result == this.Libro;
       @   assignable \nothing;
       @*/
-    public Libro getLibro() {
+    public /*@ pure @*/ Libro getLibro() {
         return libro;
     }
 
@@ -53,7 +53,7 @@ public class RigaCarrello {
       @   ensures \result == this.quantita;
       @   assignable \nothing;
       @*/
-    public int getQuantita() {
+    public /*@ pure @*/ int getQuantita() {
         return quantita;
     }
 

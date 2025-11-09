@@ -20,8 +20,8 @@ public class RigaCarrelloDAO {
      @ requires idCarrello != null && !idCarrello.isEmpty();
      @ ensures \result != null;
      @ assignable \nothing;
-     @ ensures (\forall int i; 0 <= i && i <= \result.size(); \result.get(i) != null && \result.get(i).getIdCarrello() != null && !\result.get(i).getIdCarrello().isEmpty && \result.get(i).getIdCarrello().equals(idCarrello) && \result.get(i).getQuantità() >= 0 && \result.get(i).getLibro() != null);
-     @ signals_only RunTimeException;
+     @ ensures (\forall int i; 0 <= i && i <= \result.size(); \result.get(i) != null && \result.get(i).getIdCarrello() != null && !\result.get(i).getIdCarrello().isEmpty() && \result.get(i).getIdCarrello().equals(idCarrello) && \result.get(i).getQuantita() >= 0 && \result.get(i).getLibro() != null);
+     @ signals_only RuntimeException;
     @*/
     public List<RigaCarrello> doRetrieveByIdCarrello(String idCarrello) {
         try (Connection con = ConPool.getConnection()) {
@@ -51,8 +51,8 @@ public class RigaCarrelloDAO {
     @ requires idCarrello != null && !idCarrello.isEmpty();
     @ requires isbn != null && !isbn.isEmpty();
     @ assignable \nothing;
-    @ ensures \result == null || (\forall int i; 0 <= i && i <= \result.size(); \result.get(i) != null && \result.get(i).getIdCarrello() != null && !\result.get(i).getIdCarrello().isEmpty && \result.get(i).getIdCarrello().equals(idCarrello) && \result.get(i).getQuantità() >= 0 && \result.get(i).getLibro() != null);
-    @ signals_only RunTimeException;
+    @ ensures \result == null ||  \result!= null && \result.getIdCarrello() != null && !\result.getIdCarrello().isEmpty && \result.getIdCarrello().equals(idCarrello) && \result.getQuantità() >= 0 && \result.getLibro() != null;
+    @ signals_only RuntimeException;
    @*/
     public RigaCarrello doRetriveById(String idCarrello, String isbn){
         try (Connection con = ConPool.getConnection()) {
@@ -80,10 +80,10 @@ public class RigaCarrelloDAO {
     @ public behavior
     @ requires rigaCarrello != null;
     @ assignable \nothing;
-    @ requires rigaCarrello.getIdCarrello() != null && !rigaCarrello.getIdCarrello.isEmpty();
+    @ requires rigaCarrello.getIdCarrello() != null && !rigaCarrello.getIdCarrello().isEmpty();
     @ requires rigaCarrello.getLibro() != null;
     @ requires rigaCarrello.getQuantita() >= 0;
-    @ signals_only RunTimeException;
+    @ signals_only RuntimeException;
    @*/
     public void doSave(RigaCarrello rigaCarrello){
         try (Connection con = ConPool.getConnection()) {
@@ -105,7 +105,7 @@ public class RigaCarrelloDAO {
     @ requires idCarrello != null && !idCarrello.isEmpty();
     @ requires isbn != null && !isbn.isEmpty();
     @ assignable \nothing;
-    @ signals_only RunTimeException;
+    @ signals_only RuntimeException;
    @*/
     public void deleteRigaCarrello(String isbn, String idCarrello){
         try (Connection con = ConPool.getConnection()) {
@@ -124,7 +124,7 @@ public class RigaCarrelloDAO {
     @ public behavior
     @ requires idCarrello != null && !idCarrello.isEmpty();
     @ assignable \nothing;
-    @ signals_only RunTimeException;
+    @ signals_only RuntimeException;
    @*/
     public void deleteRigheCarrelloByIdCarrello(String idCarrello){
         try (Connection con = ConPool.getConnection()) {
@@ -142,10 +142,10 @@ public class RigaCarrelloDAO {
     @ public behavior
     @ requires rigaCarrello != null;
     @ assignable \nothing;
-    @ requires rigaCarrello.getIdCarrello() != null && !rigaCarrello.getIdCarrello.isEmpty();
+    @ requires rigaCarrello.getIdCarrello() != null && !rigaCarrello.getIdCarrello().isEmpty();
     @ requires rigaCarrello.getLibro() != null;
     @ requires rigaCarrello.getQuantita() >= 0;
-    @ signals_only RunTimeException;
+    @ signals_only RuntimeException;
    @*/
     public void updateQuantita(RigaCarrello rigaCarrello){
         try(Connection con = ConPool.getConnection()){

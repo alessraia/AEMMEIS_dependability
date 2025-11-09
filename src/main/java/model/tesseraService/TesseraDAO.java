@@ -67,8 +67,8 @@ public class TesseraDAO {
       @ public behavior
       @ requires tessera != null;
       @ requires tessera.getNumero() != null && !tessera.getNumero().isEmpty();
-      @ requires tessera.getPunti >= 0;
-      @ signals_only RunTimeException;
+      @ requires tessera.getPunti() >= 0;
+      @ signals_only RuntimeException;
     @*/
     public void updateTessera(Tessera tessera){
         try(Connection con = ConPool.getConnection()){
@@ -125,7 +125,7 @@ public class TesseraDAO {
      @ public behavior
      @ ensures \result != null;
      @ assignable \nothing;
-     @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null && \result.get(i).size() != 0);
+     @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null && !\result.get(i).isEmpty());
      @ signals_only RuntimeException;
     @*/
     public List<String> doRetrivedAllByNumero(){
@@ -158,7 +158,7 @@ public class TesseraDAO {
       @          && !\result.getDataScadenza().isBefore(\result.getDataCreazione())
       @          && \result.getEmail() != null
       @          && !\result.getEmail().isEmpty()
-      @          && \result.getPunti >= 0
+      @          && \result.getPunti() >= 0
       @        );
       @   signals_only RuntimeException;
     @*/
@@ -197,7 +197,7 @@ public class TesseraDAO {
       @          && !\result.getDataScadenza().isBefore(\result.getDataCreazione())
       @          && \result.getNumero() != null
       @          && !\result.getNumero().isEmpty()
-      @          && \result.getPunti >= 0
+      @          && \result.getPunti() >= 0
       @        );
       @   signals_only RuntimeException;
     @*/

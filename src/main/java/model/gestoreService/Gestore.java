@@ -12,7 +12,7 @@ public class Gestore {
       @   ensures \result == this.matricola;
       @   assignable \nothing;
       @*/
-    public String getMatricola() {
+    public /*@ pure @*/ String getMatricola() {
         return matricola;
     }
 
@@ -31,7 +31,7 @@ public class Gestore {
       @   ensures \result == this.stipendio;
       @   assignable \nothing;
       @*/
-    public double getStipendio() {
+    public /*@ pure @*/ double getStipendio() {
         return stipendio;
     }
 
