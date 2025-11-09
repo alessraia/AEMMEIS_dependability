@@ -8,6 +8,15 @@ import java.util.List;
 import java.util.Random;
 
 public class AutoreDAO {
+
+
+    //@ requires autore != null;
+    //@ requires autore.getCf() != null;
+    //@ requires autore.getNome() != null;
+    //@ requires autore.getCognome() != null;
+    //@ assignable \nothing; // Modifica solo il database, non lo stato dell'oggetto
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nell'inserimento nel database *);
     public void doSave(Autore autore){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -25,6 +34,11 @@ public class AutoreDAO {
 
     }
 
+
+    //@ requires cf != null;
+    //@ assignable \nothing; // Modifica solo il database
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nella cancellazione dal database *);
     public void deleteAutore(String cf){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -37,6 +51,14 @@ public class AutoreDAO {
         }
     }
 
+
+    //@ requires cf != null;
+    //@ ensures \result == null || \result.getCf().equals(cf);
+    //@ ensures \result != null ==> \result.getNome() != null;
+    //@ ensures \result != null ==> \result.getCognome() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public Autore searchAutore(String cf) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -56,6 +78,14 @@ public class AutoreDAO {
         }
     }
 
+
+    //@ requires cf != null;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i).getIsbn() != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public List<Libro> getScrittura(String cf){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =

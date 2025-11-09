@@ -9,6 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SedeDAO {
+
+    //@ requires sede != null;
+    //@ requires sede.getCitta() != null;
+    //@ requires sede.getVia() != null;
+    //@ requires sede.getCivico() >= 0;
+    //@ requires sede.getCap() != null;
+    //@ assignable sede.idSede;
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nell'inserimento nel database *);
     public void doSave(Sede sede){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -29,6 +38,10 @@ public class SedeDAO {
         }
     }
 
+    //@ requires idSede >= 0;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nella cancellazione dal database *);
     public void deleteSede(int idSede){
         try (Connection con = ConPool.getConnection()) {
             //prima cancello da appartenenza (che ha riferimenti a reparto) solo se ci sono elementi
@@ -53,6 +66,14 @@ public class SedeDAO {
         }
     }
 
+    //@ requires sede != null;
+    //@ requires sede.getIdSede() >= 0;
+    //@ requires sede.getCitta() != null;
+    //@ requires sede.getVia() != null;
+    //@ requires sede.getCivico() >= 0;
+    //@ requires sede.getCap() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void updateSede(Sede sede){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE sede SET citta = ?, via = ?, numeroCivico = ?, cap = ? WHERE idSede = ?");
@@ -69,6 +90,10 @@ public class SedeDAO {
 
     }
 
+    //@ requires idSede >= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void removeLibroSede(int idSede, String isbn){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("DELETE FROM presenza WHERE idSede=? AND isbn = ?");
@@ -88,6 +113,11 @@ public class SedeDAO {
 
     }
 
+    //@ requires sede != null;
+    //@ requires sede.getIdSede() >= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void addLibroSede(Sede sede, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -106,6 +136,10 @@ public class SedeDAO {
         }
     }
 
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public List<Sede> doRetrivedAll(){
         List<Sede> sedi = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -129,6 +163,13 @@ public class SedeDAO {
         }
     }
 
+    //@ requires idSede >= 0;
+    //@ ensures \result == null || \result.getIdSede() == idSede;
+    //@ ensures \result != null ==> \result.getCitta() != null;
+    //@ ensures \result != null ==> \result.getLibri() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public Sede doRetrieveById(int idSede) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -151,6 +192,11 @@ public class SedeDAO {
         }
     }
 
+    //@ requires idSede >= 0;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public List<Libro> getPresenza(int idSede){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -169,6 +215,11 @@ public class SedeDAO {
             throw new RuntimeException(e);
         }
     }
+
+    //@ requires idSede >= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void deleteFromPresenzaLibro(int idSede, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -182,6 +233,10 @@ public class SedeDAO {
         }
     }
 
+    //@ requires idSede >= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void doSavePresenza(int idSede, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(

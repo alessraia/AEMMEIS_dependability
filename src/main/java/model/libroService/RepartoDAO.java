@@ -7,6 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RepartoDAO {
+
+    //@ requires reparto != null;
+    //@ requires reparto.getNome() != null;
+    //@ requires reparto.getDescrizione() != null;
+    //@ assignable reparto.idReparto;
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nell'inserimento nel database *);
     public void doSave(Reparto reparto){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -27,6 +34,10 @@ public class RepartoDAO {
         }
     }
 
+    //@ requires idReparto >= 0;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nella cancellazione dal database *);
     public void deleteReparto(int idReparto){
         try (Connection con = ConPool.getConnection()) {
 
@@ -51,6 +62,11 @@ public class RepartoDAO {
         }
     }
 
+    //@ requires reparto != null;
+    //@ requires reparto.getIdReparto() >= 0;
+    //@ requires reparto.getDescrizione() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void updateReparto(Reparto reparto){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE reparto SET descrizione = ?, immagine = ? WHERE idReparto = ?");
@@ -66,6 +82,10 @@ public class RepartoDAO {
 
     }
 
+    //@ requires idReparto >= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void removeLibroReparto(int idReparto, String isbn){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("DELETE FROM appartenenza WHERE idReparto=? AND isbn = ?");
@@ -84,6 +104,12 @@ public class RepartoDAO {
         }
 
     }
+
+    //@ requires reparto != null;
+    //@ requires reparto.getIdReparto() >= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void aggiungiLibroReparto(Reparto reparto, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -102,6 +128,10 @@ public class RepartoDAO {
         }
     }
 
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public List<Reparto> doRetrivedAll(){
         List<Reparto> reparti = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -124,6 +154,13 @@ public class RepartoDAO {
         }
     }
 
+    //@ requires idReparto >= 0;
+    //@ ensures \result == null || \result.getIdReparto() == idReparto;
+    //@ ensures \result != null ==> \result.getNome() != null;
+    //@ ensures \result != null ==> \result.getLibri() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public Reparto doRetrieveById(int idReparto) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -145,6 +182,11 @@ public class RepartoDAO {
         }
     }
 
+    //@ requires idReparto >= 0;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public List<Libro> getAppartenenza(int idReparto){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -163,6 +205,11 @@ public class RepartoDAO {
             throw new RuntimeException(e);
         }
     }
+
+    //@ requires idReparto >= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void deleteFromAppartenenzaLibro(int idReparto, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -176,6 +223,10 @@ public class RepartoDAO {
         }
     }
 
+    //@ requires idReparto >= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void doSaveAppartenenza(int idReparto, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(

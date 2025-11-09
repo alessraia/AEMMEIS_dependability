@@ -6,6 +6,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LibroDAO {
+
+    //@ requires libro != null;
+    //@ requires libro.getIsbn() != null;
+    //@ requires libro.getTitolo() != null;
+    //@ requires libro.getPrezzo() >= 0;
+    //@ requires libro.getSconto() >= 0 && libro.getSconto() <= 100;
+    //@ requires libro.getAutori() != null;
+    //@ assignable \nothing; // Modifica solo il database
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nell'inserimento nel database *);
     public void doSave(Libro libro){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -30,6 +40,10 @@ public class LibroDAO {
         }
     }
 
+    //@ requires isbn != null;
+    //@ assignable \nothing; // Modifica solo il database
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nella cancellazione dal database *);
     public void deleteLibro(String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -67,6 +81,11 @@ public class LibroDAO {
         }
     }
 
+    //@ requires libro != null;
+    //@ requires libro.getIsbn() != null;
+    //@ requires libro.getSconto() >= 0 && libro.getSconto() <= 100;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void updateLibroSconto(Libro libro){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE libro SET sconto = ? WHERE isbn = ?");
@@ -80,6 +99,13 @@ public class LibroDAO {
 
     }
 
+    //@ requires libro != null;
+    //@ requires libro.getIsbn() != null;
+    //@ requires libro.getTitolo() != null;
+    //@ requires libro.getPrezzo() >= 0;
+    //@ requires libro.getSconto() >= 0 && libro.getSconto() <= 100;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void updateLibro(Libro libro){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE libro SET titolo = ?, genere = ?, " +
@@ -99,6 +125,10 @@ public class LibroDAO {
         }
     }
 
+    //@ requires libro != null;
+    //@ requires libro.getIsbn() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void updateDisponibile(Libro libro){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE libro SET disponibile = ? WHERE isbn = ?");
@@ -111,6 +141,12 @@ public class LibroDAO {
         }
     }
 
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i).getIsbn() != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public List<Libro> doRetriveAll(){
         List<Libro> libri = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -138,6 +174,15 @@ public class LibroDAO {
         }
     }
 
+    //@ requires isbn != null;
+    //@ ensures \result == null || \result.getIsbn().equals(isbn);
+    //@ ensures \result != null ==> \result.getTitolo() != null;
+    //@ ensures \result != null ==> \result.getAutori() != null;
+    //@ ensures \result != null ==> \result.getPrezzo() >= 0;
+    //@ ensures \result != null ==> \result.getSconto() >= 0 && \result.getSconto() <= 100;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public Libro doRetrieveById(String isbn) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -164,6 +209,13 @@ public class LibroDAO {
         }
     }
 
+    //@ requires isbn != null;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i).getCf() != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public List<Autore> getScrittura(String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -181,6 +233,14 @@ public class LibroDAO {
             throw new RuntimeException(e);
         }
     }
+
+    //@ requires isbn != null;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i).getIdReparto() > 0);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public List<Reparto> getAppartenenzaReparto(String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -198,6 +258,14 @@ public class LibroDAO {
             throw new RuntimeException(e);
         }
     }
+
+    //@ requires isbn != null;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i).getIdSede() > 0);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
     public List<Sede> getPresenzaSede(String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -216,6 +284,12 @@ public class LibroDAO {
         }
     }
 
+    //@ requires isbn != null;
+    //@ requires autore != null;
+    //@ requires autore.getCf() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nella cancellazione dal database *);
     public void deleteAutoreScrittura(String isbn, Autore autore){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -232,7 +306,11 @@ public class LibroDAO {
         }
     }
 
-
+    //@ requires isbn != null;
+    //@ requires autore != null;
+    //@ requires autore.getCf() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public void addAutore(String isbn, Autore autore){
         try (Connection con = ConPool.getConnection()) {
             AutoreDAO autoreService=new AutoreDAO();
@@ -252,6 +330,11 @@ public class LibroDAO {
         }
     }
 
+    //@ requires query != null;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
     public List<Libro> Search(String query) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement("SELECT * FROM libro WHERE titolo LIKE ? OR isbn LIKE ?");
