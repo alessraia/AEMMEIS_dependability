@@ -14,9 +14,9 @@ public class OrdineDAO {
     /*@ public behavior
       @   requires ordine != null;
       @   requires ordine.getIdOrdine() != null && ordine.getIdOrdine().length() > 0;
-      @   requires ordine.getCosto() != null && ordine.getCosto() >= 0.0;
-      @   requires ordine.getPuntiOttenuti() != null && ordine.getPuntiOttenuti() >= 0;
-      @   requires ordine.getPuntiSpesi() != null && ordine.getPuntiSpesi() >= 0;
+      @   requires ordine.getCosto() >= 0.0;
+      @   requires ordine.getPuntiOttenuti() >= 0;
+      @   requires ordine.getPuntiSpesi() >= 0;
       @   requires ordine.getDataEffettuazione() != null;
       @   requires ordine.getEmail() != null && ordine.getEmail().length() > 0;
       @   requires ordine.getStato() != null && ordine.getStato().length() > 0;

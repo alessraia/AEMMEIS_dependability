@@ -114,7 +114,7 @@ public class UtenteDAO {
 
     }
 
-    /*@ public normal_behavior
+    /*@ public behavior
   @   assignable \nothing;
   @   ensures \result != null;
   @   ensures (\forall int i; 0 <= i && i < \result.size();
@@ -280,7 +280,7 @@ public class UtenteDAO {
         }
     }
 
-    /*@ public normal_behavior
+    /*@ public behavior
       @   requires email != null && email.length() > 0
       @        && numeroTelefono != null && numeroTelefono.length() == 10;
       @   assignable \nothing;
@@ -304,7 +304,7 @@ public class UtenteDAO {
 //mi serve una funzione che cerchi i numeri di telefono di un utente e li salvi nella lista
 //così da non perdere l'informazione quando si fa il login.
 
-    /*@ public normal_behavior
+    /*@ public behavior
   @   requires email != null && email.length() > 0;
   @   assignable \nothing;
   @   ensures \result != null;
@@ -329,7 +329,7 @@ public class UtenteDAO {
         }
     }
 
-    /*@ public normal_behavior
+    /*@ public behavior
       @   assignable \nothing;
       @   ensures \result != null;
       @   ensures (\forall int i; 0 <= i && i < \result.size();

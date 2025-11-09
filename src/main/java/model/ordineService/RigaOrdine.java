@@ -57,9 +57,9 @@ public class RigaOrdine {
     }
 
     /*@ public normal_behavior
-      @   requires prezzo >= 0.0;
+      @   requires prezzoUnitario >= 0.0;
       @   assignable this.prezzoUnitario;
-      @   ensures this.prezzoUnitario == prezzo;
+      @   ensures this.prezzoUnitario == prezzoUnitario;
       @*/
     public void setPrezzoUnitario(double prezzoUnitario) {
         this.prezzoUnitario = prezzoUnitario;

@@ -31,7 +31,7 @@ public class RigaCarrello {
 
     /*@
       @ public normal_behavior
-      @   ensures \result == this.Libro;
+      @   ensures \result == this.libro;
       @   assignable \nothing;
       @*/
     public /*@ pure @*/ Libro getLibro() {

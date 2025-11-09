@@ -54,7 +54,7 @@ public class WishListDAO {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             WishList wishlist = new WishList();
-            wishlist.setLibri(new ArrayList<>());
+            wishlist.setLibri(new ArrayList<Libro>());
             while (rs.next()) {
                 wishlist.setEmail(rs.getString(1));
                 LibroDAO libroService = new LibroDAO();

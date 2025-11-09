@@ -16,9 +16,9 @@ public class RigaOrdineDAO {
     /*@ public behavior
       @ requires rigaOrdine != null;
       @ requires rigaOrdine.getIdOrdine() != null && rigaOrdine.getIdOrdine().length() > 0;
-      @ requires rigaOrdine.getIsbn() != null && rigaOrdine.getIsbn().length() > 0;
-      @ requires rigaOrdine.getPrezzoUnitario() != null && rigaOrdine.getPrezzoUnitario() >= 0.0;
-      @ requires rigaOrdine.getQuantita() != null && rigaOrdine.getQuantita() >= 1;
+      @ requires rigaOrdine.getLibro().getIsbn() != null && rigaOrdine.getLibro().getIsbn().length() > 0;
+      @ requires rigaOrdine.getPrezzoUnitario() >= 0.0;
+      @ requires rigaOrdine.getQuantita() >= 1;
       @ assignable \nothing;
       @ ensures true;
       @ signals (RuntimeException e) true;

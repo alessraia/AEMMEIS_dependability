@@ -51,7 +51,7 @@ public class RigaCarrelloDAO {
     @ requires idCarrello != null && !idCarrello.isEmpty();
     @ requires isbn != null && !isbn.isEmpty();
     @ assignable \nothing;
-    @ ensures \result == null ||  \result!= null && \result.getIdCarrello() != null && !\result.getIdCarrello().isEmpty && \result.getIdCarrello().equals(idCarrello) && \result.getQuantità() >= 0 && \result.getLibro() != null;
+    @ ensures \result == null ||  \result!= null && \result.getIdCarrello() != null && !\result.getIdCarrello().isEmpty() && \result.getIdCarrello().equals(idCarrello) && \result.getQuantita() >= 0 && \result.getLibro() != null;
     @ signals_only RuntimeException;
    @*/
     public RigaCarrello doRetriveById(String idCarrello, String isbn){
