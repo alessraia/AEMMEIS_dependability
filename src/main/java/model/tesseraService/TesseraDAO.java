@@ -6,11 +6,26 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TesseraDAO {
+
+
+    /*@
+      @ public behavior
+      @   requires tessera != null;
+      @   requires tessera.getNumero() != null && !tessera.getNumero().isEmpty();
+      @   requires tessera.getDataCreazione() != null && tessera.getDataScadenza() != null;
+      @   requires tessera.getDataScadenza().equals(tessera.getDataCreazione().plusYears(2));
+      @   requires tessera.getEmail() != null && !tessera.getEmail().isEmpty();
+      @   ensures tessera.getNumero().equals(\old(tessera.getNumero()))
+      @        && tessera.getDataCreazione().equals(\old(tessera.getDataCreazione()))
+      @        && tessera.getDataScadenza().equals(\old(tessera.getDataScadenza()))
+      @        && tessera.getEmail().equals(\old(tessera.getEmail()));
+      @   ensures tessera.getPunti() == 50;
+      @   signals_only RuntimeException;
+    @*/
     public void doSave(Tessera tessera){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -30,6 +45,12 @@ public class TesseraDAO {
         }
     }
 
+    /*@
+       @ public behavior
+       @   requires numero != null && !numero.isEmpty();
+       @   assignable \nothing;
+       @   signals_only RuntimeException;
+     @*/
     public void deleteTessera(String numero){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -42,6 +63,13 @@ public class TesseraDAO {
         }
     }
 
+    /*@
+      @ public behavior
+      @ requires tessera != null;
+      @ requires tessera.getNumero() != null && !tessera.getNumero().isEmpty();
+      @ requires tessera.getPunti >= 0;
+      @ signals_only RunTimeException;
+    @*/
     public void updateTessera(Tessera tessera){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE tessera SET punti = ? WHERE numero = ?");
@@ -55,6 +83,22 @@ public class TesseraDAO {
 
     }
 
+    /*@
+      @ public behavior
+      @   assignable \nothing;
+      @   ensures \result != null;
+      @   ensures (\forall int i; 0 <= i && i < \result.size();
+      @              \result.get(i) != null
+      @           && \result.get(i).getNumero() != null
+      @           && !\result.get(i).getNumero().isEmpty()
+      @           && \result.get(i).getDataCreazione() != null
+      @           && \result.get(i).getDataScadenza() != null
+      @           && !\result.get(i).getDataScadenza().isBefore(\result.get(i).getDataCreazione())
+      @           && \result.get(i).getEmail() != null
+      @           && !\result.get(i).getEmail().isEmpty()
+      @          );
+      @   signals_only RuntimeException;
+    @*/
     public List<Tessera> doRetrivedAll(){
         List<Tessera> tessere = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -76,6 +120,14 @@ public class TesseraDAO {
             throw new RuntimeException(e);
         }
     }
+
+     /*@
+     @ public behavior
+     @ ensures \result != null
+     @ assignable \nothing;
+     @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null && \result.get(i).size() != 0);
+     @ signals_only RuntimeException;
+    @*/
     public List<String> doRetrivedAllByNumero(){
         List<String> numeri = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -92,6 +144,24 @@ public class TesseraDAO {
         }
     }
 
+    /*@
+      @ public behavior
+      @   requires numero != null && !numero.isEmpty();
+      @   assignable \nothing;
+      @   ensures \result == null
+      @        || (
+      @             \result.getNumero() != null
+      @          && !\result.getNumero().isEmpty()
+      @          && \result.getNumero().equals(numero)
+      @          && \result.getDataCreazione() != null
+      @          && \result.getDataScadenza() != null
+      @          && !\result.getDataScadenza().isBefore(\result.getDataCreazione())
+      @          && \result.getEmail() != null
+      @          && !\result.getEmail().isEmpty()
+      @          && \result.getPunti >= 0
+      @        );
+      @   signals_only RuntimeException;
+    @*/
     public Tessera doRetrieveById(String numero) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -113,6 +183,24 @@ public class TesseraDAO {
         }
     }
 
+    /*@
+      @ public behavior
+      @   requires email != null && !email.isEmpty();
+      @   assignable \nothing;
+      @   ensures \result == null
+      @        || (
+      @             \result.getEmail() != null
+      @          && !\result.getEmail().isEmpty()
+      @          && \result.getEmail().equals(email)
+      @          && \result.getDataCreazione() != null
+      @          && \result.getDataScadenza() != null
+      @          && !\result.getDataScadenza().isBefore(\result.getDataCreazione())
+      @          && \result.getNumero() != null
+      @          && !\result.getNumero().isEmpty()
+      @          && \result.getPunti >= 0
+      @        );
+      @   signals_only RuntimeException;
+    @*/
     public Tessera doRetrieveByEmail(String email) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =

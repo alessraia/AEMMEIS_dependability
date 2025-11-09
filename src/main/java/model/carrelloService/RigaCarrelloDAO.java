@@ -14,6 +14,21 @@ import java.util.List;
 
 public class RigaCarrelloDAO {
 
+
+    /*@
+     @ public behavior
+     @ requires idCarrello != null && !idCarrello.isEmpty();
+     @ ensures \result != null
+     @ assignable \nothing;
+     @ ensures (\forall int i = 0; 0 <= i <= \result.size();
+     @          \result.get(i) != null
+     @          && \result.get(i).getIdCarrello() != null && !\result.get(i).getIdCarrello().isEmpty
+     @          && \result.get(i).getIdCarrello().equals(idCarrello)
+     @          && \result.get(i).getQuantità() >= 0
+     @          && \result.get(i).getLibro() != null
+     @ );
+     @ signals_only RunTimeException
+    @*/
     public List<RigaCarrello> doRetrieveByIdCarrello(String idCarrello) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -37,6 +52,20 @@ public class RigaCarrelloDAO {
         }
     }
 
+    /*@
+    @ public behavior
+    @ requires idCarrello != null && !idCarrello.isEmpty();
+    @ requires isbn != null && !isbn.isEmpty();
+    @ assignable \nothing;
+    @ ensures \return == null || (\forall int i = 0; 0 <= i <= \result.size();
+    @          \result.get(i) != null
+    @          && \result.get(i).getIdCarrello() != null && !\result.get(i).getIdCarrello().isEmpty
+    @          && \result.get(i).getIdCarrello().equals(idCarrello)
+    @          && \result.get(i).getQuantità() >= 0
+    @          && \result.get(i).getLibro() != null
+    @ );
+    @ signals_only RunTimeException
+   @*/
     public RigaCarrello doRetriveById(String idCarrello, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -58,6 +87,16 @@ public class RigaCarrelloDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /*@
+    @ public behavior
+    @ requires rigaCarrello != null;
+    @ assignable \nothing;
+    @ requires rigaCarrello.getIdCarrello() != null && !rigaCarrello.getIdCarrello.isEmpty();
+    @ requires rigaCarrello.getLibro() != null;
+    @ requires rigaCarrello.getQuantita() >= 0;
+    @ signals_only RunTimeException
+   @*/
     public void doSave(RigaCarrello rigaCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -72,6 +111,14 @@ public class RigaCarrelloDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /*@
+    @ public behavior
+    @ requires idCarrello != null && !idCarrello.isEmpty();
+    @ requires isbn != null && !isbn.isEmpty();
+    @ assignable \nothing;
+    @ signals_only RunTimeException
+   @*/
     public void deleteRigaCarrello(String isbn, String idCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -85,6 +132,12 @@ public class RigaCarrelloDAO {
         }
     }
 
+    /*@
+    @ public behavior
+    @ requires idCarrello != null && !idCarrello.isEmpty();
+    @ assignable \nothing;
+    @ signals_only RunTimeException
+   @*/
     public void deleteRigheCarrelloByIdCarrello(String idCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -97,7 +150,15 @@ public class RigaCarrelloDAO {
         }
     }
 
-
+    /*@
+    @ public behavior
+    @ requires rigaCarrello != null;
+    @ assignable \nothing;
+    @ requires rigaCarrello.getIdCarrello() != null && !rigaCarrello.getIdCarrello.isEmpty();
+    @ requires rigaCarrello.getLibro() != null;
+    @ requires rigaCarrello.getQuantita() >= 0;
+    @ signals_only RunTimeException
+   @*/
     public void updateQuantita(RigaCarrello rigaCarrello){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE rigaCarrello SET quantita = ? WHERE isbn = ? AND idCarrello=?");

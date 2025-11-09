@@ -13,6 +13,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CarrelloDAO {
+
+    /*@
+     @ public behavior
+     @ requires carrello != null;
+     @ assignable \nothing;
+     @ requires carrello.getIdCarrello() != null && !carrello.getIdCarrello().isEmpty();
+     @ requires carrello.getEmail() != null && !carrello.getEmail().isEmpty();
+     @ requires carrello.getTotale() >= 0;
+     @ signals_only RuntimeException;
+    @*/
     public void doSave(Carrello carrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -29,6 +39,12 @@ public class CarrelloDAO {
         }
     }
 
+    /*@
+     @ public behavior
+     @ requires idCarrello != null && !idCarrello.isEmpty();
+     @ assignment \nothing;
+     @ signals_only RuntimeException;
+    @*/
     public void deleteCarrello(String idCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -41,6 +57,14 @@ public class CarrelloDAO {
         }
     }
 
+    /*@
+     @ public behavior
+     @ assignable \nothing;
+     @ requires carrello != null;
+     @ requires carrello.getIdCarrello() != null && !carrello.getIdCarrello().isEmpty();
+     @ requires carrello.getTotale() >= 0;
+     @ signals_only RuntimeException;
+    @*/
     public void updateCarrello(Carrello carrello){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE carrello SET totale = ? WHERE idCarrello = ?");
@@ -54,6 +78,18 @@ public class CarrelloDAO {
 
     }
 
+    /*@
+     @ public behavior
+     @ assignable \nothing;
+     @ requires idCarrello != null && !idCarrello.isEmpty();
+     @ ensures \result == null
+     @          || (\result.getIdCarrello() != null && !\result.getIdCarrello().isEmpty()
+     @          && \result.getEmail() != null && !\result.getEmail().isEmpty()
+     @          && \result.getTotale() >= 0
+     @          && \result.getRigheCarrello != null
+     @ );
+     @ signals_only RuntimeException;
+    @*/
     public Carrello doRetriveById(String idCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -74,6 +110,19 @@ public class CarrelloDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /*@
+     @ public behavior
+     @ assignable \nothing;
+     @ requires email != null && !email.isEmpty();
+     @ ensures \result == null
+     @          || (\result.getIdCarrello() != null && !\result.getIdCarrello().isEmpty()
+     @          && \result.getEmail() != null && !\result.getEmail().isEmpty()
+     @          && \result.getTotale() >= 0
+     @          && \result.getRigheCarrello != null
+     @ );
+     @ signals_only RuntimeException;
+    @*/
     public Carrello doRetriveByUtente(String email){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -94,6 +143,16 @@ public class CarrelloDAO {
             throw new RuntimeException(e);
         }
     }
+
+    /*@
+     @ public behavior
+     @ ensures \result != null;
+     @ assignable \nothing;
+     @ ensures (\forall int i; 0 <= i && i < \result.size();
+     @              \result.get(i) != null && !\result.get(i).isEmpty()
+     @ );
+     @ signals_only RuntimeException;
+    @*/
     public List<String> doRetrivedAllIdCarrelli(){
         List<String>  idCarrello = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {

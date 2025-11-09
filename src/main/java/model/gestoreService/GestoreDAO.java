@@ -10,6 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GestoreDAO {
+
+
+    /*@
+     @ public behavior
+     @ requires gestore != null;
+     @ requires gestore.getMatricola() != null && !gestore.getMatricola().isEmpty;
+     @ requires gestore.getStipendio() >= 0;
+     @ signals_only RuntimeException;
+    @*/
     public void doSave(Gestore gestore){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
@@ -24,6 +33,12 @@ public class GestoreDAO {
         }
     }
 
+  /*@
+      @ public behavior
+      @ requires matricola != null && !matricola.isEmpty();
+      @ assignable \nothing;
+      @ signals_only RuntimeException;
+    @*/
     public void deleteGestore(String matricola){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -36,6 +51,13 @@ public class GestoreDAO {
         }
     }
 
+    /*@
+    @ public behavior
+    @ requires gestore != null;
+    @ requires gestore.getMatricola() != null && !gestore.getMatricola().isEmpty;
+    @ requires gestore.getStipendio() >= 0;
+    @ signals_only RuntimeException;
+   @*/
     public void updateGestore(Gestore gestore){
         try(Connection con = ConPool.getConnection()){
             PreparedStatement ps = con.prepareStatement("UPDATE gestore SET stipendio = ? WHERE matricola = ?");
@@ -49,6 +71,12 @@ public class GestoreDAO {
 
     }
 
+    /*@
+     @ public behavior
+     @ ensure \result != null;
+     @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
+     @ signals_only RunTimeException
+    @*/
     public List<Gestore> doRetrivedAll(){
         List<Gestore> gestori = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -68,6 +96,12 @@ public class GestoreDAO {
         }
     }
 
+    /*@
+     @ public behavior
+     @ requires metricola != null;
+     @ ensures (\result == null) || (\result != null && \result.getMatricola() != null && \result.getMatricola().equals(matricola) && \result.getStipendio()!=null && !Double.isNAN(\result.getStipendio()));
+     @ signals_only RuntimeException;
+    @*/
     public Gestore doRetrieveById(String matricola) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
