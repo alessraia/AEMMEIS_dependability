@@ -42,7 +42,7 @@ public class CarrelloDAO {
     /*@
      @ public behavior
      @ requires idCarrello != null && !idCarrello.isEmpty();
-     @ assignment \nothing;
+     @ assignable \nothing;
      @ signals_only RuntimeException;
     @*/
     public void deleteCarrello(String idCarrello){

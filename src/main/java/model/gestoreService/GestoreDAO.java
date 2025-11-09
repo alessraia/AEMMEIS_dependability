@@ -73,9 +73,9 @@ public class GestoreDAO {
 
     /*@
      @ public behavior
-     @ ensure \result != null;
+     @ ensures \result != null;
      @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
-     @ signals_only RunTimeException
+     @ signals_only RunTimeException;
     @*/
     public List<Gestore> doRetrivedAll(){
         List<Gestore> gestori = new ArrayList<>();
@@ -98,7 +98,7 @@ public class GestoreDAO {
 
     /*@
      @ public behavior
-     @ requires metricola != null;
+     @ requires matricola != null;
      @ ensures (\result == null) || (\result != null && \result.getMatricola() != null && \result.getMatricola().equals(matricola) && \result.getStipendio()!=null && !Double.isNAN(\result.getStipendio()));
      @ signals_only RuntimeException;
     @*/

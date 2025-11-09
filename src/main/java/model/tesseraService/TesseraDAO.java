@@ -123,7 +123,7 @@ public class TesseraDAO {
 
      /*@
      @ public behavior
-     @ ensures \result != null
+     @ ensures \result != null;
      @ assignable \nothing;
      @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null && \result.get(i).size() != 0);
      @ signals_only RuntimeException;
