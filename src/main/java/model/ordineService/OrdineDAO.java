@@ -22,7 +22,7 @@ public class OrdineDAO {
       @   requires ordine.getStato() != null && ordine.getStato().length() > 0;
       @   requires ordine.getCitta() != null && ordine.getCitta().length() > 0;
       @   requires ordine.getMatricola() != null && ordine.getMatricola().length() > 0;
-      @   requires ordine.getRigheOrdine() != null
+      @   requires ordine.getRigheOrdine() != null;
       @   assignable \nothing;
       @   ensures true;
       @   signals (RuntimeException e) true;

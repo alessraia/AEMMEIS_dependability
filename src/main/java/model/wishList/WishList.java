@@ -47,7 +47,7 @@ public class WishList {
     /*@ public normal_behavior
       @   requires libri != null;
       @   requires libro != null;
-      @   assignable this.libri.*;
+      @   assignable this.libri;
       @   ensures libri.contains(libro);
       @*/
     public void addLibro(Libro libro){

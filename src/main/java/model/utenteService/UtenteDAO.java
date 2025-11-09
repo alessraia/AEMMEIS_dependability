@@ -21,9 +21,7 @@ public class UtenteDAO {
       @   requires email != null && email.length() > 0;
       @   assignable \nothing;
       @   ensures \result == null
-      @        || (\result.getEmail() != null
-      @            && \result.getEmail().equals(email) && \result.getNomeUtente() != null
-      @            && \result.getCodiceSicurezza() != null && \result.getTipo() != null && \result.getTelefoni() != null);
+      @        || (\result.getEmail() != null && \result.getEmail().equals(email) && \result.getNomeUtente() != null && \result.getCodiceSicurezza() != null && \result.getTipo() != null && \result.getTelefoni() != null);
       @   signals (RuntimeException e) true;
       @*/
     public Utente doRetrieveById(String email) {
@@ -116,17 +114,20 @@ public class UtenteDAO {
 
     }
 
-    /*@ public behavior
-      @   assignable \nothing;
-      @   ensures \result != null;
-      @   ensures (\forall int i; 0 <= i && i < \result.size();
-      @               \result.get(i) != null
-      @               && \result.get(i).getEmail() != null && \result.get(i).getEmail().length() > 0);
-      @               && \result.get(i).getNomeUtente() != null
-      @               && \result.get(i).getCodiceSicurezza() != null && \result.get(i).getCodiceSicurezza().length() > 0
-      @               && \result.get(i).getTipo() != null && \result.get(i).getTipo().length() > 0;
-      @   signals (RuntimeException e) true;
-      @*/
+    /*@ public normal_behavior
+  @   assignable \nothing;
+  @   ensures \result != null;
+  @   ensures (\forall int i; 0 <= i && i < \result.size();
+  @              \result.get(i) != null
+  @           && \result.get(i).getEmail() != null
+  @           && \result.get(i).getEmail().length() > 0
+  @           && \result.get(i).getNomeUtente() != null
+  @           && \result.get(i).getCodiceSicurezza() != null
+  @           && \result.get(i).getCodiceSicurezza().length() > 0
+  @           && \result.get(i).getTipo() != null
+  @           && \result.get(i).getTipo().length() > 0);
+  @   signals (RuntimeException e) true;
+  @*/
     public List<Utente> doRetrieveAll() {
         List<Utente> utenti = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
@@ -303,14 +304,15 @@ public class UtenteDAO {
 //mi serve una funzione che cerchi i numeri di telefono di un utente e li salvi nella lista
 //così da non perdere l'informazione quando si fa il login.
 
-    /*@ public behavior
-     @   requires email != null && email.length() > 0;
-     @   assignable \nothing;
-     @   ensures \result != null;
-     @   ensures (\forall int i; 0 <= i && i < \result.size();
-     @               \result.get(i) != null && \result.get(i).length == 10;
-     @   signals (RuntimeException e) true;
-     @*/
+    /*@ public normal_behavior
+  @   requires email != null && email.length() > 0;
+  @   assignable \nothing;
+  @   ensures \result != null;
+  @   ensures (\forall int i; 0 <= i && i < \result.size();
+  @              \result.get(i) != null
+  @           && \result.get(i).length() == 10);
+  @   signals (RuntimeException e) true;
+  @*/
     public List<String> cercaTelefoni(String email) {
         List<String> telefoni = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {

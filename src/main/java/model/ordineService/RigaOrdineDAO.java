@@ -14,7 +14,7 @@ import java.util.List;
 public class RigaOrdineDAO {
 
     /*@ public behavior
-      @ requires rigaOrdine != null
+      @ requires rigaOrdine != null;
       @ requires rigaOrdine.getIdOrdine() != null && rigaOrdine.getIdOrdine().length() > 0;
       @ requires rigaOrdine.getIsbn() != null && rigaOrdine.getIsbn().length() > 0;
       @ requires rigaOrdine.getPrezzoUnitario() != null && rigaOrdine.getPrezzoUnitario() >= 0.0;
@@ -40,15 +40,16 @@ public class RigaOrdineDAO {
     }
 
     /*@ public behavior
-      @ requires idOrdine != null && idOrdine.lenght >= 0
-      @ assignable \nothing;
-      @ ensures \result != null
-      @      && (\forall int i; 0 <= i && i < \result.size();
-      @             \result.get(i) != null
-      @          && idOrdine.equals(\result.get(i).getIdOrdine())
-      @          && \result.get(i).getPrezzoUnitario() >= 0.0 && \result.get(i).getQuantita() >= 1);
-      @ signals (RuntimeException e) true;
-      @*/
+  @   requires idOrdine != null && idOrdine.length() > 0;
+  @   assignable \nothing;
+  @   ensures \result != null;
+  @   ensures (\forall int i; 0 <= i && i < \result.size();
+  @              \result.get(i) != null
+  @           && idOrdine.equals(\result.get(i).getIdOrdine())
+  @           && \result.get(i).getPrezzoUnitario() >= 0.0
+  @           && \result.get(i).getQuantita() >= 1);
+  @   signals (RuntimeException e) true;
+  @*/
     public List<RigaOrdine> doRetrivedByOrdine(String idOrdine) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -74,13 +75,18 @@ public class RigaOrdineDAO {
     }
 
     /*@ public behavior
-      @ requires idOrdine != null && idOrdine.length > 0;
-      @ requires isbn != null && isbn.length > 0;
-      @ assignable \nothing;
-      @ ensure \result != null && result.getIdOrdine().equals(idOrdine) && result.getLibro().getIsbn().equals(isbn)
-      @            && \result.getPrezzoUnitario() >= 0.0 && \result.getQuantita() >= 1;
-      @ signals (RuntimeException e) true;
-      */
+  @   requires idOrdine != null && idOrdine.length() > 0;
+  @   requires isbn != null && isbn.length() > 0;
+  @   assignable \nothing;
+  @   ensures \result == null
+  @        || ( \result.getIdOrdine() != null
+  @          && \result.getIdOrdine().equals(idOrdine)
+  @          && \result.getLibro() != null
+  @          && \result.getLibro().getIsbn().equals(isbn)
+  @          && \result.getPrezzoUnitario() >= 0.0
+  @          && \result.getQuantita() >= 1 );
+  @   signals (RuntimeException e) true;
+  @*/
     public RigaOrdine doRetriveById(String idOrdine, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
