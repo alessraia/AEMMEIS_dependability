@@ -78,7 +78,7 @@ public class GestoreDAO {
      @ signals_only RuntimeException;
     @*/
     public List<Gestore> doRetrivedAll(){
-        List<Gestore> gestori = new ArrayList<>();
+        List<Gestore> gestori = new ArrayList<Gestore>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
                     con.prepareStatement("SELECT * FROM gestore");

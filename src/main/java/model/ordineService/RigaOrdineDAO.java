@@ -56,7 +56,7 @@ public class RigaOrdineDAO {
                     con.prepareStatement("SELECT * FROM rigaordine WHERE idOrdine=?");
             ps.setString(1, idOrdine);
             ResultSet rs = ps.executeQuery();
-            List<RigaOrdine> lista = new ArrayList<>();
+            List<RigaOrdine> lista = new ArrayList<RigaOrdine>();
             while (rs.next()) {
                 RigaOrdine p = new RigaOrdine();
                 LibroDAO libroService= new LibroDAO();

@@ -91,7 +91,7 @@ public class AutoreDAO {
             PreparedStatement ps =
                     con.prepareStatement("SELECT isbn FROM scrittura WHERE cf=?");
             ps.setString(1, cf);
-            List<Libro> lista = new ArrayList<>();
+            List<Libro> lista = new ArrayList<Libro>();
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String isbn = rs.getString(1);

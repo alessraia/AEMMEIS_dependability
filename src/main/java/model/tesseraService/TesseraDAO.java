@@ -100,7 +100,7 @@ public class TesseraDAO {
       @   signals_only RuntimeException;
     @*/
     public List<Tessera> doRetrivedAll(){
-        List<Tessera> tessere = new ArrayList<>();
+        List<Tessera> tessere = new ArrayList<Tessera>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
                     con.prepareStatement("SELECT * FROM tessera");

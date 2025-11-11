@@ -44,7 +44,7 @@ class ProcediOrdineTest {
         user.setTipo("standard");
         when(session.getAttribute("utente")).thenReturn(user);
 
-        List<RigaCarrello> righeDisponibili = new ArrayList<>();
+        List<RigaCarrello> righeDisponibili = new ArrayList<RigaCarrello>();
         Libro libro = new Libro();
         libro.setDisponibile(true);
         RigaCarrello rigaCarrello = new RigaCarrello();

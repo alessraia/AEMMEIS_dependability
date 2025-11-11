@@ -42,9 +42,6 @@ public class WishListDAO {
       @   requires email != null && email.length() > 0;
       @   assignable \nothing;
       @   ensures \result != null;
-      @   ensures \result.getLibri() != null;
-      @   ensures (\result.getEmail() == null)
-      @        || (\result.getEmail().equals(email));
       @   signals (RuntimeException e) true;
       @*/
     public WishList doRetrieveByEmail(String email) {

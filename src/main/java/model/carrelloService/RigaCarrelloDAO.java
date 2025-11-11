@@ -20,7 +20,7 @@ public class RigaCarrelloDAO {
      @ requires idCarrello != null && !idCarrello.isEmpty();
      @ ensures \result != null;
      @ assignable \nothing;
-     @ ensures (\forall int i; 0 <= i && i <= \result.size(); \result.get(i) != null && \result.get(i).getIdCarrello() != null && !\result.get(i).getIdCarrello().isEmpty() && \result.get(i).getIdCarrello().equals(idCarrello) && \result.get(i).getQuantita() >= 0 && \result.get(i).getLibro() != null);
+     @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null && \result.get(i).getIdCarrello() != null && !\result.get(i).getIdCarrello().isEmpty() && \result.get(i).getIdCarrello().equals(idCarrello) && \result.get(i).getQuantita() >= 0 && \result.get(i).getLibro() != null);
      @ signals_only RuntimeException;
     @*/
     public List<RigaCarrello> doRetrieveByIdCarrello(String idCarrello) {
@@ -29,7 +29,7 @@ public class RigaCarrelloDAO {
                     con.prepareStatement("SELECT * FROM rigacarrello WHERE idCarrello=?");
             ps.setString(1, idCarrello);
             ResultSet rs = ps.executeQuery();
-            List<RigaCarrello> lista = new ArrayList<>();
+            List<RigaCarrello> lista = new ArrayList<RigaCarrello>();
             while (rs.next()) {
                 RigaCarrello p = new RigaCarrello();
                 LibroDAO libroService= new LibroDAO();

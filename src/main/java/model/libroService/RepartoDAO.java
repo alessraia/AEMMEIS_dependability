@@ -133,7 +133,7 @@ public class RepartoDAO {
     //@ assignable \nothing;
     //@ signals_only RuntimeException;
     public List<Reparto> doRetrivedAll(){
-        List<Reparto> reparti = new ArrayList<>();
+        List<Reparto> reparti = new ArrayList<Reparto>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
                     con.prepareStatement("SELECT * FROM reparto");
@@ -192,7 +192,7 @@ public class RepartoDAO {
             PreparedStatement ps =
                     con.prepareStatement("SELECT isbn FROM appartenenza WHERE idReparto=?");
             ps.setInt(1, idReparto);
-            List<Libro> lista=new ArrayList<>();
+            List<Libro> lista=new ArrayList<Libro>();
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String isbn = rs.getString(1);

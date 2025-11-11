@@ -129,7 +129,7 @@ public class UtenteDAO {
   @   signals (RuntimeException e) true;
   @*/
     public List<Utente> doRetrieveAll() {
-        List<Utente> utenti = new ArrayList<>();
+        List<Utente> utenti = new ArrayList<Utente>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
                     con.prepareStatement("SELECT * FROM utente");

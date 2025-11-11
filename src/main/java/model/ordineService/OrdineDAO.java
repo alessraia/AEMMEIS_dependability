@@ -112,7 +112,7 @@ public class OrdineDAO {
             PreparedStatement ps =
                     con.prepareStatement("SELECT * FROM ordine WHERE email=?");
             ps.setString(1, email);
-            List<Ordine> ordini=new ArrayList<>();
+            List<Ordine> ordini=new ArrayList<Ordine>();
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 ordini.add(doRetrieveById(rs.getString(1)));

@@ -55,7 +55,7 @@ class AggiungiAiPrefServletTest {
 
         // 3) La WishList in session è inizialmente vuota
         WishList wishList = new WishList();
-        wishList.setLibri(new ArrayList<>());
+        wishList.setLibri(new ArrayList<Libro>());
         when(session.getAttribute("wishList")).thenReturn(wishList);
 
         // 4) Stiamo restituendo un JSON come response, quindi simuliamo l'output writer
@@ -121,7 +121,7 @@ class AggiungiAiPrefServletTest {
         WishList wishList = new WishList();
         Libro libroEsistente = new Libro();
         libroEsistente.setIsbn(isbn);
-        wishList.setLibri(new ArrayList<>(java.util.List.of(libroEsistente)));
+        wishList.setLibri(new ArrayList<Libro>(java.util.List.of(libroEsistente)));
         when(session.getAttribute("wishList")).thenReturn(wishList);
 
         // 4) Simuliamo writer

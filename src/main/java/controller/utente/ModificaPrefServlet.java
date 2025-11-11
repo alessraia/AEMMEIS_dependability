@@ -66,7 +66,7 @@ public class ModificaPrefServlet extends HttpServlet {
                 if (flag)// se il libro non è presente, lo aggiungo
                     wishList.getLibri().add(libro);
             } else {
-                wishList.setLibri(new ArrayList<>());
+                wishList.setLibri(new ArrayList<model.libroService.Libro>());
                 wishList.getLibri().add(libro);
             }
             session.setAttribute("wishList", wishList);

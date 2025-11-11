@@ -8,11 +8,11 @@ import java.util.List;
 public class LibroDAO {
 
     //@ requires libro != null;
-    //@ requires libro.getIsbn() != null;
-    //@ requires libro.getTitolo() != null;
-    //@ requires libro.getPrezzo() >= 0;
-    //@ requires libro.getSconto() >= 0 && libro.getSconto() <= 100;
-    //@ requires libro.getAutori() != null;
+    //@ requires libro.isbn != null;
+    //@ requires libro.titolo != null;
+    //@ requires libro.prezzo >= 0;
+    //@ requires libro.sconto >= 0 && libro.sconto <= 100;
+    //@ requires libro.autori != null;
     //@ assignable \nothing; // Modifica solo il database
     //@ signals_only RuntimeException;
     //@ signals (RuntimeException e) (* errore nell'inserimento nel database *);
@@ -82,8 +82,8 @@ public class LibroDAO {
     }
 
     //@ requires libro != null;
-    //@ requires libro.getIsbn() != null;
-    //@ requires libro.getSconto() >= 0 && libro.getSconto() <= 100;
+    //@ requires libro.isbn != null;
+    //@ requires libro.sconto >= 0 && libro.sconto <= 100;
     //@ assignable \nothing;
     //@ signals_only RuntimeException;
     public void updateLibroSconto(Libro libro){
@@ -100,10 +100,10 @@ public class LibroDAO {
     }
 
     //@ requires libro != null;
-    //@ requires libro.getIsbn() != null;
-    //@ requires libro.getTitolo() != null;
-    //@ requires libro.getPrezzo() >= 0;
-    //@ requires libro.getSconto() >= 0 && libro.getSconto() <= 100;
+    //@ requires libro.isbn != null;
+    //@ requires libro.titolo != null;
+    //@ requires libro.prezzo >= 0;
+    //@ requires libro.sconto >= 0 && libro.sconto <= 100;
     //@ assignable \nothing;
     //@ signals_only RuntimeException;
     public void updateLibro(Libro libro){
@@ -126,7 +126,7 @@ public class LibroDAO {
     }
 
     //@ requires libro != null;
-    //@ requires libro.getIsbn() != null;
+    //@ requires libro.isbn != null;
     //@ assignable \nothing;
     //@ signals_only RuntimeException;
     public void updateDisponibile(Libro libro){
@@ -148,7 +148,7 @@ public class LibroDAO {
     //@ signals_only RuntimeException;
     //@ pure
     public List<Libro> doRetriveAll(){
-        List<Libro> libri = new ArrayList<>();
+        List<Libro> libri = new ArrayList<Libro>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
                     con.prepareStatement("SELECT * FROM libro");
@@ -222,7 +222,7 @@ public class LibroDAO {
                     con.prepareStatement("SELECT cf FROM scrittura WHERE isbn=?");
             ps.setString(1, isbn);
             ResultSet rs = ps.executeQuery();
-            List<Autore> autori = new ArrayList<>();
+            List<Autore> autori = new ArrayList<Autore>();
             while (rs.next()) {
                 String cf = rs.getString(1);
                 AutoreDAO service = new AutoreDAO();
@@ -247,7 +247,7 @@ public class LibroDAO {
                     con.prepareStatement("SELECT idReparto FROM appartenenza WHERE isbn=?");
             ps.setString(1, isbn);
             ResultSet rs = ps.executeQuery();
-            List<Reparto> reparti = new ArrayList<>();
+            List<Reparto> reparti = new ArrayList<Reparto>();
             while (rs.next()) {
                 int idReparto = rs.getInt(1);
                 RepartoDAO service = new RepartoDAO();
@@ -272,7 +272,7 @@ public class LibroDAO {
                     con.prepareStatement("SELECT idSede FROM presenza WHERE isbn=?");
             ps.setString(1, isbn);
             ResultSet rs = ps.executeQuery();
-            List<Sede> sedi = new ArrayList<>();
+            List<Sede> sedi = new ArrayList<Sede>();
             while (rs.next()) {
                 int idSede = rs.getInt(1);
                 SedeDAO service = new SedeDAO();
@@ -286,7 +286,7 @@ public class LibroDAO {
 
     //@ requires isbn != null;
     //@ requires autore != null;
-    //@ requires autore.getCf() != null;
+    //@ requires autore.cf != null;
     //@ assignable \nothing;
     //@ signals_only RuntimeException;
     //@ signals (RuntimeException e) (* errore nella cancellazione dal database *);
@@ -308,7 +308,7 @@ public class LibroDAO {
 
     //@ requires isbn != null;
     //@ requires autore != null;
-    //@ requires autore.getCf() != null;
+    //@ requires autore.cf != null;
     //@ assignable \nothing;
     //@ signals_only RuntimeException;
     public void addAutore(String isbn, Autore autore){
@@ -342,7 +342,7 @@ public class LibroDAO {
             ps.setString(2, query + "%");
 
             ResultSet rs = ps.executeQuery();
-            List<Libro> libri = new ArrayList<>();
+            List<Libro> libri = new ArrayList<Libro>();
             while (rs.next()) {
                 Libro p = new Libro();
                 p.setIsbn(rs.getString(1));
