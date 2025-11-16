@@ -28,6 +28,7 @@ public class RimuoviDalCartServlet extends HttpServlet {
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
+            return;
         }
         Carrello carrello = (Carrello) session.getAttribute("carrello");
 

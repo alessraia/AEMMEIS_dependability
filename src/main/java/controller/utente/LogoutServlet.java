@@ -23,22 +23,47 @@ import java.util.List;
 
 @WebServlet("/log-out")
 public class LogoutServlet extends HttpServlet {
+    // Allow dependency injection for testing
+    private model.carrelloService.CarrelloDAO carrelloDAO;
+    private model.wishList.WishListDAO wishListDAO;
+    private model.carrelloService.RigaCarrelloDAO rigaCarrelloDAO;
+    private model.libroService.RepartoDAO repartoDAO;
+
+    public void setCarrelloDAO(model.carrelloService.CarrelloDAO carrelloDAO) { this.carrelloDAO = carrelloDAO; }
+    public void setWishListDAO(model.wishList.WishListDAO wishListDAO) { this.wishListDAO = wishListDAO; }
+    public void setRigaCarrelloDAO(model.carrelloService.RigaCarrelloDAO rigaCarrelloDAO) { this.rigaCarrelloDAO = rigaCarrelloDAO; }
+    public void setRepartoDAO(model.libroService.RepartoDAO repartoDAO) { this.repartoDAO = repartoDAO; }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
-        CarrelloDAO carrelloDAO = new CarrelloDAO();
-        WishListDAO wishListDAO = new WishListDAO();
+    CarrelloDAO carrelloDAO = (this.carrelloDAO != null) ? this.carrelloDAO : new CarrelloDAO();
+    WishListDAO wishListDAO = (this.wishListDAO != null) ? this.wishListDAO : new WishListDAO();
+        Utente utente = (Utente) session.getAttribute("utente");
+
+        // If user is an admin (Gestore) we only refresh reparti in the servlet context
+        // and do not touch cart/wishlist persistence since admins don't have them.
+        if (utente != null && Validator.checkIfUserAdmin(utente)) {
+            getServletContext().removeAttribute("reparti");
+            RepartoDAO service = (this.repartoDAO != null) ? this.repartoDAO : new RepartoDAO();
+            List<Reparto> reparti = service.doRetrivedAll();
+            getServletContext().setAttribute("reparti", reparti);
+            session.invalidate();
+            response.sendRedirect("index.html");
+            return;
+        }
+
         Carrello carrello = (Carrello) session.getAttribute("carrello");
         WishList wishList = (WishList) session.getAttribute("wishList");
-        Utente utente = (Utente) session.getAttribute("utente");
-        wishList.setEmail(utente.getEmail());
+        if (wishList != null && utente != null) {
+            wishList.setEmail(utente.getEmail());
+        }
 
         try{
-            RigaCarrelloDAO rigaCarrelloService = new RigaCarrelloDAO();
+            RigaCarrelloDAO rigaCarrelloService = (this.rigaCarrelloDAO != null) ? this.rigaCarrelloDAO : new RigaCarrelloDAO();
             if(carrelloDAO.doRetriveByUtente(utente.getEmail()) != null && !(carrelloDAO.doRetriveByUtente(utente.getEmail()).getRigheCarrello().isEmpty())) {
                 //Carrello carrello2=carrelloDAO.doRetriveByUtente(utente.getEmail());
                 rigaCarrelloService.deleteRigheCarrelloByIdCarrello(carrelloDAO.doRetriveByUtente(utente.getEmail()).getIdCarrello());//elimino ciò che è presente nel db
             }
-            WishListDAO wishListService = new WishListDAO();
+            WishListDAO wishListService = (this.wishListDAO != null) ? this.wishListDAO : new WishListDAO();
             if(wishListDAO.doRetrieveByEmail(utente.getEmail())!= null && !(wishListDAO.doRetrieveByEmail(utente.getEmail()).getLibri().isEmpty())) {
                 wishListService.deleteWishListByEmail(utente.getEmail());//elimino ciò che è presente nel db
             }
@@ -61,7 +86,7 @@ public class LogoutServlet extends HttpServlet {
         //Se l'admin modifica i reparti è necessario apportare modifiche alla lista salvata del serveltContext
         if(Validator.checkIfUserAdmin(utente)){
             getServletContext().removeAttribute("reparti");
-            RepartoDAO service = new RepartoDAO();
+            RepartoDAO service = (this.repartoDAO != null) ? this.repartoDAO : new RepartoDAO();
             List<Reparto> reparti = service.doRetrivedAll();
             getServletContext().setAttribute("reparti", reparti);
         }
