@@ -17,7 +17,8 @@ public class GestoreDAO {
      @ requires gestore != null;
      @ requires gestore.getMatricola() != null && !gestore.getMatricola().isEmpty();
      @ requires gestore.getStipendio() >= 0;
-     @ signals_only RuntimeException;
+     @   signals (RuntimeException e) true;
+     @   signals_only RuntimeException;
     @*/
     public void doSave(Gestore gestore){
         try (Connection con = ConPool.getConnection()) {
@@ -36,8 +37,8 @@ public class GestoreDAO {
   /*@
       @ public behavior
       @ requires matricola != null && !matricola.isEmpty();
-      @ assignable \nothing;
-      @ signals_only RuntimeException;
+      @   signals (RuntimeException e) true;
+      @   signals_only RuntimeException;
     @*/
     public void deleteGestore(String matricola){
         try (Connection con = ConPool.getConnection()) {
@@ -56,7 +57,8 @@ public class GestoreDAO {
     @ requires gestore != null;
     @ requires gestore.getMatricola() != null && !gestore.getMatricola().isEmpty();
     @ requires gestore.getStipendio() >= 0;
-    @ signals_only RuntimeException;
+    @   signals (RuntimeException e) true;
+    @   signals_only RuntimeException;
    @*/
     public void updateGestore(Gestore gestore){
         try(Connection con = ConPool.getConnection()){
@@ -75,7 +77,8 @@ public class GestoreDAO {
      @ public behavior
      @ ensures \result != null;
      @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null);
-     @ signals_only RuntimeException;
+     @   signals (RuntimeException e) true;
+     @   signals_only RuntimeException;
     @*/
     public List<Gestore> doRetrivedAll(){
         List<Gestore> gestori = new ArrayList<Gestore>();
@@ -100,7 +103,8 @@ public class GestoreDAO {
      @ public behavior
      @ requires matricola != null;
      @ ensures (\result == null) || (\result != null && \result.getMatricola() != null && \result.getMatricola().equals(matricola) && \result.getStipendio() >= 0);
-     @ signals_only RuntimeException;
+     @   signals (RuntimeException e) true;
+     @   signals_only RuntimeException;
     @*/
     public Gestore doRetrieveById(String matricola) {
         try (Connection con = ConPool.getConnection()) {

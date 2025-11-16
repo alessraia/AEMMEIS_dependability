@@ -173,7 +173,6 @@ public class LibroDAO {
             throw new RuntimeException(e);
         }
     }
-
     //@ requires isbn != null;
     //@ ensures \result == null || \result.getIsbn().equals(isbn);
     //@ ensures \result != null ==> \result.getTitolo() != null;

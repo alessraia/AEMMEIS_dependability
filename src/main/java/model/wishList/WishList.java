@@ -2,6 +2,7 @@ package model.wishList;
 
 import model.libroService.Libro;
 
+import java.util.ArrayList;
 import java.util.List;
 /*@ nullable_by_default @*/
 public class WishList {
@@ -14,7 +15,8 @@ public class WishList {
       @   ensures \result == email;
       @   assignable \nothing;
       @*/
-    public /*@ pure @*/ String getEmail() {
+    //@ pure
+    public String getEmail() {
         return email;
     }
 
@@ -30,7 +32,8 @@ public class WishList {
       @   ensures \result == libri;
       @   assignable \nothing;
       @*/
-    public /*@ pure @*/ List<Libro> getLibri() {
+    //@ pure
+    public List<Libro> getLibri() {
         return libri;
     }
 
@@ -45,12 +48,14 @@ public class WishList {
     }
 
     /*@ public normal_behavior
-      @   requires libri != null;
       @   requires libro != null;
-      @   assignable this.libri;
-      @   ensures libri.contains(libro);
+      @   ensures this.libri != null;
+      @   ensures this.libri.contains(libro);
       @*/
     public void addLibro(Libro libro){
+        if (libri == null) {
+            libri = new ArrayList<Libro>();
+        }
         libri.add(libro);
     }
 }

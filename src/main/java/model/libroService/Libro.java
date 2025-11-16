@@ -2,7 +2,7 @@ package model.libroService;
 
 import java.util.List;
 import java.util.Objects;
-
+/*@ nullable_by_default @*/
 public class Libro {
     //@ spec_public
     private String isbn;
