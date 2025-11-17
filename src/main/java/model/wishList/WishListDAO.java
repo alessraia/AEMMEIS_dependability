@@ -23,7 +23,6 @@ public class WishListDAO {
       @   signals_only RuntimeException;
       @*/
     public void doSave(WishList wishList, String isbn){
-        if(wishList != null && wishList.getEmail() != null && wishList.getEmail().length() > 0 && isbn != null && isbn.length() == 13) {
            try (Connection con = ConPool.getConnection()) {
                PreparedStatement ps = con.prepareStatement(
                        "INSERT INTO wishlist (email, isbn) VALUES(?,?)");
@@ -37,7 +36,7 @@ public class WishListDAO {
            } catch (SQLException e) {
                throw new RuntimeException(e);
            }
-       }
+
 
     }
 
@@ -48,7 +47,6 @@ public class WishListDAO {
       @   signals_only RuntimeException;
       @*/
     public WishList doRetrieveByEmail(String email) {
-        if(email != null && email.length() > 0) {
             try (Connection con = ConPool.getConnection()) {
                 PreparedStatement ps =
                         con.prepareStatement("SELECT email, isbn FROM wishlist WHERE email=?");
@@ -66,10 +64,6 @@ public class WishListDAO {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        }
-        WishList wishlist = new WishList();
-        wishlist.setLibri(new ArrayList<Libro>());
-        return wishlist;
     }
 
     /*@ public behavior
@@ -79,7 +73,6 @@ public class WishListDAO {
       @   signals_only RuntimeException;
       @*/
     public void deleteLibro(String email, String isbn){
-        if( email!= null && email.length() > 0 && isbn != null && isbn.length() == 13) {
             try (Connection con = ConPool.getConnection()) {
                 PreparedStatement ps =
                         con.prepareStatement("DELETE FROM wishlist WHERE email=? AND isbn =?");
@@ -90,7 +83,7 @@ public class WishListDAO {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
-        }
+
     }
 
     /*@ public behavior
@@ -99,7 +92,6 @@ public class WishListDAO {
       @   signals_only RuntimeException;
       @*/
     public void deleteWishListByEmail(String email){
-        if (email != null && email.length() > 0) {
             try (Connection con = ConPool.getConnection()) {
                 PreparedStatement ps =
                         con.prepareStatement("DELETE FROM wishlist WHERE email=?");
@@ -110,5 +102,4 @@ public class WishListDAO {
                 throw new RuntimeException(e);
             }
         }
-    }
 }
