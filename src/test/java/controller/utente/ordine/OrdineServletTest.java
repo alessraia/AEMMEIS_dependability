@@ -10,9 +10,12 @@ import model.carrelloService.Carrello;
 import model.carrelloService.CarrelloDAO;
 import model.carrelloService.RigaCarrello;
 import model.carrelloService.RigaCarrelloDAO;
+import model.gestoreService.Gestore;
+import model.gestoreService.GestoreDAO;
 import model.libroService.Libro;
 import model.ordineService.Ordine;
 import model.ordineService.OrdineDAO;
+import model.tesseraService.TesseraDAO;
 import model.utenteService.Utente;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +32,8 @@ class OrdineServletTest {
     private RigaCarrelloDAO rigaCarrelloDAO;
     private CarrelloDAO carrelloDAO;
     private OrdineDAO ordineDAO;
+    private TesseraDAO tesseraDAO;
+    private GestoreDAO gestoreDAO;
     private HttpServletRequest request;
     private HttpServletResponse response;
     private HttpSession session;
@@ -44,11 +49,16 @@ class OrdineServletTest {
         ordineDAO = mock(OrdineDAO.class);
         carrelloDAO = mock(CarrelloDAO.class);
         rigaCarrelloDAO = mock(RigaCarrelloDAO.class);
+        tesseraDAO = mock(TesseraDAO.class);
+        gestoreDAO = mock(GestoreDAO.class);
 
         servletUnderTest.setOrdineDAO(ordineDAO);
         servletUnderTest.setCarrelloDAO(carrelloDAO);
         servletUnderTest.setRigaCarrelloDAO(rigaCarrelloDAO);
+        servletUnderTest.setTesseraDAO(tesseraDAO);
+        servletUnderTest.setGestoreDAO(gestoreDAO);
         doNothing().when(ordineDAO).doSave(any(Ordine.class));
+        when(gestoreDAO.doRetrivedAll()).thenReturn(List.of(new Gestore()));
         when(request.getSession()).thenReturn(session);
     }
 

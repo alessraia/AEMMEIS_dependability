@@ -37,8 +37,9 @@ public class OrdineServlet extends HttpServlet {
 
     private OrdineDAO ordineDAO = new OrdineDAO();
     private CarrelloDAO carrelloDAO = new CarrelloDAO();
-
     private RigaCarrelloDAO rigaCarrelloDAO = new RigaCarrelloDAO();
+    private TesseraDAO tesseraDAO = new TesseraDAO();
+    private GestoreDAO gestoreDAO = new GestoreDAO();
 
     public void setRigaCarrelloDAO(RigaCarrelloDAO rigaCarrelloDAO) {
         this.rigaCarrelloDAO = rigaCarrelloDAO;
@@ -50,6 +51,14 @@ public class OrdineServlet extends HttpServlet {
 
     public void setOrdineDAO(OrdineDAO ordineDAO){
         this.ordineDAO = ordineDAO;
+    }
+    
+    public void setTesseraDAO(TesseraDAO tesseraDAO) {
+        this.tesseraDAO = tesseraDAO;
+    }
+    
+    public void setGestoreDAO(GestoreDAO gestoreDAO) {
+        this.gestoreDAO = gestoreDAO;
     }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //prendo ciò che ho in  sessione
@@ -69,7 +78,6 @@ public class OrdineServlet extends HttpServlet {
         //credo gli oggetti che mi serviranno e i relativi services
         Ordine ordine = new Ordine();
         //RigaOrdineDAO rigaOrdineDAO = new RigaOrdineDAO();
-        TesseraDAO tesseraDAO = new TesseraDAO();
         Carrello carrelloDB = carrelloDAO.doRetriveByUtente(utente.getEmail());
 
         //parametri passati da servlet a jsp...
@@ -172,7 +180,6 @@ public class OrdineServlet extends HttpServlet {
         ordine.setRigheOrdine(righeOrdine);
 
         ordine.setStato("In Lavorazione");
-        GestoreDAO gestoreDAO = new GestoreDAO();
         Random rand = new Random();
         List<Gestore> gestoriDispo = gestoreDAO.doRetrivedAll();
         ordine.setMatricola(gestoriDispo.get(rand.nextInt(gestoriDispo.size())).getMatricola());

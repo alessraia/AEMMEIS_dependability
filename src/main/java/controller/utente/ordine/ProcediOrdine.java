@@ -21,6 +21,17 @@ import java.util.List;
 
 @WebServlet("/procedi-ordine")
 public class ProcediOrdine extends HttpServlet {
+    private LibroDAO libroDAO = new LibroDAO();
+    private SedeDAO sedeDAO = new SedeDAO();
+    
+    public void setLibroDAO(LibroDAO libroDAO) {
+        this.libroDAO = libroDAO;
+    }
+    
+    public void setSedeDAO(SedeDAO sedeDAO) {
+        this.sedeDAO = sedeDAO;
+    }
+    
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         Utente utente = (Utente) session.getAttribute("utente");
@@ -28,8 +39,6 @@ public class ProcediOrdine extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
         }
-        LibroDAO libroDAO = new LibroDAO();
-        SedeDAO sedeDAO = new SedeDAO();
 
         List<Sede> sedi = sedeDAO.doRetrivedAll(); //tutte le sedi che abbiamo
         List<Sede> sediDaAggiungere = sedeDAO.doRetrivedAll();

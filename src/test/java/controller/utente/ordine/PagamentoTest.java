@@ -6,6 +6,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import model.carrelloService.RigaCarrello;
 import model.libroService.Libro;
+import model.libroService.Sede;
+import model.libroService.SedeDAO;
 import model.utenteService.Utente;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +25,7 @@ class PagamentoTest {
     private HttpServletResponse response;
     private HttpSession session;
     private RequestDispatcher dispatcher;
+    private SedeDAO sedeDAO;
 
     @BeforeEach
     void setUp() {
@@ -31,7 +34,10 @@ class PagamentoTest {
         response = mock(HttpServletResponse.class);
         session = mock(HttpSession.class);
         dispatcher = mock(RequestDispatcher.class);
-
+        sedeDAO = mock(SedeDAO.class);
+        
+        servletUnderTest.setSedeDAO(sedeDAO);
+        when(sedeDAO.doRetrieveById(anyInt())).thenReturn(new Sede());
         when(request.getSession()).thenReturn(session);
     }
 

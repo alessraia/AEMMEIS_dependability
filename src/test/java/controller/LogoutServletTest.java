@@ -1,3 +1,5 @@
+package controller;
+
 import controller.utente.LogoutServlet;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;

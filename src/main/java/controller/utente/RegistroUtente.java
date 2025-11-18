@@ -21,11 +21,16 @@ import model.utenteService.UtenteDAO;
 public class RegistroUtente extends HttpServlet{
     private UtenteDAO utenteDAO = new UtenteDAO();
     private TesseraDAO tesseraDAO = new TesseraDAO();
+    private CarrelloDAO carrelloDAO = new CarrelloDAO();
+    
     public void setUtenteDAO(UtenteDAO utenteDAO){
         this.utenteDAO = utenteDAO;
     }
     public void setTesseraDAO(TesseraDAO tesseraDAO){
         this.tesseraDAO = tesseraDAO;
+    }
+    public void setCarrelloDAO(CarrelloDAO carrelloDAO){
+        this.carrelloDAO = carrelloDAO;
     }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -91,7 +96,7 @@ public class RegistroUtente extends HttpServlet{
                     tesseraService.doSave(tessera);
                 }
                 //request.getSession().setAttribute("utente", utente);
-                CarrelloDAO carrelloService = new CarrelloDAO();
+                CarrelloDAO carrelloService = carrelloDAO;
                 Carrello carrello = new Carrello();
                 carrello.setEmail(utente.getEmail());
                 carrello.setTotale(0);

@@ -19,12 +19,16 @@ import java.util.ArrayList;
 
 @WebServlet("/aggiungi-ai-preferiti")
 public class AggiungiAiPrefServlet extends HttpServlet {
+    private LibroDAO libroDAO = new LibroDAO();
+    
+    public void setLibroDAO(LibroDAO libroDAO) {
+        this.libroDAO = libroDAO;
+    }
 
     //Nuova servlet per aggiornare i preferiti (creata per utilizzare AJAX)
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String isbn = request.getParameter("isbn"); // Ottieni l'ISBN dal parametro della richiesta
-        LibroDAO libroService = new LibroDAO();
-        Libro libro = libroService.doRetrieveById(isbn);
+        Libro libro = libroDAO.doRetrieveById(isbn);
         HttpSession session = request.getSession();
         Utente utente= (Utente) session.getAttribute("utente");
         if(Validator.checkIfUserAdmin(utente)) {

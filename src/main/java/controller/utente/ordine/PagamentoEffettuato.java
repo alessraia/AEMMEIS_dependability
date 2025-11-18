@@ -17,6 +17,12 @@ import java.time.LocalDate;
 
 @WebServlet("/pagamento-effettuato")
 public class PagamentoEffettuato extends HttpServlet {
+    private TesseraDAO tesseraDAO = new TesseraDAO();
+    
+    public void setTesseraDAO(TesseraDAO tesseraDAO) {
+        this.tesseraDAO = tesseraDAO;
+    }
+    
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         Utente utente = (Utente) session.getAttribute("utente");
@@ -24,7 +30,6 @@ public class PagamentoEffettuato extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
         }
-        TesseraDAO tesseraDAO = new TesseraDAO();
         Ordine ordine = new Ordine();
         String address = null;
         //sto salvando sempre sulla request questi parametri poichè li devo mantenere fino a salvataggio ordine

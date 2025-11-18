@@ -23,6 +23,12 @@ import java.util.List;
 
 @WebServlet("/do-pagamento")
 public class Pagamento extends HttpServlet {
+    private SedeDAO sedeDAO = new SedeDAO();
+    
+    public void setSedeDAO(SedeDAO sedeDAO) {
+        this.sedeDAO = sedeDAO;
+    }
+    
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session= request.getSession();
         Utente utente = (Utente) session.getAttribute("utente");
@@ -34,7 +40,6 @@ public class Pagamento extends HttpServlet {
         List<RigaCarrello> righe = (List<RigaCarrello>) session.getAttribute("righeDisponibili");
         Ordine ordine = new Ordine();
       //  OrdineDAO ordineDAO = new OrdineDAO();
-        SedeDAO sedeDAO = new SedeDAO();
         String type = request.getParameter("typeForm");
         String address = null;
 

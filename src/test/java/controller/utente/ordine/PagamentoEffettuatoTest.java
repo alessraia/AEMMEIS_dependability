@@ -32,6 +32,8 @@ class PagamentoEffettuatoTest {
         session = mock(HttpSession.class);
         dispatcher = mock(RequestDispatcher.class);
         tesseraDAO = mock(TesseraDAO.class);
+        
+        servletUnderTest.setTesseraDAO(tesseraDAO);
         when(request.getSession()).thenReturn(session);
     }
 

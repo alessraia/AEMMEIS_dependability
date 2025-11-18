@@ -1,5 +1,8 @@
+package controller;
+
 import controller.utente.AggiungiAiPrefServlet;
 import model.libroService.Libro;
+import model.libroService.LibroDAO;
 import model.utenteService.Utente;
 import model.wishList.WishList;
 import jakarta.servlet.http.*;
@@ -21,11 +24,16 @@ class AggiungiAiPrefServletTest {
     private HttpServletRequest request;
     private HttpServletResponse response;
     private HttpSession session;
+    private LibroDAO mockLibroDAO;
 
     @BeforeEach
     void setUp() {
         // Inizializziamo la servlet
         servletUnderTest = new AggiungiAiPrefServlet();
+        
+        // Mock the DAO
+        mockLibroDAO = mock(LibroDAO.class);
+        servletUnderTest.setLibroDAO(mockLibroDAO);
 
         // Creiamo i mock
         request = mock(HttpServletRequest.class);
@@ -45,7 +53,13 @@ class AggiungiAiPrefServletTest {
     @Test
     void testDoGet_SuccessAddBook() throws ServletException, IOException {
         // 1) Prepariamo i parametri
-        when(request.getParameter("isbn")).thenReturn("9788804664567"); // Esempio di ISBN
+        String isbn = "9788804664567";
+        when(request.getParameter("isbn")).thenReturn(isbn);
+        
+        // Mock the libro returned by DAO
+        Libro mockLibro = new Libro();
+        mockLibro.setIsbn(isbn);
+        when(mockLibroDAO.doRetrieveById(isbn)).thenReturn(mockLibro);
 
         // 2) Simuliamo utente loggato in sessione
         Utente utente = new Utente();
@@ -110,6 +124,11 @@ class AggiungiAiPrefServletTest {
         // 1) Prepariamo i parametri
         String isbn = "9788804664567";
         when(request.getParameter("isbn")).thenReturn(isbn);
+        
+        // Mock the libro returned by DAO
+        Libro mockLibro = new Libro();
+        mockLibro.setIsbn(isbn);
+        when(mockLibroDAO.doRetrieveById(isbn)).thenReturn(mockLibro);
 
         // 2) Simuliamo utente loggato
         Utente utente = new Utente();

@@ -1,6 +1,10 @@
+package controller;
+
 import static org.mockito.Mockito.*;
 
 import jakarta.servlet.ServletException;
+import model.carrelloService.Carrello;
+import model.carrelloService.CarrelloDAO;
 import model.tesseraService.Tessera;
 import model.tesseraService.TesseraDAO;
 import org.junit.jupiter.api.Test;
@@ -27,12 +31,15 @@ public class RegistroUtenteTest {
     private UtenteDAO utenteDAO;
 
     private TesseraDAO tesseraDAO;
+    
+    private CarrelloDAO carrelloDAO;
 
     @BeforeEach
     void setUp() {
 
         servlet = new RegistroUtente();
         tesseraDAO = mock(TesseraDAO.class);
+        carrelloDAO = mock(CarrelloDAO.class);
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         session = mock(HttpSession.class);
@@ -42,8 +49,11 @@ public class RegistroUtenteTest {
         when(request.getSession()).thenReturn(session);
         doNothing().when(utenteDAO).doSave(any(Utente.class));
         doNothing().when(tesseraDAO).doSave(any(Tessera.class));
+        doNothing().when(carrelloDAO).doSave(any(Carrello.class));
+        when(carrelloDAO.doRetrivedAllIdCarrelli()).thenReturn(new ArrayList<>());
         servlet.setUtenteDAO(utenteDAO);
         servlet.setTesseraDAO(tesseraDAO);
+        servlet.setCarrelloDAO(carrelloDAO);
     }
 
     @Test
