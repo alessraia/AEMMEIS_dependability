@@ -29,7 +29,7 @@ public class TesseraDAO {
     public void doSave(Tessera tessera){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO tessera (numero, dataCreazione, dataScadenza, email) VALUES(?,?,?,?)");
+                    "INSERT INTO Tessera (numero, dataCreazione, dataScadenza, email) VALUES(?,?,?,?)");
             ps.setString(1, tessera.getNumero());
             ps.setDate(2, java.sql.Date.valueOf(tessera.getDataCreazione()));
             ps.setDate(3, java.sql.Date.valueOf(tessera.getDataScadenza()));
@@ -54,7 +54,7 @@ public class TesseraDAO {
     public void deleteTessera(String numero){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM tessera WHERE numero=?");
+                    con.prepareStatement("DELETE FROM Tessera WHERE numero=?");
             ps.setString(1, numero);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE error.");
@@ -72,7 +72,7 @@ public class TesseraDAO {
     @*/
     public void updateTessera(Tessera tessera){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE tessera SET punti = ? WHERE numero = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Tessera SET punti = ? WHERE numero = ?");
             ps.setInt(1, tessera.getPunti());
             ps.setString(2, tessera.getNumero());
             if(ps.executeUpdate() != 1)
@@ -103,7 +103,7 @@ public class TesseraDAO {
         List<Tessera> tessere = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM tessera");
+                    con.prepareStatement("SELECT * FROM Tessera");
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -132,7 +132,7 @@ public class TesseraDAO {
         List<String> numeri = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM tessera");
+                    con.prepareStatement("SELECT * FROM Tessera");
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -165,7 +165,7 @@ public class TesseraDAO {
     public Tessera doRetrieveById(String numero) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM tessera WHERE numero=?");
+                    con.prepareStatement("SELECT * FROM Tessera WHERE numero=?");
             ps.setString(1, numero);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -204,7 +204,7 @@ public class TesseraDAO {
     public Tessera doRetrieveByEmail(String email) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM tessera WHERE email=?");
+                    con.prepareStatement("SELECT * FROM Tessera WHERE email=?");
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {

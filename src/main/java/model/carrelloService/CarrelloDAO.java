@@ -26,7 +26,7 @@ public class CarrelloDAO {
     public void doSave(Carrello carrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO carrello (idCarrello, totale, email) VALUES(?,?,?)");
+                    "INSERT INTO Carrello (idCarrello, totale, email) VALUES(?,?,?)");
             ps.setString(1, carrello.getIdCarrello());
             ps.setDouble(2, carrello.getTotale());
             ps.setString(3, carrello.getEmail());
@@ -48,7 +48,7 @@ public class CarrelloDAO {
     public void deleteCarrello(String idCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM carrello WHERE idCarrello=?");
+                    con.prepareStatement("DELETE FROM Carrello WHERE idCarrello=?");
             ps.setString(1, idCarrello);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE error.");
@@ -67,7 +67,7 @@ public class CarrelloDAO {
     @*/
     public void updateCarrello(Carrello carrello){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE carrello SET totale = ? WHERE idCarrello = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Carrello SET totale = ? WHERE idCarrello = ?");
             ps.setDouble(1, carrello.getTotale());
             ps.setString(2, carrello.getIdCarrello());
             if(ps.executeUpdate() != 1)
@@ -93,7 +93,7 @@ public class CarrelloDAO {
     public Carrello doRetriveById(String idCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM carrello WHERE idCarrello=?");
+                    con.prepareStatement("SELECT * FROM Carrello WHERE idCarrello=?");
             ps.setString(1, idCarrello);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -126,7 +126,7 @@ public class CarrelloDAO {
     public Carrello doRetriveByUtente(String email){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM carrello WHERE email=?");
+                    con.prepareStatement("SELECT * FROM Carrello WHERE email=?");
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -157,7 +157,7 @@ public class CarrelloDAO {
         List<String>  idCarrello = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM carrello");
+                    con.prepareStatement("SELECT * FROM Carrello");
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

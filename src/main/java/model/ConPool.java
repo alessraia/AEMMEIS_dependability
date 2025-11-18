@@ -44,10 +44,19 @@ public class ConPool {
 	public static Connection getConnection() throws SQLException {
 		if (datasource == null) {
 			PoolProperties p = new PoolProperties();
-			p.setUrl("jdbc:mysql://mysqlservice-garofalogregorio-8ce9.b.aivencloud.com:12556/aemme?serverTimezone=" + TimeZone.getDefault().getID());
+
+			String dbHost = getEnvOrDefault("DB_HOST", "localhost");
+			String dbPort = getEnvOrDefault("DB_PORT", "3306");
+			String dbName = getEnvOrDefault("DB_NAME", "aemmetsw");
+			String dbUser = getEnvOrDefault("DB_USER", "root");
+			String dbPass = getEnvOrDefault("DB_PASS", "aless04");
+
+			String tz = TimeZone.getDefault().getID();
+			p.setUrl("jdbc:mysql://" + dbHost + ":" + dbPort + "/" + dbName + "?serverTimezone=" + tz);
 			p.setDriverClassName("com.mysql.cj.jdbc.Driver");
-			p.setUsername("TEST"); 
-			p.setPassword("TEST");
+			p.setUsername(dbUser);
+			p.setPassword(dbPass);
+
 			p.setMaxActive(100);
 			p.setInitialSize(10);
 			p.setMinIdle(10);
@@ -58,5 +67,13 @@ public class ConPool {
 
 		}
 		return datasource.getConnection();
+	}
+
+	private static String getEnvOrDefault(String key, String defaultValue) {
+		String value = System.getenv(key);
+		if (value == null || value.isBlank()) {
+			return defaultValue;
+		}
+		return value;
 	}
 }

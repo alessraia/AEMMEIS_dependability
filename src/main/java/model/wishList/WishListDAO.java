@@ -25,7 +25,7 @@ public class WishListDAO {
     public void doSave(WishList wishList, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO wishlist (email, isbn) VALUES(?,?)");
+                    "INSERT INTO WishList (email, isbn) VALUES(?,?)");
             ps.setString(1, wishList.getEmail());
             ps.setString(2, isbn);
 
@@ -50,7 +50,7 @@ public class WishListDAO {
     public WishList doRetrieveByEmail(String email) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT email, isbn FROM wishlist WHERE email=?");
+                    con.prepareStatement("SELECT email, isbn FROM WishList WHERE email=?");
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             WishList wishlist = new WishList();
@@ -76,7 +76,7 @@ public class WishListDAO {
     public void deleteLibro(String email, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM wishlist WHERE email=? AND isbn =?");
+                    con.prepareStatement("DELETE FROM WishList WHERE email=? AND isbn =?");
             ps.setString(1, email);
             ps.setString(2, isbn);
             if(ps.executeUpdate() != 1)
@@ -94,7 +94,7 @@ public class WishListDAO {
     public void deleteWishListByEmail(String email){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM wishlist WHERE email=?");
+                    con.prepareStatement("DELETE FROM WishList WHERE email=?");
             ps.setString(1, email);
             if(ps.executeUpdate() <= 0)
                 throw new RuntimeException("DELETE error.");

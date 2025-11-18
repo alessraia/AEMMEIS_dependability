@@ -19,7 +19,7 @@ public class LibroDAO {
     public void doSave(Libro libro){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO libro (isbn, titolo, genere, annoPubblicazione, prezzo, sconto, trama, immagine) VALUES(?,?,?,?,?,?,?,?)");
+                    "INSERT INTO Libro (isbn, titolo, genere, annoPubblicazione, prezzo, sconto, trama, immagine) VALUES(?,?,?,?,?,?,?,?)");
             ps.setString(1, libro.getIsbn());
             ps.setString(2, libro.getTitolo());
             ps.setString(3, libro.getGenere());
@@ -47,32 +47,32 @@ public class LibroDAO {
     public void deleteLibro(String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM rigacarrello WHERE isbn=?");
+                    con.prepareStatement("DELETE FROM Rigacarrello WHERE isbn=?");
             ps.setString(1, isbn);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE1 error.");
 
-            ps = con.prepareStatement("DELETE FROM wishlist WHERE isbn=?");
+            ps = con.prepareStatement("DELETE FROM Wishlist WHERE isbn=?");
             ps.setString(1, isbn);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE2 error.");
 
-            ps = con.prepareStatement("DELETE FROM reparto WHERE isbn=?");
+            ps = con.prepareStatement("DELETE FROM Reparto WHERE isbn=?");
             ps.setString(1, isbn);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE3 error.");
 
-            ps = con.prepareStatement("DELETE FROM sede WHERE isbn=?");
+            ps = con.prepareStatement("DELETE FROM Sede WHERE isbn=?");
             ps.setString(1, isbn);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE4 error.");
 
-            ps = con.prepareStatement("DELETE FROM scrittura WHERE isbn=?");
+            ps = con.prepareStatement("DELETE FROM Scrittura WHERE isbn=?");
             ps.setString(1, isbn);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE4 error.");
 
-            ps = con.prepareStatement("DELETE FROM libro WHERE isbn=?");
+            ps = con.prepareStatement("DELETE FROM Libro WHERE isbn=?");
             ps.setString(1, isbn);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE5 error.");
@@ -88,7 +88,7 @@ public class LibroDAO {
     //@ signals_only RuntimeException;
     public void updateLibroSconto(Libro libro){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE libro SET sconto = ? WHERE isbn = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Libro SET sconto = ? WHERE isbn = ?");
             ps.setInt(1, libro.getSconto());
             ps.setString(2, libro.getIsbn());
             if(ps.executeUpdate() != 1)
@@ -108,7 +108,7 @@ public class LibroDAO {
     //@ signals_only RuntimeException;
     public void updateLibro(Libro libro){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE libro SET titolo = ?, genere = ?, " +
+            PreparedStatement ps = con.prepareStatement("UPDATE Libro SET titolo = ?, genere = ?, " +
                     "annoPubblicazione = ?, prezzo = ?, sconto = ?, trama = ?, immagine = ? WHERE isbn = ?");
             ps.setString(1, libro.getTitolo());
             ps.setString(2, libro.getGenere());
@@ -131,7 +131,7 @@ public class LibroDAO {
     //@ signals_only RuntimeException;
     public void updateDisponibile(Libro libro){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE libro SET disponibile = ? WHERE isbn = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Libro SET disponibile = ? WHERE isbn = ?");
             ps.setBoolean(1, libro.isDisponibile());
             ps.setString(2, libro.getIsbn());
             if(ps.executeUpdate() != 1)
@@ -151,7 +151,7 @@ public class LibroDAO {
         List<Libro> libri = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM libro");
+                    con.prepareStatement("SELECT * FROM Libro");
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -186,7 +186,7 @@ public class LibroDAO {
     public Libro doRetrieveById(String isbn) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM libro WHERE isbn=?");
+                    con.prepareStatement("SELECT * FROM Libro WHERE isbn=?");
             ps.setString(1, isbn);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -219,7 +219,7 @@ public class LibroDAO {
     public List<Autore> getScrittura(String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT cf FROM scrittura WHERE isbn=?");
+                    con.prepareStatement("SELECT cf FROM Scrittura WHERE isbn=?");
             ps.setString(1, isbn);
             ResultSet rs = ps.executeQuery();
             List<Autore> autori = new ArrayList<>();
@@ -244,7 +244,7 @@ public class LibroDAO {
     public List<Reparto> getAppartenenzaReparto(String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT idReparto FROM appartenenza WHERE isbn=?");
+                    con.prepareStatement("SELECT idReparto FROM Appartenenza WHERE isbn=?");
             ps.setString(1, isbn);
             ResultSet rs = ps.executeQuery();
             List<Reparto> reparti = new ArrayList<>();
@@ -269,7 +269,7 @@ public class LibroDAO {
     public List<Sede> getPresenzaSede(String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT idSede FROM presenza WHERE isbn=?");
+                    con.prepareStatement("SELECT idSede FROM Presenza WHERE isbn=?");
             ps.setString(1, isbn);
             ResultSet rs = ps.executeQuery();
             List<Sede> sedi = new ArrayList<>();
@@ -293,7 +293,7 @@ public class LibroDAO {
     public void deleteAutoreScrittura(String isbn, Autore autore){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM scrittura WHERE isbn=? AND cf=?");
+                    con.prepareStatement("DELETE FROM Scrittura WHERE isbn=? AND cf=?");
             ps.setString(1, isbn);
             ps.setString(2, autore.getCf());
 
@@ -318,7 +318,7 @@ public class LibroDAO {
                 autoreService.doSave(autore);
 
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO scrittura (cf, isbn) VALUES(?,?)");
+                    "INSERT INTO Scrittura (cf, isbn) VALUES(?,?)");
             ps.setString(1, autore.getCf());
             ps.setString(2, isbn);
 
@@ -337,7 +337,7 @@ public class LibroDAO {
     //@ signals_only RuntimeException;
     public List<Libro> Search(String query) {
         try (Connection con = ConPool.getConnection()) {
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM libro WHERE titolo LIKE ? OR isbn LIKE ?");
+            PreparedStatement ps = con.prepareStatement("SELECT * FROM Libro WHERE titolo LIKE ? OR isbn LIKE ?");
             ps.setString(1, "%" + query + "%");
             ps.setString(2, query + "%");
 

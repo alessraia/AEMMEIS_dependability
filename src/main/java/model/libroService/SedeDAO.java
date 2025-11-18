@@ -21,7 +21,7 @@ public class SedeDAO {
     public void doSave(Sede sede){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO sede (citta, via, numeroCivico, cap) VALUES(?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO Sede (citta, via, numeroCivico, cap) VALUES(?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, sede.getCitta());
             ps.setString(2, sede.getVia());
             ps.setInt(3, sede.getCivico());
@@ -49,7 +49,7 @@ public class SedeDAO {
             Sede s = this.doRetrieveById(idSede);
             if (l!=null && !l.isEmpty()) {
                 PreparedStatement ps =
-                        con.prepareStatement("DELETE FROM presenza WHERE idSede=?");
+                        con.prepareStatement("DELETE FROM Presenza WHERE idSede=?");
                 ps.setInt(1, idSede);
                 s.setLibri(null);
                 if(ps.executeUpdate() < 1)
@@ -76,7 +76,7 @@ public class SedeDAO {
     //@ signals_only RuntimeException;
     public void updateSede(Sede sede){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE sede SET citta = ?, via = ?, numeroCivico = ?, cap = ? WHERE idSede = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Sede SET citta = ?, via = ?, numeroCivico = ?, cap = ? WHERE idSede = ?");
             ps.setString(1, sede.getCitta());
             ps.setString(2, sede.getVia());
             ps.setInt(3, sede.getCivico());
@@ -96,7 +96,7 @@ public class SedeDAO {
     //@ signals_only RuntimeException;
     public void removeLibroSede(int idSede, String isbn){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("DELETE FROM presenza WHERE idSede=? AND isbn = ?");
+            PreparedStatement ps = con.prepareStatement("DELETE FROM Presenza WHERE idSede=? AND isbn = ?");
             ps.setInt(1,idSede);
             ps.setString(2, isbn);
 
@@ -121,7 +121,7 @@ public class SedeDAO {
     public void addLibroSede(Sede sede, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO presenza (idSede, isbn) VALUES(?, ?)");
+                    "INSERT INTO Presenza (idSede, isbn) VALUES(?, ?)");
             ps.setInt(1, sede.getIdSede());
             ps.setString(2, isbn);
 
@@ -144,7 +144,7 @@ public class SedeDAO {
         List<Sede> sedi = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM sede");
+                    con.prepareStatement("SELECT * FROM Sede");
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -173,7 +173,7 @@ public class SedeDAO {
     public Sede doRetrieveById(int idSede) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM sede WHERE idSede=?");
+                    con.prepareStatement("SELECT * FROM Sede WHERE idSede=?");
             ps.setInt(1, idSede);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -200,7 +200,7 @@ public class SedeDAO {
     public List<Libro> getPresenza(int idSede){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT isbn FROM presenza WHERE idSede=?");
+                    con.prepareStatement("SELECT isbn FROM Presenza WHERE idSede=?");
             ps.setInt(1, idSede);
             List<Libro> lista=new ArrayList<>();
             ResultSet rs = ps.executeQuery();
@@ -223,7 +223,7 @@ public class SedeDAO {
     public void deleteFromPresenzaLibro(int idSede, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM presenza WHERE idSede=? AND isbn=?");
+                    con.prepareStatement("DELETE FROM Presenza WHERE idSede=? AND isbn=?");
             ps.setInt(1, idSede);
             ps.setString(2, isbn);
             if(ps.executeUpdate() != 1)
@@ -240,7 +240,7 @@ public class SedeDAO {
     public void doSavePresenza(int idSede, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO presenza (idSede, isbn) VALUES(?,?)");
+                    "INSERT INTO Presenza (idSede, isbn) VALUES(?,?)");
             ps.setInt(1, idSede);
             ps.setString(2, isbn);
             if (ps.executeUpdate() != 1) {

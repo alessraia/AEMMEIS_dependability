@@ -22,7 +22,7 @@ public class GestoreDAO {
     public void doSave(Gestore gestore){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO gestore (matricola, stipendio) VALUES(?,?)");
+                    "INSERT INTO Gestore (matricola, stipendio) VALUES(?,?)");
             ps.setString(1, gestore.getMatricola());
             ps.setDouble(2, gestore.getStipendio());
             if (ps.executeUpdate() != 1) {
@@ -42,7 +42,7 @@ public class GestoreDAO {
     public void deleteGestore(String matricola){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM gestore WHERE matricola=?");
+                    con.prepareStatement("DELETE FROM Gestore WHERE matricola=?");
             ps.setString(1, matricola);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE error.");
@@ -60,7 +60,7 @@ public class GestoreDAO {
    @*/
     public void updateGestore(Gestore gestore){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE gestore SET stipendio = ? WHERE matricola = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Gestore SET stipendio = ? WHERE matricola = ?");
             ps.setDouble(1, gestore.getStipendio());
             ps.setString(2, gestore.getMatricola());
             if(ps.executeUpdate() != 1)
@@ -81,7 +81,7 @@ public class GestoreDAO {
         List<Gestore> gestori = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM gestore");
+                    con.prepareStatement("SELECT * FROM Gestore");
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

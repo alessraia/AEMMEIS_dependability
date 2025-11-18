@@ -27,7 +27,7 @@ public class UtenteDAO {
     public Utente doRetrieveById(String email) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT nomeUtente, email, codiceSicurezza, tipo FROM utente WHERE email=?");
+                    con.prepareStatement("SELECT nomeUtente, email, codiceSicurezza, tipo FROM Utente WHERE email=?");
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -59,7 +59,7 @@ public class UtenteDAO {
         try (Connection con = ConPool.getConnection()) {
 
             PreparedStatement ps =
-                    con.prepareStatement("SELECT nomeUtente, email, codiceSicurezza, tipo FROM utente WHERE email=? AND  codiceSicurezza=?");//SHA1(?)
+                    con.prepareStatement("SELECT nomeUtente, email, codiceSicurezza, tipo FROM Utente WHERE email=? AND  codiceSicurezza=?");//SHA1(?)
             ps.setString(1, email);
             ps.setString(2, password);
             ResultSet rs = ps.executeQuery();
@@ -94,7 +94,7 @@ public class UtenteDAO {
     public void doSave(Utente utente) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO utente (nomeUtente, email, codiceSicurezza, tipo) VALUES(?,?,?,?)");
+                    "INSERT INTO Utente (nomeUtente, email, codiceSicurezza, tipo) VALUES(?,?,?,?)");
             ps.setString(1, utente.getNomeUtente());
             ps.setString(2, utente.getEmail());
             ps.setString(3, utente.getCodiceSicurezza());
@@ -132,7 +132,7 @@ public class UtenteDAO {
         List<Utente> utenti = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM utente");
+                    con.prepareStatement("SELECT * FROM Utente");
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -163,7 +163,7 @@ public class UtenteDAO {
      @*/
     public void updateUtente(Utente utente){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE utente SET nomeUtente = ?, tipo = ? WHERE email = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Utente SET nomeUtente = ?, tipo = ? WHERE email = ?");
             ps.setString(1, utente.getNomeUtente());
             ps.setString(2, utente.getTipo());
             ps.setString(3, utente.getEmail());
@@ -196,7 +196,7 @@ public class UtenteDAO {
       @*/
     public void updateUtentePassword(Utente utente){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE utente SET codiceSicurezza = ? WHERE email = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Utente SET codiceSicurezza = ? WHERE email = ?");
             ps.setString(1, utente.getCodiceSicurezza());
             ps.setString(2, utente.getEmail());
             if(ps.executeUpdate() != 1)
@@ -234,7 +234,7 @@ public class UtenteDAO {
 
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM utente WHERE email=?");
+                    con.prepareStatement("DELETE FROM Utente WHERE email=?");
             ps.setString(1, email);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE error.");
@@ -253,7 +253,7 @@ public class UtenteDAO {
     public void deleteTelefono(String email, String numeroTelefono){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM telefono WHERE email=? AND numeroTelefono=?");
+                    con.prepareStatement("DELETE FROM Telefono WHERE email=? AND numeroTelefono=?");
             ps.setString(1, email);
             ps.setString(2, numeroTelefono);
             if(ps.executeUpdate() != 1)
@@ -271,7 +271,7 @@ public class UtenteDAO {
     public void deleteTelefoni(String email){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM telefono WHERE email=?");//Per farlo funzionare bisogna togliere la safe mode dal db
+                    con.prepareStatement("DELETE FROM Telefono WHERE email=?");//Per farlo funzionare bisogna togliere la safe mode dal db
             ps.setString(1, email);
             if(ps.executeUpdate() < 1)
                 throw new RuntimeException("DELETE error. Email: " + email + " not present in the db");
@@ -289,7 +289,7 @@ public class UtenteDAO {
     public void addTelefono(String email, String numeroTelefono){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO telefono (numeroTelefono, email) VALUES(?,?)");
+                    "INSERT INTO Telefono (numeroTelefono, email) VALUES(?,?)");
             ps.setString(1, numeroTelefono);
             ps.setString(2, email);
             if (ps.executeUpdate() != 1) {
@@ -317,7 +317,7 @@ public class UtenteDAO {
         List<String> telefoni = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT numeroTelefono FROM telefono WHERE email=?");
+                    con.prepareStatement("SELECT numeroTelefono FROM Telefono WHERE email=?");
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -340,7 +340,7 @@ public class UtenteDAO {
         List<String> telefoni = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT numeroTelefono FROM telefono");
+                    con.prepareStatement("SELECT numeroTelefono FROM Telefono");
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                telefoni.add(rs.getString(1));

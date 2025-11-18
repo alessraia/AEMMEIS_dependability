@@ -41,6 +41,14 @@ public class HomePageServlet extends HttpServlet {
 
         if(request.getAttribute("libriHome")==null) {
             List<Reparto> reparti = (List<Reparto>) getServletContext().getAttribute("reparti");
+            // Se per qualche motivo non ci sono (es. InitServlet fallito all'avvio),
+            // li ricarichiamo dal DB e li rimettiamo nel contesto
+            if (reparti == null) {
+                RepartoDAO service = new RepartoDAO();
+                reparti = service.doRetrivedAll();
+                getServletContext().setAttribute("reparti", reparti);
+            }
+
             for (Reparto reparto : reparti) {
                 if (reparto.getNome().equals("Libri di Tendenza")) {
                     List<Libro> libriHome = reparto.getLibri();

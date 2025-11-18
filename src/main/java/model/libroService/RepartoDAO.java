@@ -17,7 +17,7 @@ public class RepartoDAO {
     public void doSave(Reparto reparto){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO reparto (nome,descrizione,immagine) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                    "INSERT INTO Reparto (nome,descrizione,immagine) VALUES(?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, reparto.getNome());
             ps.setString(2, reparto.getDescrizione());
             ps.setString(3, reparto.getImmagine());
@@ -46,14 +46,14 @@ public class RepartoDAO {
             Reparto r = this.doRetrieveById(idReparto);
             if (l!=null && !l.isEmpty()) {
                 PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM appartenenza WHERE idReparto=?");
+                    con.prepareStatement("DELETE FROM Appartenenza WHERE idReparto=?");
                 ps.setInt(1, idReparto);
                 r.setLibri(null);
                 if(ps.executeUpdate() < 1)
                     throw new RuntimeException("DELETE error from appartenenza.");
             }
             //poi elimino il reparto in questione
-            PreparedStatement ps = con.prepareStatement("DELETE FROM reparto WHERE idReparto=?");
+            PreparedStatement ps = con.prepareStatement("DELETE FROM Reparto WHERE idReparto=?");
             ps.setInt(1, idReparto);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE error from reparto.");
@@ -69,7 +69,7 @@ public class RepartoDAO {
     //@ signals_only RuntimeException;
     public void updateReparto(Reparto reparto){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE reparto SET descrizione = ?, immagine = ? WHERE idReparto = ?");
+            PreparedStatement ps = con.prepareStatement("UPDATE Reparto SET descrizione = ?, immagine = ? WHERE idReparto = ?");
             ps.setString(1, reparto.getDescrizione());
             ps.setString(2, reparto.getImmagine());
             ps.setInt(3, reparto.getIdReparto());
@@ -88,7 +88,7 @@ public class RepartoDAO {
     //@ signals_only RuntimeException;
     public void removeLibroReparto(int idReparto, String isbn){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("DELETE FROM appartenenza WHERE idReparto=? AND isbn = ?");
+            PreparedStatement ps = con.prepareStatement("DELETE FROM Appartenenza WHERE idReparto=? AND isbn = ?");
             ps.setInt(1,idReparto);
             ps.setString(2, isbn);
 
@@ -113,7 +113,7 @@ public class RepartoDAO {
     public void aggiungiLibroReparto(Reparto reparto, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO appartenenza (idReparto, isbn) VALUES(?, ?)");
+                    "INSERT INTO Appartenenza (idReparto, isbn) VALUES(?, ?)");
             ps.setInt(1, reparto.getIdReparto());
             ps.setString(2, isbn);
 
@@ -136,7 +136,7 @@ public class RepartoDAO {
         List<Reparto> reparti = new ArrayList<>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM reparto");
+                    con.prepareStatement("SELECT * FROM Reparto");
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -164,7 +164,7 @@ public class RepartoDAO {
     public Reparto doRetrieveById(int idReparto) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM reparto WHERE idReparto=?");
+                    con.prepareStatement("SELECT * FROM Reparto WHERE idReparto=?");
             ps.setInt(1, idReparto);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -190,7 +190,7 @@ public class RepartoDAO {
     public List<Libro> getAppartenenza(int idReparto){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT isbn FROM appartenenza WHERE idReparto=?");
+                    con.prepareStatement("SELECT isbn FROM Appartenenza WHERE idReparto=?");
             ps.setInt(1, idReparto);
             List<Libro> lista=new ArrayList<>();
             ResultSet rs = ps.executeQuery();
@@ -213,7 +213,7 @@ public class RepartoDAO {
     public void deleteFromAppartenenzaLibro(int idReparto, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM appartenenza WHERE idReparto=? AND isbn=?");
+                    con.prepareStatement("DELETE FROM Appartenenza WHERE idReparto=? AND isbn=?");
             ps.setInt(1, idReparto);
             ps.setString(2, isbn);
             if(ps.executeUpdate() != 1)
@@ -230,7 +230,7 @@ public class RepartoDAO {
     public void doSaveAppartenenza(int idReparto, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO appartenenza (idReparto, isbn) VALUES(?,?)");
+                    "INSERT INTO Appartenenza (idReparto, isbn) VALUES(?,?)");
             ps.setInt(1, idReparto);
             ps.setString(2, isbn);
             if (ps.executeUpdate() != 1) {

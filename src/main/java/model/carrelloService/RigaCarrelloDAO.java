@@ -26,7 +26,7 @@ public class RigaCarrelloDAO {
     public List<RigaCarrello> doRetrieveByIdCarrello(String idCarrello) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM rigacarrello WHERE idCarrello=?");
+                    con.prepareStatement("SELECT * FROM RigaCarrello WHERE idCarrello=?");
             ps.setString(1, idCarrello);
             ResultSet rs = ps.executeQuery();
             List<RigaCarrello> lista = new ArrayList<>();
@@ -57,7 +57,7 @@ public class RigaCarrelloDAO {
     public RigaCarrello doRetriveById(String idCarrello, String isbn){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT * FROM rigacarrello WHERE idCarrello=? AND isbn=?");
+                    con.prepareStatement("SELECT * FROM RigaCarrello WHERE idCarrello=? AND isbn=?");
             ps.setString(1, idCarrello);
             ps.setString(2, isbn);
             ResultSet rs = ps.executeQuery();
@@ -88,7 +88,7 @@ public class RigaCarrelloDAO {
     public void doSave(RigaCarrello rigaCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO rigacarrello (idCarrello, isbn, quantita) VALUES(?,?,?)");
+                    "INSERT INTO RigaCarrello (idCarrello, isbn, quantita) VALUES(?,?,?)");
             ps.setString(1, rigaCarrello.getIdCarrello());
             ps.setString(2, rigaCarrello.getLibro().getIsbn());
             ps.setInt(3, rigaCarrello.getQuantita());
@@ -110,7 +110,7 @@ public class RigaCarrelloDAO {
     public void deleteRigaCarrello(String isbn, String idCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM rigacarrello WHERE idCarrello=? AND isbn =?");
+                    con.prepareStatement("DELETE FROM RigaCarrello WHERE idCarrello=? AND isbn =?");
             ps.setString(1, idCarrello);
             ps.setString(2, isbn);
             if(ps.executeUpdate() != 1)
@@ -129,7 +129,7 @@ public class RigaCarrelloDAO {
     public void deleteRigheCarrelloByIdCarrello(String idCarrello){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM rigacarrello WHERE idCarrello=?");
+                    con.prepareStatement("DELETE FROM RigaCarrello WHERE idCarrello=?");
             ps.setString(1, idCarrello);
             if(ps.executeUpdate() < 1)
                 throw new RuntimeException("UPDATE error.");
@@ -149,7 +149,7 @@ public class RigaCarrelloDAO {
    @*/
     public void updateQuantita(RigaCarrello rigaCarrello){
         try(Connection con = ConPool.getConnection()){
-            PreparedStatement ps = con.prepareStatement("UPDATE rigaCarrello SET quantita = ? WHERE isbn = ? AND idCarrello=?");
+            PreparedStatement ps = con.prepareStatement("UPDATE RigaCarrello SET quantita = ? WHERE isbn = ? AND idCarrello=?");
             ps.setInt(1,rigaCarrello.getQuantita());
             ps.setString(2, rigaCarrello.getLibro().getIsbn());
             ps.setString(3, rigaCarrello.getIdCarrello());

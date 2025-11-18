@@ -20,7 +20,7 @@ public class AutoreDAO {
     public void doSave(Autore autore){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO autore (cf, nome, cognome) VALUES(?,?,?)",
+                    "INSERT INTO Autore (cf, nome, cognome) VALUES(?,?,?)",
                     Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, autore.getCf());
             ps.setString(2, autore.getNome());
@@ -42,7 +42,7 @@ public class AutoreDAO {
     public void deleteAutore(String cf){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("DELETE FROM autore WHERE cf=?");
+                    con.prepareStatement("DELETE FROM Autore WHERE cf=?");
             ps.setString(1, cf);
             if(ps.executeUpdate() != 1)
                 throw new RuntimeException("DELETE error.");
@@ -62,7 +62,7 @@ public class AutoreDAO {
     public Autore searchAutore(String cf) {
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT nome, cognome FROM autore WHERE cf=?");
+                    con.prepareStatement("SELECT nome, cognome FROM Autore WHERE cf=?");
             ps.setString(1, cf);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
@@ -89,7 +89,7 @@ public class AutoreDAO {
     public List<Libro> getScrittura(String cf){
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
-                    con.prepareStatement("SELECT isbn FROM scrittura WHERE cf=?");
+                    con.prepareStatement("SELECT isbn FROM Scrittura WHERE cf=?");
             ps.setString(1, cf);
             List<Libro> lista = new ArrayList<>();
             ResultSet rs = ps.executeQuery();
