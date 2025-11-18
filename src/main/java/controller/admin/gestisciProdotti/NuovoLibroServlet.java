@@ -61,7 +61,7 @@ public class NuovoLibroServlet extends HttpServlet {
                 String[] cognomiAutori = request.getParameterValues("cognome");
                 String[] cfAutori = request.getParameterValues("cf");
 
-                List<Autore> autori = new ArrayList<>();
+                List<Autore> autori = new ArrayList<Autore>();
 
                 if (nomiAutori != null && cognomiAutori != null && cfAutori != null) {
                     for (int i = 0; i < nomiAutori.length; i++) {

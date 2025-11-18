@@ -35,7 +35,7 @@ public class HomePageServlet extends HttpServlet {
 
         if (carrello == null) { // Se il carrello non è presente nella sessione, ne crea uno nuovo
             carrello = new Carrello();
-            carrello.setRigheCarrello(new ArrayList<>());//l'ho aggiunto per far funzionare AggiungiCartServlet
+            carrello.setRigheCarrello(new ArrayList<RigaCarrello>());//l'ho aggiunto per far funzionare AggiungiCartServlet
             session.setAttribute("carrello", carrello);// Aggiungi il carrello alla sessione
         }
 

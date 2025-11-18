@@ -30,43 +30,43 @@ public class MostraLibroServlet extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
         }
-        Carrello carrello= (Carrello) session.getAttribute("carrello");
-        WishList wishList = (WishList) session.getAttribute("wishList");
-        Libro libro  =new Libro();
-        LibroDAO libroService= new LibroDAO();
-        boolean presenza=false;
-        if(carrello!=null){
-            for(RigaCarrello riga: carrello.getRigheCarrello()){
-                Libro libroRiga= riga.getLibro();
-                if(libroRiga.getIsbn().equals(isbn)) {
-                    libro = libroRiga;
-                    presenza=true;
-                    break;
+        else {
+            Carrello carrello = (Carrello) session.getAttribute("carrello");
+            WishList wishList = (WishList) session.getAttribute("wishList");
+            Libro libro = new Libro();
+            LibroDAO libroService = new LibroDAO();
+            boolean presenza = false;
+            if (carrello != null) {
+                for (RigaCarrello riga : carrello.getRigheCarrello()) {
+                    Libro libroRiga = riga.getLibro();
+                    if (libroRiga.getIsbn().equals(isbn)) {
+                        libro = libroRiga;
+                        presenza = true;
+                        break;
+                    }
+
                 }
-
-            }
-        }
-        else if(wishList!=null){
-            for(Libro libro1: wishList.getLibri()){
-                if(libro1.getIsbn().equals(isbn)){
-                    libro = libro1;
-                    presenza = true;
-                    break;
+            } else if (wishList != null) {
+                for (Libro libro1 : wishList.getLibri()) {
+                    if (libro1.getIsbn().equals(isbn)) {
+                        libro = libro1;
+                        presenza = true;
+                        break;
+                    }
                 }
             }
+            if (!presenza) {
+                libro = libroService.doRetrieveById(isbn);
+            }
+
+            List<Autore> autori = libroService.getScrittura(isbn);
+
+
+            request.setAttribute("libro", libro);
+            request.setAttribute("autori", autori);
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/mostraLibro.jsp");
+            dispatcher.forward(request, response);
         }
-        if(!presenza){
-            libro=libroService.doRetrieveById(isbn);
-        }
-
-        List<Autore> autori= libroService.getScrittura(isbn);
-
-
-        request.setAttribute("libro", libro);
-        request.setAttribute("autori", autori);
-
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/mostraLibro.jsp");
-        dispatcher.forward(request, response);
-
     }
 }

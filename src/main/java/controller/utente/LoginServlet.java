@@ -27,6 +27,23 @@ import java.util.Objects;
 @WebServlet("/login-servlet")
 
 public class LoginServlet extends HttpServlet {
+    // Allow dependency injection for testing
+    private UtenteDAO utenteDAO;
+    private CarrelloDAO carrelloDAO;
+    private WishListDAO wishListDAO;
+
+    // Setters for dependency injection in tests
+    public void setUtenteDAO(UtenteDAO utenteDAO) {
+        this.utenteDAO = utenteDAO;
+    }
+
+    public void setCarrelloDAO(CarrelloDAO carrelloDAO) {
+        this.carrelloDAO = carrelloDAO;
+    }
+
+    public void setWishListDAO(WishListDAO wishListDAO) {
+        this.wishListDAO = wishListDAO;
+    }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         //controllo dei form
@@ -34,13 +51,14 @@ public class LoginServlet extends HttpServlet {
         String password = request.getParameter("pw");
         if((email==null || email.isEmpty() || !email.contains("@")) || (password== null || (password.isEmpty()) || password.length()>16)){
             response.sendRedirect("/WEB-INF/errorJsp/loginError.jsp");
+            return;
         }
         else {
             Utente utente = new Utente();
             utente.setEmail(email);
             utente.setCodiceSicurezza(password);
 
-            UtenteDAO service = new UtenteDAO();
+            UtenteDAO service = (this.utenteDAO != null) ? this.utenteDAO : new UtenteDAO();
 
             if (service.doRetrieveByEmailPassword(utente.getEmail(), utente.getCodiceSicurezza()) == null) {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/loginError.jsp");
@@ -51,9 +69,9 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("utente", utente);
 
                 Carrello carrelloLocale = (Carrello) session.getAttribute("carrello");// Recupera il carrello locale dalla sessione
-                List<RigaCarrello> righeLocali = carrelloLocale.getRigheCarrello();
+                List<RigaCarrello> righeLocali = (carrelloLocale != null) ? carrelloLocale.getRigheCarrello() : null;
 
-                CarrelloDAO carrelloService = new CarrelloDAO();
+                CarrelloDAO carrelloService = (this.carrelloDAO != null) ? this.carrelloDAO : new CarrelloDAO();
                 Carrello carrelloDb = null;
 
                 if (carrelloService.doRetriveByUtente(utente.getEmail()) != null) {
@@ -79,15 +97,15 @@ public class LoginServlet extends HttpServlet {
                         }
                     }
                 }
-                WishListDAO wishListService = new WishListDAO();
+                WishListDAO wishListService = (this.wishListDAO != null) ? this.wishListDAO : new WishListDAO();
                 WishList wishList = wishListService.doRetrieveByEmail(utente.getEmail());
 
                 session.setAttribute("carrello", carrelloDb);
                 session.setAttribute("wishList", wishList);
 
-
+                response.sendRedirect("index.html");
             }
-            response.sendRedirect("index.html");
+
         }
 
 

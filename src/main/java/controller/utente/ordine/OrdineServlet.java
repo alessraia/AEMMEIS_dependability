@@ -100,7 +100,7 @@ public class OrdineServlet extends HttpServlet {
         ordine.setIdOrdine(idOrdine);
 
 
-        List<RigaOrdine> righeOrdine = new ArrayList<>();
+        List<RigaOrdine> righeOrdine = new ArrayList<RigaOrdine>();
         //prendo i libri selezionati dalle righe carrello e calcolo il costo e i punti
 
         for(RigaCarrello rigaCarrello : righeCarrello){

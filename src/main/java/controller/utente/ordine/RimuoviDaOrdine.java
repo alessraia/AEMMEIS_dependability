@@ -22,32 +22,34 @@ public class RimuoviDaOrdine extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         Utente utente = (Utente) session.getAttribute("utente");
-        if(Validator.checkIfUserAdmin(utente)) {
+        if (Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
         }
-        OrdineDAO ordineDAO = new OrdineDAO();
+        else {
+            OrdineDAO ordineDAO = new OrdineDAO();
 
-        // Ottiene i parametri dalla richiesta
-        String isbn = request.getParameter("isbn");
-        String idOrdine = (request.getParameter("idOrdine"));
+            // Ottiene i parametri dalla richiesta
+            String isbn = request.getParameter("isbn");
+            String idOrdine = (request.getParameter("idOrdine"));
 
-        // Ottiene l'ordine dalla sessione
-        List<RigaOrdine> righeOrdine = (List<RigaOrdine>) ordineDAO.doRetrieveById(idOrdine).getRigheOrdine();
+            // Ottiene l'ordine dalla sessione
+            List<RigaOrdine> righeOrdine = (List<RigaOrdine>) ordineDAO.doRetrieveById(idOrdine).getRigheOrdine();
 
-        // Rimuove la riga d'ordine corrispondente
-        if (isbn != null && !righeOrdine.isEmpty()) {
-            Iterator<RigaOrdine> iterator = righeOrdine.iterator();
-            while (iterator.hasNext()) {
-                RigaOrdine riga = iterator.next();
-                if (riga.getLibro().getIsbn().equals(isbn) && riga.getIdOrdine().equals(idOrdine)) {
-                    iterator.remove();
-                    break;
+            // Rimuove la riga d'ordine corrispondente
+            if (isbn != null && !righeOrdine.isEmpty()) {
+                Iterator<RigaOrdine> iterator = righeOrdine.iterator();
+                while (iterator.hasNext()) {
+                    RigaOrdine riga = iterator.next();
+                    if (riga.getLibro().getIsbn().equals(isbn) && riga.getIdOrdine().equals(idOrdine)) {
+                        iterator.remove();
+                        break;
+                    }
                 }
             }
-        }
 
-        // Reindirizza alla pagina di riepilogo dell'ordine
-        response.sendRedirect("riepilogoOrdine.jsp");
+            // Reindirizza alla pagina di riepilogo dell'ordine
+            response.sendRedirect("riepilogoOrdine.jsp");
+        }
     }
 }

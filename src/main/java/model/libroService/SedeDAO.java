@@ -141,7 +141,7 @@ public class SedeDAO {
     //@ assignable \nothing;
     //@ signals_only RuntimeException;
     public List<Sede> doRetrivedAll(){
-        List<Sede> sedi = new ArrayList<>();
+        List<Sede> sedi = new ArrayList<Sede>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
                     con.prepareStatement("SELECT * FROM Sede");
@@ -202,7 +202,7 @@ public class SedeDAO {
             PreparedStatement ps =
                     con.prepareStatement("SELECT isbn FROM Presenza WHERE idSede=?");
             ps.setInt(1, idSede);
-            List<Libro> lista=new ArrayList<>();
+            List<Libro> lista=new ArrayList<Libro>();
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String isbn = rs.getString(1);

@@ -1,5 +1,5 @@
 package model.libroService;
-
+/*@ nullable_by_default @*/
 public class Autore {
     //@ spec_public
     private String cf;

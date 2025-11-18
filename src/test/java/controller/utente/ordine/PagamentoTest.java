@@ -1,3 +1,5 @@
+package controller.utente.ordine;
+
 import controller.utente.ordine.Pagamento;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -44,7 +46,7 @@ class PagamentoTest {
         when(session.getAttribute("utente")).thenReturn(user);
 
         // Righe disponibili
-        List<RigaCarrello> righe = new ArrayList<>();
+        List<RigaCarrello> righe = new ArrayList<RigaCarrello>();
         Libro libro = new Libro();
         libro.setPrezzo(10.0);
         libro.setSconto(0);
@@ -121,7 +123,7 @@ class PagamentoTest {
     @Test
     void testDoGet_SedeForm_Error() throws ServletException, IOException {
         Utente user = new Utente();
-        List<RigaCarrello> righeDisponibili = new ArrayList<>();
+        List<RigaCarrello> righeDisponibili = new ArrayList<RigaCarrello>();
         Libro libro = new Libro();
         libro.setDisponibile(true);
         RigaCarrello rigaCarrello = new RigaCarrello();

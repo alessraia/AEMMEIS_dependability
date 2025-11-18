@@ -1,3 +1,5 @@
+package controller.utente.ordine;
+
 import controller.utente.ordine.OrdineSupporto;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -63,7 +65,7 @@ class OrdineSupportoTest {
 
         // Carrello con 3 righe: 2 libri disponibili, 1 non disponibile
         Carrello carrello = new Carrello();
-        List<RigaCarrello> righe = new ArrayList<>();
+        List<RigaCarrello> righe = new ArrayList<RigaCarrello>();
 
         Libro libro1 = new Libro();
         libro1.setDisponibile(true);

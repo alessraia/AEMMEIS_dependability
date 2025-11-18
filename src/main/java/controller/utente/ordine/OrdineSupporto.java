@@ -35,7 +35,7 @@ public class OrdineSupporto extends HttpServlet {
         //controllo che i libri nel carrello siano tutti disponibili per l'acquisto e aggiungo la lista nella sessione
         Carrello carrello = (Carrello) session.getAttribute("carrello");
         List<RigaCarrello> righe = carrello.getRigheCarrello();
-        List<RigaCarrello> nuoveRighe = new ArrayList<>();
+        List<RigaCarrello> nuoveRighe = new ArrayList<RigaCarrello>();
         for(RigaCarrello rigaCarrello : righe){
             if(rigaCarrello.getLibro().isDisponibile()){
                 nuoveRighe.add(rigaCarrello);

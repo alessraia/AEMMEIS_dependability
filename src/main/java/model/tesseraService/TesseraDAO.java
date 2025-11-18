@@ -48,7 +48,6 @@ public class TesseraDAO {
     /*@
        @ public behavior
        @   requires numero != null && !numero.isEmpty();
-       @   assignable \nothing;
        @   signals_only RuntimeException;
      @*/
     public void deleteTessera(String numero){
@@ -85,7 +84,6 @@ public class TesseraDAO {
 
     /*@
       @ public behavior
-      @   assignable \nothing;
       @   ensures \result != null;
       @   ensures (\forall int i; 0 <= i && i < \result.size();
       @              \result.get(i) != null
@@ -100,7 +98,7 @@ public class TesseraDAO {
       @   signals_only RuntimeException;
     @*/
     public List<Tessera> doRetrivedAll(){
-        List<Tessera> tessere = new ArrayList<>();
+        List<Tessera> tessere = new ArrayList<Tessera>();
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
                     con.prepareStatement("SELECT * FROM Tessera");
@@ -124,7 +122,6 @@ public class TesseraDAO {
      /*@
      @ public behavior
      @ ensures \result != null;
-     @ assignable \nothing;
      @ ensures (\forall int i; 0 <= i && i < \result.size(); \result.get(i) != null && !\result.get(i).isEmpty());
      @ signals_only RuntimeException;
     @*/
@@ -147,7 +144,6 @@ public class TesseraDAO {
     /*@
       @ public behavior
       @   requires numero != null && !numero.isEmpty();
-      @   assignable \nothing;
       @   ensures \result == null
       @        || (
       @             \result.getNumero() != null
@@ -186,7 +182,6 @@ public class TesseraDAO {
     /*@
       @ public behavior
       @   requires email != null && !email.isEmpty();
-      @   assignable \nothing;
       @   ensures \result == null
       @        || (
       @             \result.getEmail() != null

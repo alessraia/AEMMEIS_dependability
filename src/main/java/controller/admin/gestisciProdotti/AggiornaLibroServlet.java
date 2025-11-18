@@ -27,6 +27,7 @@ public class AggiornaLibroServlet extends HttpServlet {
         genere == null || genere.isEmpty() || prezzo1 == null || trama == null || immagine == null) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
             dispatcher.forward(request, response);
+            return;
         }
 
         double prezzo = 0;
@@ -35,6 +36,7 @@ public class AggiornaLibroServlet extends HttpServlet {
         }catch (NumberFormatException e){
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
             dispatcher.forward(request, response);
+            return;
         }
 
         int sconto = 0;
@@ -43,6 +45,7 @@ public class AggiornaLibroServlet extends HttpServlet {
         else {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
             dispatcher.forward(request, response);
+            return;
         }
 
         LibroDAO libroService = new LibroDAO();

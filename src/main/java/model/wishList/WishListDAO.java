@@ -19,8 +19,8 @@ public class WishListDAO {
       @        && wishList.getEmail().length() > 0
       @        && isbn != null
       @        && isbn.length() == 13;
-      @   assignable \nothing;
       @   signals (RuntimeException e) true;
+      @   signals_only RuntimeException;
       @*/
     public void doSave(WishList wishList, String isbn){
         try (Connection con = ConPool.getConnection()) {
@@ -29,23 +29,22 @@ public class WishListDAO {
             ps.setString(1, wishList.getEmail());
             ps.setString(2, isbn);
 
-            if (ps.executeUpdate() != 1) {
-                throw new RuntimeException("INSERT error.");
-            }
+               if (ps.executeUpdate() != 1) {
+                   throw new RuntimeException("INSERT error.");
+               }
 
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+           } catch (SQLException e) {
+               throw new RuntimeException(e);
+           }
+
+
     }
 
     /*@ public behavior
       @   requires email != null && email.length() > 0;
-      @   assignable \nothing;
       @   ensures \result != null;
-      @   ensures \result.getLibri() != null;
-      @   ensures (\result.getEmail() == null)
-      @        || (\result.getEmail().equals(email));
       @   signals (RuntimeException e) true;
+      @   signals_only RuntimeException;
       @*/
     public WishList doRetrieveByEmail(String email) {
         try (Connection con = ConPool.getConnection()) {
@@ -70,8 +69,8 @@ public class WishListDAO {
     /*@ public behavior
       @   requires email != null && email.length() > 0
       @        && isbn != null && isbn.length() == 13;
-      @   assignable \nothing;
       @   signals (RuntimeException e) true;
+      @   signals_only RuntimeException;
       @*/
     public void deleteLibro(String email, String isbn){
         try (Connection con = ConPool.getConnection()) {
@@ -88,8 +87,8 @@ public class WishListDAO {
 
     /*@ public behavior
       @   requires email != null && email.length() > 0;
-      @   assignable \nothing;
       @   signals (RuntimeException e) true;
+      @   signals_only RuntimeException;
       @*/
     public void deleteWishListByEmail(String email){
         try (Connection con = ConPool.getConnection()) {

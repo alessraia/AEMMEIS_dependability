@@ -17,7 +17,7 @@ import java.util.List;
 public class GestisciProdottiServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LibroDAO service = new LibroDAO();
-        List<Libro> libri = new ArrayList<>();
+        List<Libro> libri = new ArrayList<Libro>();
         libri= service.doRetriveAll();
         request.setAttribute("libri", libri);
 

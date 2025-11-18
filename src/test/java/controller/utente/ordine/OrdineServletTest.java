@@ -1,3 +1,5 @@
+package controller.utente.ordine;
+
 import controller.utente.ordine.OrdineServlet;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -68,7 +70,7 @@ class OrdineServletTest {
         when(request.getParameter("punti")).thenReturn("0"); // se standard
 
         // righeDisponibili
-        List<RigaCarrello> righeDisponibili = new ArrayList<>();
+        List<RigaCarrello> righeDisponibili = new ArrayList<RigaCarrello>();
         Libro libro = new Libro();
         libro.setIsbn("1111111111111");
         libro.setPrezzo(10.0);
@@ -86,7 +88,7 @@ class OrdineServletTest {
         Carrello carrello = new Carrello();
         carrello.setIdCarrello("C0001");
         carrello.setEmail("mario@example.com");
-        List<RigaCarrello> righeCarrello = new ArrayList<>(righeDisponibili);
+        List<RigaCarrello> righeCarrello = new ArrayList<RigaCarrello>(righeDisponibili);
         carrello.setRigheCarrello(righeCarrello);
 
         when(session.getAttribute("carrello")).thenReturn(carrello);

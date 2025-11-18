@@ -53,7 +53,7 @@ public class AggiungiAiPrefServlet extends HttpServlet {
                     wishList.getLibri().add(libro);
 
             } else {
-                wishList.setLibri(new ArrayList<>());
+                wishList.setLibri(new ArrayList<model.libroService.Libro>());
                 wishList.getLibri().add(libro);
 
             }
