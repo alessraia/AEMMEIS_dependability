@@ -10,14 +10,21 @@ services:
       - "3307:3306"    # opzionale, ma utile se vuoi collegarti da MySQL Workbench
     volumes:
       - ./docker/mysql/initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-pRootDocker_123!"]
+      interval: 5s
+      timeout: 3s
+      retries: 48
+      start_period: 10s
     restart: unless-stopped
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: aemmetsw-app
+
+    image: alessraia/aemmeis_dependability:main
     container_name: aemmetsw-app
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "8080:8080"
     environment:
@@ -26,5 +33,4 @@ services:
       DB_NAME: "aemmetsw"
       DB_USER: "root"
       DB_PASS: "RootDocker_123!"
-    depends_on:
-      - db
+
