@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LibroDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.libroService</a> &gt; <span class="el_source">LibroDAO.java</span></div><h1>LibroDAO.java</h1><pre class="source lang-java linenums">package model.libroService;
+import model.ConPool;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="fc" id="L8">public class LibroDAO {</span>
+    public void doSave(Libro libro){
+<span class="nc" id="L10">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L11">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO libro (isbn, titolo, genere, annoPubblicazione, prezzo, sconto, trama, immagine) VALUES(?,?,?,?,?,?,?,?)&quot;);
+<span class="nc" id="L13">            ps.setString(1, libro.getIsbn());</span>
+<span class="nc" id="L14">            ps.setString(2, libro.getTitolo());</span>
+<span class="nc" id="L15">            ps.setString(3, libro.getGenere());</span>
+<span class="nc" id="L16">            ps.setString(4, libro.getAnnoPubblicazioni());</span>
+<span class="nc" id="L17">            ps.setDouble(5, libro.getPrezzo());</span>
+<span class="nc" id="L18">            ps.setInt(6, libro.getSconto());</span>
+<span class="nc" id="L19">            ps.setString(7, libro.getTrama());</span>
+<span class="nc" id="L20">            ps.setString(8, libro.getImmagine());</span>
+<span class="nc bnc" id="L21" title="All 2 branches missed.">            if (ps.executeUpdate() != 1) {</span>
+<span class="nc" id="L22">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+
+<span class="nc bnc" id="L25" title="All 2 branches missed.">            for(Autore autore : libro.getAutori()){</span>
+<span class="nc" id="L26">                this.addAutore(libro.getIsbn(), autore);</span>
+<span class="nc" id="L27">            }</span>
+<span class="nc" id="L28">        } catch (SQLException e) {</span>
+<span class="nc" id="L29">            throw new RuntimeException(e);</span>
+<span class="nc" id="L30">        }</span>
+<span class="nc" id="L31">    }</span>
+
+    public void deleteLibro(String isbn){
+<span class="nc" id="L34">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L35">            PreparedStatement ps =</span>
+<span class="nc" id="L36">                    con.prepareStatement(&quot;DELETE FROM rigacarrello WHERE isbn=?&quot;);</span>
+<span class="nc" id="L37">            ps.setString(1, isbn);</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L39">                throw new RuntimeException(&quot;DELETE1 error.&quot;);</span>
+
+<span class="nc" id="L41">            ps = con.prepareStatement(&quot;DELETE FROM wishlist WHERE isbn=?&quot;);</span>
+<span class="nc" id="L42">            ps.setString(1, isbn);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L44">                throw new RuntimeException(&quot;DELETE2 error.&quot;);</span>
+
+<span class="nc" id="L46">            ps = con.prepareStatement(&quot;DELETE FROM reparto WHERE isbn=?&quot;);</span>
+<span class="nc" id="L47">            ps.setString(1, isbn);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L49">                throw new RuntimeException(&quot;DELETE3 error.&quot;);</span>
+
+<span class="nc" id="L51">            ps = con.prepareStatement(&quot;DELETE FROM sede WHERE isbn=?&quot;);</span>
+<span class="nc" id="L52">            ps.setString(1, isbn);</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L54">                throw new RuntimeException(&quot;DELETE4 error.&quot;);</span>
+
+<span class="nc" id="L56">            ps = con.prepareStatement(&quot;DELETE FROM scrittura WHERE isbn=?&quot;);</span>
+<span class="nc" id="L57">            ps.setString(1, isbn);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L59">                throw new RuntimeException(&quot;DELETE4 error.&quot;);</span>
+
+<span class="nc" id="L61">            ps = con.prepareStatement(&quot;DELETE FROM libro WHERE isbn=?&quot;);</span>
+<span class="nc" id="L62">            ps.setString(1, isbn);</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L64">                throw new RuntimeException(&quot;DELETE5 error.&quot;);</span>
+<span class="nc" id="L65">        } catch (SQLException e) {</span>
+<span class="nc" id="L66">            throw new RuntimeException(e);</span>
+<span class="nc" id="L67">        }</span>
+<span class="nc" id="L68">    }</span>
+
+    public void updateLibroSconto(Libro libro){
+<span class="nc" id="L71">        try(Connection con = ConPool.getConnection()){</span>
+<span class="nc" id="L72">            PreparedStatement ps = con.prepareStatement(&quot;UPDATE libro SET sconto = ? WHERE isbn = ?&quot;);</span>
+<span class="nc" id="L73">            ps.setInt(1, libro.getSconto());</span>
+<span class="nc" id="L74">            ps.setString(2, libro.getIsbn());</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L76">                throw new RuntimeException(&quot;UPDATE error.&quot;);</span>
+<span class="nc" id="L77">        } catch (SQLException e) {</span>
+<span class="nc" id="L78">            throw new RuntimeException(e);</span>
+<span class="nc" id="L79">        }</span>
+
+<span class="nc" id="L81">    }</span>
+
+    public void updateLibro(Libro libro){
+<span class="nc" id="L84">        try(Connection con = ConPool.getConnection()){</span>
+<span class="nc" id="L85">            PreparedStatement ps = con.prepareStatement(&quot;UPDATE libro SET titolo = ?, genere = ?, &quot; +</span>
+                    &quot;annoPubblicazione = ?, prezzo = ?, sconto = ?, trama = ?, immagine = ? WHERE isbn = ?&quot;);
+<span class="nc" id="L87">            ps.setString(1, libro.getTitolo());</span>
+<span class="nc" id="L88">            ps.setString(2, libro.getGenere());</span>
+<span class="nc" id="L89">            ps.setString(3, libro.getAnnoPubblicazioni());</span>
+<span class="nc" id="L90">            ps.setDouble(4, libro.getPrezzo());</span>
+<span class="nc" id="L91">            ps.setInt(5, libro.getSconto());</span>
+<span class="nc" id="L92">            ps.setString(6, libro.getTrama());</span>
+<span class="nc" id="L93">            ps.setString(7, libro.getImmagine());</span>
+<span class="nc" id="L94">            ps.setString(8, libro.getIsbn());</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L96">                throw new RuntimeException(&quot;UPDATE error.&quot;);</span>
+<span class="nc" id="L97">        } catch (SQLException e) {</span>
+<span class="nc" id="L98">            throw new RuntimeException(e);</span>
+<span class="nc" id="L99">        }</span>
+<span class="nc" id="L100">    }</span>
+
+    public void updateDisponibile(Libro libro){
+<span class="nc" id="L103">        try(Connection con = ConPool.getConnection()){</span>
+<span class="nc" id="L104">            PreparedStatement ps = con.prepareStatement(&quot;UPDATE libro SET disponibile = ? WHERE isbn = ?&quot;);</span>
+<span class="nc" id="L105">            ps.setBoolean(1, libro.isDisponibile());</span>
+<span class="nc" id="L106">            ps.setString(2, libro.getIsbn());</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L108">                throw new RuntimeException(&quot;UPDATE error.&quot;);</span>
+<span class="nc" id="L109">        } catch (SQLException e) {</span>
+<span class="nc" id="L110">            throw new RuntimeException(e);</span>
+<span class="nc" id="L111">        }</span>
+<span class="nc" id="L112">    }</span>
+
+    public List&lt;Libro&gt; doRetriveAll(){
+<span class="nc" id="L115">        List&lt;Libro&gt; libri = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L116">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L117">            PreparedStatement ps =</span>
+<span class="nc" id="L118">                    con.prepareStatement(&quot;SELECT * FROM libro&quot;);</span>
+
+<span class="nc" id="L120">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L122">                Libro p = new Libro();</span>
+<span class="nc" id="L123">                p.setIsbn(rs.getString(1));</span>
+<span class="nc" id="L124">                p.setTitolo(rs.getString(2));</span>
+<span class="nc" id="L125">                p.setGenere(rs.getString(3));</span>
+<span class="nc" id="L126">                p.setAnnoPubblicazioni(rs.getString(4));</span>
+<span class="nc" id="L127">                p.setPrezzo(rs.getDouble(5));</span>
+<span class="nc" id="L128">                p.setSconto(rs.getInt(6));</span>
+<span class="nc" id="L129">                p.setTrama(rs.getString(7));</span>
+<span class="nc" id="L130">                p.setImmagine(rs.getString(8));</span>
+<span class="nc" id="L131">                p.setDisponibile(rs.getBoolean(9));</span>
+<span class="nc" id="L132">                p.setAutori(this.getScrittura(p.getIsbn()));</span>
+<span class="nc" id="L133">                libri.add(p);</span>
+<span class="nc" id="L134">            }</span>
+<span class="nc" id="L135">            return libri;</span>
+<span class="nc" id="L136">        } catch(SQLException e){</span>
+<span class="nc" id="L137">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    public Libro doRetrieveById(String isbn) {
+<span class="nc" id="L142">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L143">            PreparedStatement ps =</span>
+<span class="nc" id="L144">                    con.prepareStatement(&quot;SELECT * FROM libro WHERE isbn=?&quot;);</span>
+<span class="nc" id="L145">            ps.setString(1, isbn);</span>
+<span class="nc" id="L146">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">            if (rs.next()) {</span>
+<span class="nc" id="L148">                Libro p = new Libro();</span>
+<span class="nc" id="L149">                p.setIsbn(rs.getString(1));</span>
+<span class="nc" id="L150">                p.setTitolo(rs.getString(2));</span>
+<span class="nc" id="L151">                p.setGenere(rs.getString(3));</span>
+<span class="nc" id="L152">                p.setAnnoPubblicazioni(rs.getString(4));</span>
+<span class="nc" id="L153">                p.setPrezzo(rs.getDouble(5));</span>
+<span class="nc" id="L154">                p.setSconto(rs.getInt(6));</span>
+<span class="nc" id="L155">                p.setTrama(rs.getString(7));</span>
+<span class="nc" id="L156">                p.setImmagine(rs.getString(8));</span>
+<span class="nc" id="L157">                p.setDisponibile(rs.getBoolean(9));</span>
+<span class="nc" id="L158">                p.setAutori(this.getScrittura(p.getIsbn()));</span>
+<span class="nc" id="L159">                return p;</span>
+            }
+<span class="nc" id="L161">            return null;</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L163">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    public List&lt;Autore&gt; getScrittura(String isbn){
+<span class="nc" id="L168">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L169">            PreparedStatement ps =</span>
+<span class="nc" id="L170">                    con.prepareStatement(&quot;SELECT cf FROM scrittura WHERE isbn=?&quot;);</span>
+<span class="nc" id="L171">            ps.setString(1, isbn);</span>
+<span class="nc" id="L172">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc" id="L173">            List&lt;Autore&gt; autori = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L175">                String cf = rs.getString(1);</span>
+<span class="nc" id="L176">                AutoreDAO service = new AutoreDAO();</span>
+<span class="nc" id="L177">                autori.add(service.searchAutore(cf));</span>
+<span class="nc" id="L178">            }</span>
+<span class="nc" id="L179">            return autori;</span>
+<span class="nc" id="L180">        } catch (SQLException e) {</span>
+<span class="nc" id="L181">            throw new RuntimeException(e);</span>
+        }
+    }
+    public List&lt;Reparto&gt; getAppartenenzaReparto(String isbn){
+<span class="nc" id="L185">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L186">            PreparedStatement ps =</span>
+<span class="nc" id="L187">                    con.prepareStatement(&quot;SELECT idReparto FROM appartenenza WHERE isbn=?&quot;);</span>
+<span class="nc" id="L188">            ps.setString(1, isbn);</span>
+<span class="nc" id="L189">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc" id="L190">            List&lt;Reparto&gt; reparti = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L192">                int idReparto = rs.getInt(1);</span>
+<span class="nc" id="L193">                RepartoDAO service = new RepartoDAO();</span>
+<span class="nc" id="L194">                reparti.add(service.doRetrieveById(idReparto));</span>
+<span class="nc" id="L195">            }</span>
+<span class="nc" id="L196">            return reparti;</span>
+<span class="nc" id="L197">        } catch (SQLException e) {</span>
+<span class="nc" id="L198">            throw new RuntimeException(e);</span>
+        }
+    }
+    public List&lt;Sede&gt; getPresenzaSede(String isbn){
+<span class="nc" id="L202">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L203">            PreparedStatement ps =</span>
+<span class="nc" id="L204">                    con.prepareStatement(&quot;SELECT idSede FROM presenza WHERE isbn=?&quot;);</span>
+<span class="nc" id="L205">            ps.setString(1, isbn);</span>
+<span class="nc" id="L206">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc" id="L207">            List&lt;Sede&gt; sedi = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L209">                int idSede = rs.getInt(1);</span>
+<span class="nc" id="L210">                SedeDAO service = new SedeDAO();</span>
+<span class="nc" id="L211">                sedi.add(service.doRetrieveById(idSede));</span>
+<span class="nc" id="L212">            }</span>
+<span class="nc" id="L213">            return sedi;</span>
+<span class="nc" id="L214">        } catch (SQLException e) {</span>
+<span class="nc" id="L215">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    public void deleteAutoreScrittura(String isbn, Autore autore){
+<span class="nc" id="L220">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L221">            PreparedStatement ps =</span>
+<span class="nc" id="L222">                    con.prepareStatement(&quot;DELETE FROM scrittura WHERE isbn=? AND cf=?&quot;);</span>
+<span class="nc" id="L223">            ps.setString(1, isbn);</span>
+<span class="nc" id="L224">            ps.setString(2, autore.getCf());</span>
+
+<span class="nc" id="L226">            AutoreDAO service = new AutoreDAO();</span>
+<span class="nc" id="L227">            service.deleteAutore(autore.getCf());</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L229">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="nc" id="L230">        } catch (SQLException e) {</span>
+<span class="nc" id="L231">            throw new RuntimeException(e);</span>
+<span class="nc" id="L232">        }</span>
+<span class="nc" id="L233">    }</span>
+
+
+    public void addAutore(String isbn, Autore autore){
+<span class="nc" id="L237">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L238">            AutoreDAO autoreService=new AutoreDAO();</span>
+<span class="nc bnc" id="L239" title="All 2 branches missed.">            if(autoreService.searchAutore(autore.getCf())==null)</span>
+<span class="nc" id="L240">                autoreService.doSave(autore);</span>
+
+<span class="nc" id="L242">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO scrittura (cf, isbn) VALUES(?,?)&quot;);
+<span class="nc" id="L244">            ps.setString(1, autore.getCf());</span>
+<span class="nc" id="L245">            ps.setString(2, isbn);</span>
+
+<span class="nc bnc" id="L247" title="All 2 branches missed.">            if (ps.executeUpdate() != 1) {</span>
+<span class="nc" id="L248">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+<span class="nc" id="L250">        } catch (SQLException e) {</span>
+<span class="nc" id="L251">            throw new RuntimeException(e);</span>
+<span class="nc" id="L252">        }</span>
+<span class="nc" id="L253">    }</span>
+
+    public List&lt;Libro&gt; Search(String query) {
+<span class="nc" id="L256">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L257">            PreparedStatement ps = con.prepareStatement(&quot;SELECT * FROM libro WHERE titolo LIKE ? OR isbn LIKE ?&quot;);</span>
+<span class="nc" id="L258">            ps.setString(1, &quot;%&quot; + query + &quot;%&quot;);</span>
+<span class="nc" id="L259">            ps.setString(2, query + &quot;%&quot;);</span>
+
+<span class="nc" id="L261">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc" id="L262">            List&lt;Libro&gt; libri = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L264">                Libro p = new Libro();</span>
+<span class="nc" id="L265">                p.setIsbn(rs.getString(1));</span>
+<span class="nc" id="L266">                p.setTitolo(rs.getString(2));</span>
+<span class="nc" id="L267">                p.setGenere(rs.getString(3));</span>
+<span class="nc" id="L268">                p.setAnnoPubblicazioni(rs.getString(4));</span>
+<span class="nc" id="L269">                p.setPrezzo(rs.getDouble(5));</span>
+<span class="nc" id="L270">                p.setSconto(rs.getInt(6));</span>
+<span class="nc" id="L271">                p.setTrama(rs.getString(7));</span>
+<span class="nc" id="L272">                p.setImmagine(rs.getString(8));</span>
+<span class="nc" id="L273">                p.setDisponibile(rs.getBoolean(9));</span>
+<span class="nc" id="L274">                p.setAutori(this.getScrittura(p.getIsbn()));</span>
+<span class="nc" id="L275">                libri.add(p);</span>
+<span class="nc" id="L276">            }</span>
+<span class="nc" id="L277">            return libri;</span>
+<span class="nc" id="L278">        } catch (SQLException e) {</span>
+<span class="nc" id="L279">            throw new RuntimeException(e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

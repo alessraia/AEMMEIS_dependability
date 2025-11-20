@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LoginServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente</a> &gt; <span class="el_source">LoginServlet.java</span></div><h1>LoginServlet.java</h1><pre class="source lang-java linenums">package controller.utente;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.carrelloService.Carrello;
+import model.carrelloService.CarrelloDAO;
+import model.carrelloService.RigaCarrello;
+import model.carrelloService.RigaCarrelloDAO;
+import model.libroService.Libro;
+import model.libroService.LibroDAO;
+import model.utenteService.Utente;
+import model.utenteService.UtenteDAO;
+import model.wishList.WishList;
+import model.wishList.WishListDAO;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+@WebServlet(&quot;/login-servlet&quot;)
+
+<span class="nc" id="L29">public class LoginServlet extends HttpServlet {</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        //controllo dei form
+<span class="nc" id="L33">        String email = request.getParameter(&quot;email&quot;);</span>
+<span class="nc" id="L34">        String password = request.getParameter(&quot;pw&quot;);</span>
+<span class="nc bnc" id="L35" title="All 12 branches missed.">        if((email==null || email.isEmpty() || !email.contains(&quot;@&quot;)) || (password== null || (password.isEmpty()) || password.length()&gt;16)){</span>
+<span class="nc" id="L36">            response.sendRedirect(&quot;/WEB-INF/errorJsp/loginError.jsp&quot;);</span>
+        }
+        else {
+<span class="nc" id="L39">            Utente utente = new Utente();</span>
+<span class="nc" id="L40">            utente.setEmail(email);</span>
+<span class="nc" id="L41">            utente.setCodiceSicurezza(password);</span>
+
+<span class="nc" id="L43">            UtenteDAO service = new UtenteDAO();</span>
+
+<span class="nc bnc" id="L45" title="All 2 branches missed.">            if (service.doRetrieveByEmailPassword(utente.getEmail(), utente.getCodiceSicurezza()) == null) {</span>
+<span class="nc" id="L46">                RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/errorJsp/loginError.jsp&quot;);</span>
+<span class="nc" id="L47">                dispatcher.forward(request, response);</span>
+<span class="nc" id="L48">            } else {</span>
+<span class="nc" id="L49">                HttpSession session = request.getSession();</span>
+<span class="nc" id="L50">                utente = service.doRetrieveById(email);</span>
+<span class="nc" id="L51">                session.setAttribute(&quot;utente&quot;, utente);</span>
+
+<span class="nc" id="L53">                Carrello carrelloLocale = (Carrello) session.getAttribute(&quot;carrello&quot;);// Recupera il carrello locale dalla sessione</span>
+<span class="nc" id="L54">                List&lt;RigaCarrello&gt; righeLocali = carrelloLocale.getRigheCarrello();</span>
+
+<span class="nc" id="L56">                CarrelloDAO carrelloService = new CarrelloDAO();</span>
+<span class="nc" id="L57">                Carrello carrelloDb = null;</span>
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">                if (carrelloService.doRetriveByUtente(utente.getEmail()) != null) {</span>
+<span class="nc" id="L60">                    carrelloDb = carrelloService.doRetriveByUtente(utente.getEmail());// Recupera il carrello dal database</span>
+<span class="nc" id="L61">                    List&lt;RigaCarrello&gt; rigaCarrelloDb = carrelloDb.getRigheCarrello();</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">                    if (righeLocali != null) {</span>
+                        // Fusiona i carrelli
+<span class="nc bnc" id="L65" title="All 2 branches missed.">                        for (int i = 0; i &lt; righeLocali.size(); i++) {</span>
+<span class="nc" id="L66">                            RigaCarrello riga = righeLocali.get(i);</span>
+<span class="nc" id="L67">                            boolean flag = true;//non presente</span>
+<span class="nc bnc" id="L68" title="All 4 branches missed.">                            for (int j = 0; j &lt; rigaCarrelloDb.size() &amp;&amp; flag; j++) {</span>
+<span class="nc" id="L69">                                RigaCarrello riga2 = rigaCarrelloDb.get(j);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">                                if (riga2.getLibro().getIsbn().equals(riga.getLibro().getIsbn())) { //se l'isbn è già presente nel carrello del DB</span>
+<span class="nc" id="L71">                                    riga2.setQuantita(riga2.getQuantita() + riga.getQuantita());//incremento semplicemente la quantità</span>
+<span class="nc" id="L72">                                    flag = false;</span>
+                                }
+                            }
+<span class="nc bnc" id="L75" title="All 2 branches missed.">                            if (flag) {</span>
+<span class="nc" id="L76">                                riga.setIdCarrello(carrelloDb.getIdCarrello());</span>
+<span class="nc" id="L77">                                rigaCarrelloDb.add(riga); //altrimenti lo aggiungo nel carrello</span>
+                            }
+                        }
+                    }
+                }
+<span class="nc" id="L82">                WishListDAO wishListService = new WishListDAO();</span>
+<span class="nc" id="L83">                WishList wishList = wishListService.doRetrieveByEmail(utente.getEmail());</span>
+
+<span class="nc" id="L85">                session.setAttribute(&quot;carrello&quot;, carrelloDb);</span>
+<span class="nc" id="L86">                session.setAttribute(&quot;wishList&quot;, wishList);</span>
+
+
+            }
+<span class="nc" id="L90">            response.sendRedirect(&quot;index.html&quot;);</span>
+        }
+
+
+<span class="nc" id="L94">    }</span>
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L98">        this.doGet(req, resp);</span>
+<span class="nc" id="L99">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

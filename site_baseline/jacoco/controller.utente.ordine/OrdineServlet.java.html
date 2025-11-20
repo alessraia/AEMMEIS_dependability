@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrdineServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente.ordine</a> &gt; <span class="el_source">OrdineServlet.java</span></div><h1>OrdineServlet.java</h1><pre class="source lang-java linenums">package controller.utente.ordine;
+
+
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.carrelloService.Carrello;
+import model.carrelloService.CarrelloDAO;
+import model.carrelloService.RigaCarrello;
+import model.carrelloService.RigaCarrelloDAO;
+import model.gestoreService.Gestore;
+import model.gestoreService.GestoreDAO;
+import model.libroService.Libro;
+import model.ordineService.Ordine;
+import model.ordineService.OrdineDAO;
+import model.ordineService.RigaOrdine;
+import model.ordineService.RigaOrdineDAO;
+import model.tesseraService.Tessera;
+import model.tesseraService.TesseraDAO;
+import model.utenteService.Utente;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+@WebServlet(&quot;/do-ordine&quot;)
+<span class="fc" id="L36">public class OrdineServlet extends HttpServlet {</span>
+
+<span class="fc" id="L38">    private OrdineDAO ordineDAO = new OrdineDAO();</span>
+<span class="fc" id="L39">    private CarrelloDAO carrelloDAO = new CarrelloDAO();</span>
+<span class="fc" id="L40">    private RigaCarrelloDAO rigaCarrelloDAO = new RigaCarrelloDAO();</span>
+<span class="fc" id="L41">    private TesseraDAO tesseraDAO = new TesseraDAO();</span>
+<span class="fc" id="L42">    private GestoreDAO gestoreDAO = new GestoreDAO();</span>
+
+    public void setRigaCarrelloDAO(RigaCarrelloDAO rigaCarrelloDAO) {
+<span class="fc" id="L45">        this.rigaCarrelloDAO = rigaCarrelloDAO;</span>
+<span class="fc" id="L46">    }</span>
+
+    public void setCarrelloDAO(CarrelloDAO carrelloDAO) {
+<span class="fc" id="L49">        this.carrelloDAO = carrelloDAO;</span>
+<span class="fc" id="L50">    }</span>
+
+    public void setOrdineDAO(OrdineDAO ordineDAO){
+<span class="fc" id="L53">        this.ordineDAO = ordineDAO;</span>
+<span class="fc" id="L54">    }</span>
+
+    public void setTesseraDAO(TesseraDAO tesseraDAO) {
+<span class="fc" id="L57">        this.tesseraDAO = tesseraDAO;</span>
+<span class="fc" id="L58">    }</span>
+
+    public void setGestoreDAO(GestoreDAO gestoreDAO) {
+<span class="fc" id="L61">        this.gestoreDAO = gestoreDAO;</span>
+<span class="fc" id="L62">    }</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        //prendo ciò che ho in  sessione
+<span class="fc" id="L65">        HttpSession session= request.getSession();</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">        if(Validator.checkIfUserAdmin((Utente) session.getAttribute(&quot;utente&quot;))) {</span>
+<span class="nc" id="L67">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="nc" id="L68">            dispatcher.forward(request, response);</span>
+        }
+
+        //non faccio il controllo poichè lo faccio negli step prima...quindi se non ci fossero righe non dovrebbe
+        //proprio arrivare a questo punto.
+<span class="fc" id="L73">        List&lt;RigaCarrello&gt; righeCarrello = (List&lt;RigaCarrello&gt;) session.getAttribute(&quot;righeDisponibili&quot;);</span>
+
+<span class="fc" id="L75">        Carrello carrello = (Carrello) session.getAttribute(&quot;carrello&quot;);</span>
+<span class="fc" id="L76">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+
+        //credo gli oggetti che mi serviranno e i relativi services
+<span class="fc" id="L79">        Ordine ordine = new Ordine();</span>
+        //RigaOrdineDAO rigaOrdineDAO = new RigaOrdineDAO();
+<span class="fc" id="L81">        Carrello carrelloDB = carrelloDAO.doRetriveByUtente(utente.getEmail());</span>
+
+        //parametri passati da servlet a jsp...
+<span class="fc" id="L84">        ordine.setIndirizzoSpedizione(request.getParameter(&quot;indirizzo&quot;));</span>
+<span class="fc" id="L85">        ordine.setCitta(request.getParameter(&quot;citta&quot;));</span>
+
+        // if(utente.getTipo().equalsIgnoreCase(&quot;premium&quot;)){
+        //setto i punti, se è un utente standard sono a 0
+<span class="fc" id="L89">        String puntiString = request.getParameter(&quot;punti&quot;);</span>
+<span class="fc" id="L90">        int punti = 0;</span>
+<span class="pc bpc" id="L91" title="2 of 4 branches missed.">        if(puntiString != null &amp;&amp; !puntiString.isEmpty())</span>
+<span class="fc" id="L92">            punti = Integer.parseInt(puntiString);</span>
+<span class="fc" id="L93">        ordine.setPuntiSpesi(punti);</span>
+        // }
+
+
+
+        //parametri calcolati
+<span class="fc" id="L99">        double costo = 0;</span>
+<span class="fc" id="L100">        int puntiAcquisiti = 0;</span>
+        //creo idOrdine
+<span class="fc" id="L102">        List&lt;String&gt; idOrdini = ordineDAO.doRetrivedAllByIdOrdini(); //mock</span>
+        String idOrdine;
+<span class="fc" id="L104">        Random random =new Random();</span>
+        do {
+<span class="fc" id="L106">            idOrdine = &quot;T&quot; + random.nextInt(10) + random.nextInt(10) + random.nextInt(10);</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        }while(idOrdini.contains(idOrdine));</span>
+<span class="fc" id="L108">        ordine.setIdOrdine(idOrdine);</span>
+
+
+<span class="fc" id="L111">        List&lt;RigaOrdine&gt; righeOrdine = new ArrayList&lt;RigaOrdine&gt;();</span>
+        //prendo i libri selezionati dalle righe carrello e calcolo il costo e i punti
+
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        for(RigaCarrello rigaCarrello : righeCarrello){</span>
+<span class="fc" id="L115">            Libro l = rigaCarrello.getLibro();</span>
+<span class="fc" id="L116">            RigaOrdine riga = new RigaOrdine();</span>
+<span class="fc" id="L117">            riga.setIdOrdine(ordine.getIdOrdine());</span>
+<span class="fc" id="L118">            riga.setLibro(l);</span>
+
+<span class="fc" id="L120">            double prezzoUnitarioPrima = (l.getPrezzo() - (l.getPrezzo()*l.getSconto()/100));</span>
+<span class="fc" id="L121">            BigDecimal bd = new BigDecimal(prezzoUnitarioPrima).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L122">            double prezzoUnitario = bd.doubleValue();</span>
+<span class="fc" id="L123">            riga.setPrezzoUnitario(prezzoUnitario);</span>
+<span class="fc" id="L124">            riga.setQuantita(rigaCarrello.getQuantita());</span>
+
+            //    rigaOrdineDAO.doSave(riga); //salvo nel db la riga ordine
+<span class="fc" id="L127">            righeOrdine.add(riga);</span>
+
+<span class="fc" id="L129">            costo += ((rigaCarrello.getQuantita() * prezzoUnitario) /*- (ordine.getPuntiSpesi() * 0.10)*/); //tolgo</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">            if(utente.getTipo().equalsIgnoreCase(&quot;premium&quot;))</span>
+<span class="nc" id="L131">                puntiAcquisiti += 5* rigaCarrello.getQuantita();</span>
+
+
+            //quando scorro la lista delle righe del carrello che voglio acquistare
+            //devo eventualmente cancellare la riga in sessione e nel db, o settare la quantità.
+<span class="fc bfc" id="L136" title="All 2 branches covered.">            for(int i=0; i&lt;carrelloDB.getRigheCarrello().size(); i++){</span>
+<span class="fc" id="L137">                RigaCarrello rc = carrelloDB.getRigheCarrello().get(i);</span>
+<span class="fc" id="L138">                Libro libroRC = rc.getLibro();</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">                if(libroRC.equals(l)){</span>
+<span class="fc" id="L140">                    int differenza = rc.getQuantita() - rigaCarrello.getQuantita();</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">                    if (differenza &lt;= 0){</span>
+<span class="fc" id="L142">                        rigaCarrelloDAO.deleteRigaCarrello(l.getIsbn(), carrelloDB.getIdCarrello());</span>
+
+                    }
+                }
+            }
+<span class="pc bpc" id="L147" title="1 of 2 branches missed.">            for(int j = 0; j&lt;carrello.getRigheCarrello().size(); j++){</span>
+<span class="fc" id="L148">                RigaCarrello rigaInSessione = carrello.getRigheCarrello().get(j);</span>
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">                if(rigaInSessione.getLibro().equals(l)){</span>
+<span class="fc" id="L150">                    carrello.getRigheCarrello().remove(j);</span>
+<span class="fc" id="L151">                    break;</span>
+                }
+            }
+
+<span class="fc" id="L155">        }</span>
+
+<span class="fc" id="L157">        ordine.setPuntiOttenuti(puntiAcquisiti);</span>
+
+        //aggiorno tessera
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">        if(utente.getTipo().equalsIgnoreCase(&quot;premium&quot;)){</span>
+<span class="nc" id="L161">            Tessera tessera = tesseraDAO.doRetrieveByEmail(utente.getEmail());</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">            if(tessera.getDataScadenza().isAfter(LocalDate.now())){</span>
+<span class="nc" id="L163">                tessera.setPunti(tessera.getPunti() - ordine.getPuntiSpesi() + ordine.getPuntiOttenuti());</span>
+<span class="nc" id="L164">                tesseraDAO.updateTessera(tessera);</span>
+            } else {
+<span class="nc" id="L166">                ordine.setPuntiSpesi(0); //non può spendere punti poichè la tessera è scaduta.</span>
+            }
+        }
+
+        // ordine.setCosto(Double.parseDouble(request.getParameter(&quot;costo&quot;)));
+<span class="fc" id="L171">        double costoAggiornato=costo - (ordine.getPuntiSpesi() * 0.10);</span>
+<span class="fc" id="L172">        BigDecimal bd = new BigDecimal(costoAggiornato).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L173">        double costoArrotondato = bd.doubleValue();</span>
+<span class="fc" id="L174">        ordine.setCosto(costoArrotondato); //lo ricalcolo per sicurezza</span>
+        //utente che effettua l'ordine
+<span class="fc" id="L176">        ordine.setEmail(utente.getEmail());</span>
+        //quando si fa l'ordine: nel momento di invocazione della servlet
+<span class="fc" id="L178">        ordine.setDataEffettuazione(LocalDate.now());</span>
+        //righeOrdine
+<span class="fc" id="L180">        ordine.setRigheOrdine(righeOrdine);</span>
+
+<span class="fc" id="L182">        ordine.setStato(&quot;In Lavorazione&quot;);</span>
+<span class="fc" id="L183">        Random rand = new Random();</span>
+<span class="fc" id="L184">        List&lt;Gestore&gt; gestoriDispo = gestoreDAO.doRetrivedAll();</span>
+<span class="fc" id="L185">        ordine.setMatricola(gestoriDispo.get(rand.nextInt(gestoriDispo.size())).getMatricola());</span>
+
+<span class="fc" id="L187">        ordineDAO.doSave(ordine);</span>
+
+<span class="fc" id="L189">        response.sendRedirect(&quot;index.html&quot;);</span>
+<span class="fc" id="L190">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

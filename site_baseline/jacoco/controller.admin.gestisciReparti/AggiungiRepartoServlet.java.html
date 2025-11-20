@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AggiungiRepartoServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.admin.gestisciReparti</a> &gt; <span class="el_source">AggiungiRepartoServlet.java</span></div><h1>AggiungiRepartoServlet.java</h1><pre class="source lang-java linenums">package controller.admin.gestisciReparti;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import model.libroService.Reparto;
+import model.libroService.RepartoDAO;
+
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet(&quot;/aggiungi-reparto&quot;)
+<span class="nc" id="L16">public class AggiungiRepartoServlet extends HttpServlet {</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+<span class="nc" id="L18">        Reparto reparto = new Reparto();</span>
+<span class="nc" id="L19">        String nome = request.getParameter(&quot;nome&quot;);</span>
+<span class="nc" id="L20">        String descrizione = request.getParameter(&quot;descrizione&quot;);</span>
+<span class="nc" id="L21">        String immagine = request.getParameter(&quot;immagine&quot;);</span>
+<span class="nc bnc" id="L22" title="All 12 branches missed.">        if(nome==null || nome.isEmpty() || descrizione==null || descrizione.isEmpty() || immagine==null || immagine.isEmpty()){</span>
+            //pagina di errore per inserimento parametri errato
+<span class="nc" id="L24">            response.sendRedirect(&quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;);//forse</span>
+        }
+
+<span class="nc" id="L27">        reparto.setDescrizione(descrizione);</span>
+<span class="nc" id="L28">        reparto.setNome(nome);</span>
+<span class="nc" id="L29">        reparto.setImmagine(immagine);</span>
+
+<span class="nc" id="L31">        RepartoDAO repartoService = new RepartoDAO();</span>
+<span class="nc" id="L32">        List&lt;Reparto&gt; reparti= repartoService.doRetrivedAll();</span>
+<span class="nc" id="L33">        boolean flag=true;</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        for (Reparto rep:reparti){</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">            if(rep.getNome().equals(reparto.getNome())){</span>
+<span class="nc" id="L36">                request.setAttribute(&quot;esito&quot;, &quot;non riuscito&quot;);//per poter mostrare un errore nell'inserimento</span>
+<span class="nc" id="L37">                RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/reparti/aggiungiReparto.jsp&quot;);</span>
+<span class="nc" id="L38">                dispatcher.forward(request, response);</span>
+<span class="nc" id="L39">                flag=false;</span>
+            }
+<span class="nc" id="L41">        }</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">        if(flag) {</span>
+<span class="nc" id="L43">            repartoService.doSave(reparto);</span>
+<span class="nc" id="L44">            response.sendRedirect(&quot;gestisci-reparti&quot;);</span>
+        }
+
+<span class="nc" id="L47">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

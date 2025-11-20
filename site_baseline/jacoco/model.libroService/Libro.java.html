@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Libro.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.libroService</a> &gt; <span class="el_source">Libro.java</span></div><h1>Libro.java</h1><pre class="source lang-java linenums">package model.libroService;
+
+import java.util.List;
+import java.util.Objects;
+
+<span class="fc" id="L6">public class Libro {</span>
+    private String isbn;
+    private String titolo;
+    private String genere;
+    private String annoPubblicazioni;
+    private double prezzo;
+    private int sconto;
+    private String trama;
+    private String immagine;
+    private boolean disponibile;
+    private List&lt;Autore&gt; autori;
+
+
+    public String getTitolo() {
+<span class="nc" id="L20">        return titolo;</span>
+    }
+
+    public void setTitolo(String titolo) {
+<span class="fc" id="L24">        this.titolo = titolo;</span>
+<span class="fc" id="L25">    }</span>
+
+    public int getSconto() {
+<span class="fc" id="L28">        return sconto;</span>
+    }
+
+    public void setSconto(int sconto) {
+<span class="fc" id="L32">        this.sconto = sconto;</span>
+<span class="fc" id="L33">    }</span>
+
+    public double getPrezzo() {
+<span class="fc" id="L36">        return prezzo;</span>
+    }
+
+    public void setPrezzo(double prezzo) {
+<span class="fc" id="L40">        this.prezzo = prezzo;</span>
+<span class="fc" id="L41">    }</span>
+
+    public String getIsbn() {
+<span class="fc" id="L44">        return isbn;</span>
+    }
+
+    public void setIsbn(String isbn) {
+<span class="fc" id="L48">        this.isbn = isbn;</span>
+<span class="fc" id="L49">    }</span>
+
+    public String getGenere() {
+<span class="nc" id="L52">        return genere;</span>
+    }
+
+    public void setGenere(String genere) {
+<span class="fc" id="L56">        this.genere = genere;</span>
+<span class="fc" id="L57">    }</span>
+
+    public String getAnnoPubblicazioni() {
+<span class="nc" id="L60">        return annoPubblicazioni;</span>
+    }
+
+    public void setAnnoPubblicazioni(String annoPubblicazioni) {
+<span class="fc" id="L64">        this.annoPubblicazioni = annoPubblicazioni;</span>
+<span class="fc" id="L65">    }</span>
+
+    public String getTrama() {
+<span class="nc" id="L68">        return trama;</span>
+    }
+
+    public void setTrama(String trama) {
+<span class="fc" id="L72">        this.trama = trama;</span>
+<span class="fc" id="L73">    }</span>
+
+    public String getImmagine() {
+<span class="nc" id="L76">        return immagine;</span>
+    }
+
+    public void setImmagine(String immagine) {
+<span class="fc" id="L80">        this.immagine = immagine;</span>
+<span class="fc" id="L81">    }</span>
+
+    public List&lt;Autore&gt; getAutori() {
+<span class="nc" id="L84">        return autori;</span>
+    }
+
+    public void setAutori(List&lt;Autore&gt; autori) {
+<span class="fc" id="L88">        this.autori = autori;</span>
+<span class="fc" id="L89">    }</span>
+
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L94" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L95">        Libro libro = (Libro) o;</span>
+<span class="fc" id="L96">        return isbn.equals(libro.isbn);</span>
+        //si potrebbe fare anche solo sull'isbn
+    }
+
+    public boolean isDisponibile() {
+<span class="fc" id="L101">        return disponibile;</span>
+    }
+
+    public void setDisponibile(boolean disponibile) {
+<span class="fc" id="L105">        this.disponibile = disponibile;</span>
+<span class="fc" id="L106">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Pagamento.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente.ordine</a> &gt; <span class="el_source">Pagamento.java</span></div><h1>Pagamento.java</h1><pre class="source lang-java linenums">package controller.utente.ordine;
+
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.carrelloService.Carrello;
+import model.carrelloService.RigaCarrello;
+import model.libroService.*;
+import model.ordineService.Ordine;
+import model.ordineService.OrdineDAO;
+import model.ordineService.RigaOrdine;
+import model.utenteService.Utente;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+
+@WebServlet(&quot;/do-pagamento&quot;)
+<span class="fc" id="L25">public class Pagamento extends HttpServlet {</span>
+<span class="fc" id="L26">    private SedeDAO sedeDAO = new SedeDAO();</span>
+
+    public void setSedeDAO(SedeDAO sedeDAO) {
+<span class="fc" id="L29">        this.sedeDAO = sedeDAO;</span>
+<span class="fc" id="L30">    }</span>
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="fc" id="L33">        HttpSession session= request.getSession();</span>
+<span class="fc" id="L34">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        if(Validator.checkIfUserAdmin(utente)) {</span>
+<span class="nc" id="L36">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="nc" id="L37">            dispatcher.forward(request, response);</span>
+        }
+
+<span class="fc" id="L40">        List&lt;RigaCarrello&gt; righe = (List&lt;RigaCarrello&gt;) session.getAttribute(&quot;righeDisponibili&quot;);</span>
+<span class="fc" id="L41">        Ordine ordine = new Ordine();</span>
+        //  OrdineDAO ordineDAO = new OrdineDAO();
+<span class="fc" id="L43">        String type = request.getParameter(&quot;typeForm&quot;);</span>
+<span class="fc" id="L44">        String address = null;</span>
+
+<span class="fc" id="L46">        double costo = 0.00;</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        for(RigaCarrello r : righe){</span>
+<span class="fc" id="L48">            Libro libro = r.getLibro();</span>
+<span class="fc" id="L49">            double prezzoUnitario = libro.getPrezzo() - (libro.getPrezzo() * libro.getSconto()/100.00);</span>
+<span class="fc" id="L50">            costo += r.getQuantita() * prezzoUnitario;</span>
+<span class="fc" id="L51">        }</span>
+
+<span class="fc" id="L53">        BigDecimal bd = new BigDecimal(costo).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L54">        double costoArrotondato = bd.doubleValue();</span>
+
+<span class="fc" id="L56">        ordine.setCosto(costoArrotondato);</span>
+
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        if(type.equals(&quot;indirizzo&quot;)){</span>
+<span class="fc" id="L59">            String indirizzo = request.getParameter(&quot;indirizzo&quot;) + &quot;, &quot; + request.getParameter(&quot;cap&quot;);</span>
+<span class="fc" id="L60">            String citta = request.getParameter(&quot;citta&quot;);</span>
+<span class="pc bpc" id="L61" title="2 of 4 branches missed.">            if(request.getParameter(&quot;indirizzo&quot;)==null|| request.getParameter(&quot;cap&quot;)==null</span>
+<span class="pc bpc" id="L62" title="2 of 6 branches missed.">                    || request.getParameter(&quot;indirizzo&quot;).isEmpty()|| request.getParameter(&quot;cap&quot;).isEmpty()</span>
+<span class="pc bpc" id="L63" title="2 of 4 branches missed.">                    || citta==null || citta.isEmpty() || !isNumeric(request.getParameter(&quot;cap&quot;))</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">                    || request.getParameter(&quot;cap&quot;).length()&gt;5) {</span>
+                //pagina di errore per inserimento parametri errato
+<span class="fc" id="L66">                address = &quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;;</span>
+                //  response.sendRedirect(&quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;);//forse
+            }
+            else {
+<span class="fc" id="L70">                ordine.setCitta(citta);</span>
+<span class="fc" id="L71">                ordine.setIndirizzoSpedizione(indirizzo);</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">                if(utente.getTipo().equalsIgnoreCase(&quot;Standard&quot;))</span>
+<span class="fc" id="L73">                    address = &quot;/WEB-INF/results/pagamentoOrdine.jsp&quot;;</span>
+                else{
+<span class="nc" id="L75">                    address = &quot;/WEB-INF/results/puntiPremium.jsp&quot;;</span>
+                }
+            }
+<span class="fc" id="L78">        }</span>
+        else{
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">            if(request.getParameter(&quot;sede&quot;)==null || request.getParameter(&quot;sede&quot;).isEmpty())</span>
+                //pagina di errore per inserimento parametri errato
+<span class="fc" id="L82">                address = &quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;;</span>
+                // response.sendRedirect(&quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;);//forse
+            else {
+<span class="fc" id="L85">                Sede sede = sedeDAO.doRetrieveById(Integer.parseInt(request.getParameter(&quot;sede&quot;)));</span>
+<span class="fc" id="L86">                ordine.setCitta(sede.getCitta());</span>
+<span class="fc" id="L87">                ordine.setIndirizzoSpedizione(sede.getVia() + &quot;, &quot; + sede.getCivico() + &quot;, &quot; + sede.getCap());</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">                if(utente.getTipo().equalsIgnoreCase(&quot;Standard&quot;))</span>
+<span class="fc" id="L89">                    address = &quot;/WEB-INF/results/pagamentoOrdine.jsp&quot;;</span>
+                else{
+<span class="nc" id="L91">                    address = &quot;/WEB-INF/results/puntiPremium.jsp&quot;;</span>
+                }
+            }
+        }
+        //inizio a salvare dati per l'ordine e l'ordine in sessione, così dopo il pagamento la servlet lavora su quest'ordine
+<span class="fc" id="L96">        request.setAttribute(&quot;ordine&quot;, ordine);</span>
+
+<span class="fc" id="L98">        RequestDispatcher dispatcher = request.getRequestDispatcher(address);</span>
+<span class="fc" id="L99">        dispatcher.forward(request, response);</span>
+<span class="fc" id="L100">    }</span>
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L104">        this.doGet(req, resp);</span>
+<span class="nc" id="L105">    }</span>
+
+    private static boolean isNumeric(String str) {//metodo che utilizza espressione regolare per verificare che una stringa contenga solo numeri
+<span class="pc bpc" id="L108" title="2 of 4 branches missed.">        return str != null &amp;&amp; str.matches(&quot;\\d+&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PuntiServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente.ordine</a> &gt; <span class="el_source">PuntiServlet.java</span></div><h1>PuntiServlet.java</h1><pre class="source lang-java linenums">package controller.utente.ordine;
+
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import model.ordineService.Ordine;
+import model.utenteService.Utente;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
+@WebServlet(&quot;/punti-servlet&quot;)
+<span class="nc" id="L20">public class PuntiServlet extends HttpServlet {</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="nc" id="L22">        HttpSession session = request.getSession();</span>
+<span class="nc" id="L23">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+<span class="nc" id="L24">        String address = null;</span>
+<span class="nc bnc" id="L25" title="All 2 branches missed.">        if(Validator.checkIfUserAdmin(utente)) {</span>
+<span class="nc" id="L26">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="nc" id="L27">            dispatcher.forward(request, response);</span>
+<span class="nc" id="L28">            return;</span>
+        }
+<span class="nc" id="L30">        Ordine ordine = new Ordine();</span>
+<span class="nc" id="L31">        ordine.setCitta(request.getParameter(&quot;citta&quot;));</span>
+<span class="nc" id="L32">        ordine.setIndirizzoSpedizione(request.getParameter(&quot;indirizzo&quot;));</span>
+<span class="nc" id="L33">        String puntiString = request.getParameter(&quot;punti&quot;);</span>
+<span class="nc" id="L34">        int punti = 0;</span>
+<span class="nc bnc" id="L35" title="All 4 branches missed.">        if(puntiString != null &amp;&amp; !puntiString.isEmpty())</span>
+<span class="nc" id="L36">            punti = Integer.parseInt(puntiString);</span>
+<span class="nc" id="L37">        ordine.setPuntiSpesi(punti);</span>
+
+<span class="nc" id="L39">        double costo = Double.parseDouble(request.getParameter(&quot;costo&quot;));</span>
+<span class="nc" id="L40">        double costoAggiornato=costo - (ordine.getPuntiSpesi() * 0.10);</span>
+<span class="nc" id="L41">        BigDecimal bd = new BigDecimal(costoAggiornato).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="nc" id="L42">        double costoArrotondato = bd.doubleValue();</span>
+<span class="nc" id="L43">        ordine.setCosto(costoArrotondato);</span>
+
+<span class="nc" id="L45">        address = &quot;/WEB-INF/results/pagamentoOrdine.jsp&quot;;</span>
+<span class="nc" id="L46">        request.setAttribute(&quot;ordine&quot;, ordine);</span>
+<span class="nc" id="L47">        request.setAttribute(&quot;costo&quot;, request.getAttribute(&quot;costo&quot;));</span>
+<span class="nc" id="L48">        RequestDispatcher dispatcher = request.getRequestDispatcher(address);</span>
+<span class="nc" id="L49">        dispatcher.forward(request, response);</span>
+<span class="nc" id="L50">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogoutServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente</a> &gt; <span class="el_source">LogoutServlet.java</span></div><h1>LogoutServlet.java</h1><pre class="source lang-java linenums">package controller.utente;
+
+import controller.utils.Validator;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.carrelloService.Carrello;
+import model.carrelloService.CarrelloDAO;
+import model.carrelloService.RigaCarrello;
+import model.carrelloService.RigaCarrelloDAO;
+import model.libroService.Libro;
+import model.libroService.Reparto;
+import model.libroService.RepartoDAO;
+import model.utenteService.Utente;
+import model.wishList.WishList;
+import model.wishList.WishListDAO;
+
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet(&quot;/log-out&quot;)
+<span class="nc" id="L25">public class LogoutServlet extends HttpServlet {</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="nc" id="L27">        HttpSession session = request.getSession();</span>
+<span class="nc" id="L28">        CarrelloDAO carrelloDAO = new CarrelloDAO();</span>
+<span class="nc" id="L29">        WishListDAO wishListDAO = new WishListDAO();</span>
+<span class="nc" id="L30">        Carrello carrello = (Carrello) session.getAttribute(&quot;carrello&quot;);</span>
+<span class="nc" id="L31">        WishList wishList = (WishList) session.getAttribute(&quot;wishList&quot;);</span>
+<span class="nc" id="L32">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+<span class="nc" id="L33">        wishList.setEmail(utente.getEmail());</span>
+
+        try{
+<span class="nc" id="L36">            RigaCarrelloDAO rigaCarrelloService = new RigaCarrelloDAO();</span>
+<span class="nc bnc" id="L37" title="All 4 branches missed.">            if(carrelloDAO.doRetriveByUtente(utente.getEmail()) != null &amp;&amp; !(carrelloDAO.doRetriveByUtente(utente.getEmail()).getRigheCarrello().isEmpty())) {</span>
+                //Carrello carrello2=carrelloDAO.doRetriveByUtente(utente.getEmail());
+<span class="nc" id="L39">                rigaCarrelloService.deleteRigheCarrelloByIdCarrello(carrelloDAO.doRetriveByUtente(utente.getEmail()).getIdCarrello());//elimino ciò che è presente nel db</span>
+            }
+<span class="nc" id="L41">            WishListDAO wishListService = new WishListDAO();</span>
+<span class="nc bnc" id="L42" title="All 4 branches missed.">            if(wishListDAO.doRetrieveByEmail(utente.getEmail())!= null &amp;&amp; !(wishListDAO.doRetrieveByEmail(utente.getEmail()).getLibri().isEmpty())) {</span>
+<span class="nc" id="L43">                wishListService.deleteWishListByEmail(utente.getEmail());//elimino ciò che è presente nel db</span>
+            }
+
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            if(carrello.getRigheCarrello()!= null) {</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">                for (RigaCarrello riga : carrello.getRigheCarrello())</span>
+<span class="nc" id="L48">                    rigaCarrelloService.doSave(riga); //ripopolo il db con le informazioni presenti in sessione</span>
+            }
+<span class="nc bnc" id="L50" title="All 2 branches missed.">            if(wishList.getLibri()!= null) {</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                for (Libro libro : wishList.getLibri()) {</span>
+<span class="nc" id="L52">                    wishListService.doSave(wishList, libro.getIsbn()); //ripopolo il db con le informazioni presenti in sessione</span>
+<span class="nc" id="L53">                }</span>
+            }
+
+
+<span class="nc" id="L57">        } catch (Exception e) {</span>
+<span class="nc" id="L58">            throw new RuntimeException(e);</span>
+<span class="nc" id="L59">        }</span>
+
+        //Se l'admin modifica i reparti è necessario apportare modifiche alla lista salvata del serveltContext
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        if(Validator.checkIfUserAdmin(utente)){</span>
+<span class="nc" id="L63">            getServletContext().removeAttribute(&quot;reparti&quot;);</span>
+<span class="nc" id="L64">            RepartoDAO service = new RepartoDAO();</span>
+<span class="nc" id="L65">            List&lt;Reparto&gt; reparti = service.doRetrivedAll();</span>
+<span class="nc" id="L66">            getServletContext().setAttribute(&quot;reparti&quot;, reparti);</span>
+        }
+<span class="nc" id="L68">        session.invalidate();</span>
+<span class="nc" id="L69">        response.sendRedirect(&quot;index.html&quot;);</span>
+
+<span class="nc" id="L71">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AggiornaCartServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente</a> &gt; <span class="el_source">AggiornaCartServlet.java</span></div><h1>AggiornaCartServlet.java</h1><pre class="source lang-java linenums">package controller.utente;
+
+import com.oracle.wls.shaded.org.apache.xml.utils.SystemIDResolver;
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.carrelloService.Carrello;
+import model.carrelloService.RigaCarrello;
+import model.utenteService.Utente;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import javax.script.ScriptContext;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+@WebServlet(&quot;/aggiorna-carrello&quot;)
+<span class="nc" id="L26">public class AggiornaCartServlet extends HttpServlet {</span>
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="nc" id="L29">        HttpSession session = request.getSession();</span>
+<span class="nc" id="L30">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">        if(Validator.checkIfUserAdmin(utente)) {</span>
+<span class="nc" id="L32">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="nc" id="L33">            dispatcher.forward(request, response);</span>
+        }
+<span class="nc" id="L35">        Carrello carrello = (Carrello) session.getAttribute(&quot;carrello&quot;);</span>
+
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (carrello == null) {</span>
+<span class="nc" id="L38">            response.sendError(HttpServletResponse.SC_BAD_REQUEST, &quot;Carrello non trovato&quot;);</span>
+<span class="nc" id="L39">            return;</span>
+        }
+
+        // JSON parser object to parse read JSON data from request
+<span class="nc" id="L43">        JSONParser jsonParser = new JSONParser();</span>
+
+<span class="nc" id="L45">        try (InputStreamReader reader = new InputStreamReader(request.getInputStream())) {</span>
+            // Parse JSON data
+<span class="nc" id="L47">            Object obj = jsonParser.parse(reader);</span>
+<span class="nc" id="L48">            JSONObject item = (JSONObject) obj;</span>
+
+            // Ottieni i valori da JSON
+<span class="nc" id="L51">            String isbn = (String) item.get(&quot;isbn&quot;);</span>
+<span class="nc" id="L52">            long quantityLong = (long) item.get(&quot;quantity&quot;);</span>
+<span class="nc" id="L53">            int quantity = (int) quantityLong;</span>
+
+            // Trova l'elemento del carrello corrispondente e aggiorna la quantità
+<span class="nc" id="L56">            boolean itemFound = false;</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">            for (RigaCarrello riga : carrello.getRigheCarrello()) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                if (riga.getLibro().getIsbn().equals(isbn)) {</span>
+<span class="nc" id="L59">                    riga.setQuantita(quantity);</span>
+<span class="nc" id="L60">                    itemFound = true;</span>
+<span class="nc" id="L61">                    break;</span>
+                }
+<span class="nc" id="L63">            }</span>
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">            if (!itemFound) {</span>
+<span class="nc" id="L66">                response.sendError(HttpServletResponse.SC_BAD_REQUEST, &quot;Elemento non trovato nel carrello.&quot;);</span>
+<span class="nc" id="L67">                return;</span>
+            }
+
+
+            // Update cart in session
+<span class="nc" id="L72">            session.setAttribute(&quot;carrello&quot;, carrello);</span>
+
+            // Invia una risposta di successo
+<span class="nc" id="L75">            response.setStatus(HttpServletResponse.SC_OK);</span>
+
+
+<span class="nc" id="L78">        } catch (ParseException e) {</span>
+<span class="nc" id="L79">            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage()); // &quot;Formato JSON non valido&quot;</span>
+<span class="nc" id="L80">            e.printStackTrace();</span>
+<span class="nc" id="L81">        }</span>
+
+
+
+
+        /*HttpSession session = request.getSession();
+        Carrello carrello = (Carrello) session.getAttribute(&quot;carrello&quot;);
+
+        if (carrello == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, &quot;Carrello non trovato&quot;);
+            return;
+        }
+
+        // JSON parser object to parse read JSON data from request
+        JSONParser jsonParser = new JSONParser();
+
+        try (InputStreamReader reader = new InputStreamReader(request.getInputStream())) {
+            // Parse JSON data
+            Object obj = jsonParser.parse(reader);
+            JSONArray cartData = (JSONArray) obj;
+            int i=0;
+            // Itera l'array JSON e aggiorna cart
+            for (Object cartItem : cartData) {
+                JSONObject item = (JSONObject) cartItem;
+                String isbn = (String) item.get(&quot;isbn&quot;);
+                System.out.println(isbn);
+                // Ottieni la stringa dalla chiave &quot;quantity&quot; nell'oggetto JSON
+                String quantityStr = (String) item.get(&quot;quantity&quot;);
+                // Converte la stringa in un intero
+                int quantity = Integer.parseInt(quantityStr);
+                System.out.println(quantity);
+                carrello.getRigheCarrello().get(i).setQuantita(quantity);
+                i++;
+            }
+
+            // Update cart in session
+            session.setAttribute(&quot;carrello&quot;, carrello);
+
+
+            // Send success response
+
+        } catch (ParseException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());//&quot;Formato JSON non valido&quot;
+            e.printStackTrace();
+        }*/
+<span class="nc" id="L126">    }</span>
+
+        @Override
+        protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L130">        this.doGet(req, resp);</span>
+<span class="nc" id="L131">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

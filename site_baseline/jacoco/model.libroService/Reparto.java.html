@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Reparto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.libroService</a> &gt; <span class="el_source">Reparto.java</span></div><h1>Reparto.java</h1><pre class="source lang-java linenums">package model.libroService;
+
+import java.util.List;
+import java.util.Objects;
+
+<span class="nc" id="L6">public class Reparto {</span>
+    private int idReparto;
+    private String nome;
+    private String descrizione;
+    private String immagine;
+    private List&lt;Libro&gt; libri;
+
+    public int getIdReparto() {
+<span class="nc" id="L14">        return idReparto;</span>
+    }
+
+    public void setIdReparto(int idReparto) {
+<span class="nc" id="L18">        this.idReparto = idReparto;</span>
+<span class="nc" id="L19">    }</span>
+
+    public String getDescrizione() {
+<span class="nc" id="L22">        return descrizione;</span>
+    }
+
+    public void setDescrizione(String descrizione) {
+<span class="nc" id="L26">        this.descrizione = descrizione;</span>
+<span class="nc" id="L27">    }</span>
+
+    public List&lt;Libro&gt; getLibri() {
+<span class="nc" id="L30">        return libri;</span>
+    }
+
+    public void setLibri(List&lt;Libro&gt; libri) {
+<span class="nc" id="L34">        this.libri = libri;</span>
+<span class="nc" id="L35">    }</span>
+
+    @Override
+    public boolean equals(Object o) { //per il metodo contains
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        if (this == o) return true;</span>
+<span class="nc bnc" id="L40" title="All 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="nc" id="L41">        Reparto reparto = (Reparto) o;</span>
+<span class="nc bnc" id="L42" title="All 4 branches missed.">        return idReparto == reparto.idReparto &amp;&amp; descrizione.equals(reparto.descrizione);</span>
+    }
+
+    public String getNome() {
+<span class="nc" id="L46">        return nome;</span>
+    }
+
+    public void setNome(String nome) {
+<span class="nc" id="L50">        this.nome = nome;</span>
+<span class="nc" id="L51">    }</span>
+
+    public String getImmagine() {
+<span class="nc" id="L54">        return immagine;</span>
+    }
+
+    public void setImmagine(String immagine) {
+<span class="nc" id="L58">        this.immagine = immagine;</span>
+<span class="nc" id="L59">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

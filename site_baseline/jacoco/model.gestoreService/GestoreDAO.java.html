@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GestoreDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.gestoreService</a> &gt; <span class="el_source">GestoreDAO.java</span></div><h1>GestoreDAO.java</h1><pre class="source lang-java linenums">package model.gestoreService;
+
+import model.ConPool;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="fc" id="L12">public class GestoreDAO {</span>
+    public void doSave(Gestore gestore){
+<span class="nc" id="L14">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L15">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO gestore (matricola, stipendio) VALUES(?,?)&quot;);
+<span class="nc" id="L17">            ps.setString(1, gestore.getMatricola());</span>
+<span class="nc" id="L18">            ps.setDouble(2, gestore.getStipendio());</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">            if (ps.executeUpdate() != 1) {</span>
+<span class="nc" id="L20">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+<span class="nc" id="L22">        } catch (SQLException e) {</span>
+<span class="nc" id="L23">            throw new RuntimeException(e);</span>
+<span class="nc" id="L24">        }</span>
+<span class="nc" id="L25">    }</span>
+
+    public void deleteGestore(String matricola){
+<span class="nc" id="L28">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L29">            PreparedStatement ps =</span>
+<span class="nc" id="L30">                    con.prepareStatement(&quot;DELETE FROM gestore WHERE matricola=?&quot;);</span>
+<span class="nc" id="L31">            ps.setString(1, matricola);</span>
+<span class="nc bnc" id="L32" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L33">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="nc" id="L34">        } catch (SQLException e) {</span>
+<span class="nc" id="L35">            throw new RuntimeException(e);</span>
+<span class="nc" id="L36">        }</span>
+<span class="nc" id="L37">    }</span>
+
+    public void updateGestore(Gestore gestore){
+<span class="nc" id="L40">        try(Connection con = ConPool.getConnection()){</span>
+<span class="nc" id="L41">            PreparedStatement ps = con.prepareStatement(&quot;UPDATE gestore SET stipendio = ? WHERE matricola = ?&quot;);</span>
+<span class="nc" id="L42">            ps.setDouble(1, gestore.getStipendio());</span>
+<span class="nc" id="L43">            ps.setString(2, gestore.getMatricola());</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L45">                throw new RuntimeException(&quot;UPDATE error.&quot;);</span>
+<span class="nc" id="L46">        } catch (SQLException e) {</span>
+<span class="nc" id="L47">            throw new RuntimeException(e);</span>
+<span class="nc" id="L48">        }</span>
+
+<span class="nc" id="L50">    }</span>
+
+    public List&lt;Gestore&gt; doRetrivedAll(){
+<span class="nc" id="L53">        List&lt;Gestore&gt; gestori = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L54">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L55">            PreparedStatement ps =</span>
+<span class="nc" id="L56">                    con.prepareStatement(&quot;SELECT * FROM gestore&quot;);</span>
+
+<span class="nc" id="L58">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L60">                Gestore p = new Gestore();</span>
+<span class="nc" id="L61">                p.setMatricola(rs.getString(1));</span>
+<span class="nc" id="L62">                p.setStipendio(rs.getDouble(2));</span>
+<span class="nc" id="L63">                gestori.add(p);</span>
+<span class="nc" id="L64">            }</span>
+<span class="nc" id="L65">            return gestori;</span>
+<span class="nc" id="L66">        } catch(SQLException e){</span>
+<span class="nc" id="L67">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    public Gestore doRetrieveById(String matricola) {
+<span class="nc" id="L72">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L73">            PreparedStatement ps =</span>
+<span class="nc" id="L74">                    con.prepareStatement(&quot;SELECT * FROM Gestore WHERE matricola=?&quot;);</span>
+<span class="nc" id="L75">            ps.setString(1, matricola);</span>
+<span class="nc" id="L76">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (rs.next()) {</span>
+<span class="nc" id="L78">                Gestore p = new Gestore();</span>
+<span class="nc" id="L79">                p.setMatricola(rs.getString(1));</span>
+<span class="nc" id="L80">                p.setStipendio(rs.getDouble(2));</span>
+<span class="nc" id="L81">                return p;</span>
+            }
+<span class="nc" id="L83">            return null;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L85">            throw new RuntimeException(e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

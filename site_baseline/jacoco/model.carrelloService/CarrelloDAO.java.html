@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CarrelloDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.carrelloService</a> &gt; <span class="el_source">CarrelloDAO.java</span></div><h1>CarrelloDAO.java</h1><pre class="source lang-java linenums">package model.carrelloService;
+
+import model.ConPool;
+import model.gestoreService.Gestore;
+import model.tesseraService.Tessera;
+import model.utenteService.Utente;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="fc" id="L15">public class CarrelloDAO {</span>
+    public void doSave(Carrello carrello){
+<span class="nc" id="L17">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L18">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO carrello (idCarrello, totale, email) VALUES(?,?,?)&quot;);
+<span class="nc" id="L20">            ps.setString(1, carrello.getIdCarrello());</span>
+<span class="nc" id="L21">            ps.setDouble(2, carrello.getTotale());</span>
+<span class="nc" id="L22">            ps.setString(3, carrello.getEmail());</span>
+<span class="nc bnc" id="L23" title="All 2 branches missed.">            if (ps.executeUpdate() != 1) {</span>
+<span class="nc" id="L24">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+
+<span class="nc" id="L27">        } catch (SQLException e) {</span>
+<span class="nc" id="L28">            throw new RuntimeException(e);</span>
+<span class="nc" id="L29">        }</span>
+<span class="nc" id="L30">    }</span>
+
+    public void deleteCarrello(String idCarrello){
+<span class="nc" id="L33">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L34">            PreparedStatement ps =</span>
+<span class="nc" id="L35">                    con.prepareStatement(&quot;DELETE FROM carrello WHERE idCarrello=?&quot;);</span>
+<span class="nc" id="L36">            ps.setString(1, idCarrello);</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L38">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="nc" id="L39">        } catch (SQLException e) {</span>
+<span class="nc" id="L40">            throw new RuntimeException(e);</span>
+<span class="nc" id="L41">        }</span>
+<span class="nc" id="L42">    }</span>
+
+    public void updateCarrello(Carrello carrello){
+<span class="nc" id="L45">        try(Connection con = ConPool.getConnection()){</span>
+<span class="nc" id="L46">            PreparedStatement ps = con.prepareStatement(&quot;UPDATE carrello SET totale = ? WHERE idCarrello = ?&quot;);</span>
+<span class="nc" id="L47">            ps.setDouble(1, carrello.getTotale());</span>
+<span class="nc" id="L48">            ps.setString(2, carrello.getIdCarrello());</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L50">                throw new RuntimeException(&quot;UPDATE error.&quot;);</span>
+<span class="nc" id="L51">        } catch (SQLException e) {</span>
+<span class="nc" id="L52">            throw new RuntimeException(e);</span>
+<span class="nc" id="L53">        }</span>
+
+<span class="nc" id="L55">    }</span>
+
+    public Carrello doRetriveById(String idCarrello){
+<span class="nc" id="L58">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L59">            PreparedStatement ps =</span>
+<span class="nc" id="L60">                    con.prepareStatement(&quot;SELECT * FROM carrello WHERE idCarrello=?&quot;);</span>
+<span class="nc" id="L61">            ps.setString(1, idCarrello);</span>
+<span class="nc" id="L62">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (rs.next()) {</span>
+<span class="nc" id="L64">                Carrello carrello = new Carrello();</span>
+<span class="nc" id="L65">                RigaCarrelloDAO rigaService = new RigaCarrelloDAO();</span>
+<span class="nc" id="L66">                carrello.setIdCarrello(idCarrello);</span>
+<span class="nc" id="L67">                carrello.setTotale(rs.getDouble(2));</span>
+<span class="nc" id="L68">                carrello.setEmail(rs.getString(3));</span>
+<span class="nc" id="L69">                carrello.setRigheCarrello(rigaService.doRetrieveByIdCarrello(idCarrello));</span>
+<span class="nc" id="L70">                return carrello;</span>
+            }
+<span class="nc" id="L72">            return null;</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L74">            throw new RuntimeException(e);</span>
+        }
+    }
+    public Carrello doRetriveByUtente(String email){
+<span class="nc" id="L78">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L79">            PreparedStatement ps =</span>
+<span class="nc" id="L80">                    con.prepareStatement(&quot;SELECT * FROM carrello WHERE email=?&quot;);</span>
+<span class="nc" id="L81">            ps.setString(1, email);</span>
+<span class="nc" id="L82">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (rs.next()) {</span>
+<span class="nc" id="L84">                Carrello carrello = new Carrello();</span>
+<span class="nc" id="L85">                RigaCarrelloDAO rigaService = new RigaCarrelloDAO();</span>
+<span class="nc" id="L86">                carrello.setIdCarrello(rs.getString(1));</span>
+<span class="nc" id="L87">                carrello.setTotale(rs.getDouble(2));</span>
+<span class="nc" id="L88">                carrello.setEmail(rs.getString(3));</span>
+<span class="nc" id="L89">                carrello.setRigheCarrello(rigaService.doRetrieveByIdCarrello(carrello.getIdCarrello()));</span>
+<span class="nc" id="L90">                return carrello;</span>
+            }
+<span class="nc" id="L92">            return null;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="nc" id="L94">            throw new RuntimeException(e);</span>
+        }
+    }
+    public List&lt;String&gt; doRetrivedAllIdCarrelli(){
+<span class="nc" id="L98">        List&lt;String&gt;  idCarrello = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L99">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="nc" id="L100">            PreparedStatement ps =</span>
+<span class="nc" id="L101">                    con.prepareStatement(&quot;SELECT * FROM carrello&quot;);</span>
+
+<span class="nc" id="L103">            ResultSet rs = ps.executeQuery();</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">            while (rs.next()) {</span>
+<span class="nc" id="L105">                idCarrello.add(rs.getString(1));</span>
+            }
+<span class="nc" id="L107">            return idCarrello;</span>
+<span class="nc" id="L108">        } catch(SQLException e){</span>
+<span class="nc" id="L109">            throw new RuntimeException(e);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

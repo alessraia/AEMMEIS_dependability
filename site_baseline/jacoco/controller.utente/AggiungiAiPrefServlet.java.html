@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AggiungiAiPrefServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente</a> &gt; <span class="el_source">AggiungiAiPrefServlet.java</span></div><h1>AggiungiAiPrefServlet.java</h1><pre class="source lang-java linenums">package controller.utente;
+
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.libroService.Libro;
+import model.libroService.LibroDAO;
+import model.utenteService.Utente;
+import model.wishList.WishList;
+import org.json.simple.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+@WebServlet(&quot;/aggiungi-ai-preferiti&quot;)
+<span class="fc" id="L21">public class AggiungiAiPrefServlet extends HttpServlet {</span>
+<span class="fc" id="L22">    private LibroDAO libroDAO = new LibroDAO();</span>
+
+    public void setLibroDAO(LibroDAO libroDAO) {
+<span class="fc" id="L25">        this.libroDAO = libroDAO;</span>
+<span class="fc" id="L26">    }</span>
+
+    //Nuova servlet per aggiornare i preferiti (creata per utilizzare AJAX)
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="fc" id="L30">        String isbn = request.getParameter(&quot;isbn&quot;); // Ottieni l'ISBN dal parametro della richiesta</span>
+<span class="fc" id="L31">        Libro libro = libroDAO.doRetrieveById(isbn);</span>
+<span class="fc" id="L32">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L33">        Utente utente= (Utente) session.getAttribute(&quot;utente&quot;);</span>
+<span class="pc bpc" id="L34" title="1 of 2 branches missed.">        if(Validator.checkIfUserAdmin(utente)) {</span>
+<span class="nc" id="L35">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="nc" id="L36">            dispatcher.forward(request, response);</span>
+<span class="pc bfc" id="L37" title="All 2 branches covered.">        } else if(utente==null){</span>
+<span class="fc" id="L38">            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, &quot;User not logged in&quot;);</span>
+        }
+        else {
+<span class="fc" id="L41">            JSONObject jsonResponse = new JSONObject();</span>
+            //boolean
+<span class="fc" id="L43">            jsonResponse.put(&quot;isInWishList&quot;, true); // Indica se il libro è ora nei preferiti</span>
+
+            // Aggiungi l'ISBN alla WishList (o al database)
+<span class="fc" id="L46">            WishList wishList = (WishList) session.getAttribute(&quot;wishList&quot;);</span>
+<span class="fc" id="L47">            boolean flag = true; // libro non presente</span>
+<span class="pc bpc" id="L48" title="2 of 4 branches missed.">            if (wishList != null &amp;&amp; wishList.getLibri() != null) {</span>
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">                for (int i = 0; i &lt; wishList.getLibri().size() &amp;&amp; flag; i++) {</span>
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">                    if (wishList.getLibri().get(i).equals(libro)) {</span>
+<span class="fc" id="L51">                        wishList.getLibri().remove(i); // libro già presente, lo rimuovo</span>
+<span class="fc" id="L52">                        flag = false;</span>
+<span class="fc" id="L53">                        jsonResponse.put(&quot;isInWishList&quot;, false); // Indica che il libro non è più nei preferiti</span>
+                    }
+                }
+<span class="fc bfc" id="L56" title="All 2 branches covered.">                if (flag)// se il libro non è presente, lo aggiungo</span>
+<span class="fc" id="L57">                    wishList.getLibri().add(libro);</span>
+
+            } else {
+<span class="nc" id="L60">                wishList.setLibri(new ArrayList&lt;model.libroService.Libro&gt;());</span>
+<span class="nc" id="L61">                wishList.getLibri().add(libro);</span>
+
+            }
+
+<span class="fc" id="L65">            session.setAttribute(&quot;wishList&quot;, wishList);</span>
+<span class="fc" id="L66">            System.out.println(wishList.getLibri());</span>
+
+            // Invia una risposta al client (ad esempio, un oggetto JSON)
+<span class="fc" id="L69">            response.setContentType(&quot;application/json&quot;);</span>
+<span class="fc" id="L70">            response.getWriter().write(jsonResponse.toString());</span>
+        }
+<span class="fc" id="L72">    }</span>
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L76">        this.doGet(req, resp);</span>
+<span class="nc" id="L77">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
