@@ -22,18 +22,19 @@ public class ShowWishList extends HttpServlet {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
         }
-        String address=null;
+        else {
+            String address = null;
 
-        if (session.getAttribute("utente") != null) {
-            address="/WEB-INF/results/showWishList.jsp";
-        } else {
-            // L'utente non ha effettuato l'accesso, reindirizzalo alla pagina di login
-            address="/WEB-INF/results/login.jsp";
+            if (session.getAttribute("utente") != null) {
+                address = "/WEB-INF/results/showWishList.jsp";
+            } else {
+                // L'utente non ha effettuato l'accesso, reindirizzalo alla pagina di login
+                address = "/WEB-INF/results/login.jsp";
+            }
+
+            RequestDispatcher dispatcher = request.getRequestDispatcher(address);
+            dispatcher.forward(request, response);
+
         }
-
-        RequestDispatcher dispatcher=request.getRequestDispatcher(address);
-        dispatcher.forward(request, response);
-
-
     }
 }

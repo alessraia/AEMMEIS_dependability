@@ -23,13 +23,14 @@ public class MostraRepartoServlet extends HttpServlet {
         if(Validator.checkIfUserAdmin((Utente) request.getSession().getAttribute("utente"))) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
+            return;
         }
         int idReparto = Integer.parseInt(request.getParameter("id"));
         String position = request.getParameter("position");
         System.out.println(position);
         String address="/WEB-INF/results/reparto.jsp";
 
-        Reparto reparto = new Reparto();
+        Reparto reparto = null;
         List<Reparto> reparti = (List<Reparto>) getServletContext().getAttribute("reparti");
         for(Reparto r : reparti) {
             if(r.getIdReparto() == idReparto) {
@@ -47,9 +48,10 @@ public class MostraRepartoServlet extends HttpServlet {
                 System.out.println("address: "+address);
             }
         } else {
-            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp");
-            dispatcher.forward(request, response); //provvisorio
             request.setAttribute("repartoNonTrovato", true);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp");
+            dispatcher.forward(request, response);
+            return;
         }
 
         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
