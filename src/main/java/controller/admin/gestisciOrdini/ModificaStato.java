@@ -23,9 +23,15 @@ public class ModificaStato extends HttpServlet {
      //   UtenteDAO utenteDAO = new UtenteDAO();
      //   Utente utente = utenteDAO.doRetrieveById(request.getParameter("utenteScelto"));
         Ordine ordine = ordineDAO.doRetrieveById(request.getParameter("ordineID"));
+        String newStato = request.getParameter("stato");
+        if(ordine == null || newStato == null){
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+            dispatcher.forward(request, response);
+            return;
+        }
 
-        ordine.setStato(request.getParameter("stato"));
-        if(request.getParameter("stato").equals("Consegnato")){
+        ordine.setStato(newStato);
+        if(newStato.equals("Consegnato")){
             ordine.setDataArrivo(LocalDate.now());
             ordineDAO.updateOrdine(ordine);
         }else{
