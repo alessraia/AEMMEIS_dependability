@@ -28,12 +28,13 @@ public class ModificaMatricolaSupporto extends HttpServlet {
         String idOrdine = request.getParameter("ordineID");
         Ordine ordine = ordineDAO.doRetrieveById(idOrdine);
         List<Gestore> gestori = gestoreDAO.doRetrivedAll();
+        boolean trovato = false;
 
         //elimino la matricola a cui era stato affidato l'ordine poichè se decido di cambiarla vuol dire che non è disponibile
-        for(int i = 0; i< gestori.size(); i++){
+        for(int i = 0; !trovato && i< gestori.size(); i++){
             if(gestori.get(i).getMatricola().equalsIgnoreCase(matricola)){
                 gestori.remove(i);
-                break;
+                trovato = true;
             }
         }
 
