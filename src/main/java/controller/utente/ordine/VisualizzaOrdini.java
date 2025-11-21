@@ -18,6 +18,12 @@ import java.util.List;
 
 @WebServlet("/visualizza-ordini")
 public class VisualizzaOrdini extends HttpServlet {
+    private OrdineDAO ordineDAO;
+
+    // Permette ai test di iniettare un mock di OrdineDAO
+    public void setOrdineDAO(OrdineDAO ordineDAO) {
+        this.ordineDAO = ordineDAO;
+    }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         //metto gli ordini dell'utente in sessione così da poter
         //gestire meglio la stampa
@@ -26,9 +32,11 @@ public class VisualizzaOrdini extends HttpServlet {
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
+            return;
         }
-        OrdineDAO ordineDAO = new OrdineDAO();
-        List<Ordine> ordini = ordineDAO.doRetrieveByUtente(utente.getEmail());
+        // Usa l'istanza iniettata (per i test) o crea una nuova istanza di default
+        OrdineDAO dao = this.ordineDAO != null ? this.ordineDAO : new OrdineDAO();
+        List<Ordine> ordini = dao.doRetrieveByUtente(utente.getEmail());
         session.setAttribute("ordini", ordini);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/areaPservices/visualizzaOrdini.jsp");

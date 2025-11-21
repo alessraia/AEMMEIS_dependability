@@ -23,9 +23,11 @@ public class RicercaServlet extends HttpServlet {
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
+            return;
         }
         String query = request.getParameter("q");
-        LibroDAO libroService = new LibroDAO();
+        // allow injection for tests
+        LibroDAO libroService = this.getLibroDAO() != null ? this.getLibroDAO() : new LibroDAO();
         String address = null;
         if(query==null){
             address = "/WEB-INF/errorJsp/erroreForm.jsp";
@@ -43,5 +45,16 @@ public class RicercaServlet extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
         dispatcher.forward(request, response);
 
+    }
+
+    // --- Testability: injection getter/setter for LibroDAO ---
+    private LibroDAO libroDAO;
+
+    public void setLibroDAO(LibroDAO libroDAO) {
+        this.libroDAO = libroDAO;
+    }
+
+    public LibroDAO getLibroDAO() {
+        return this.libroDAO;
     }
 }

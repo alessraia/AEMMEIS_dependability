@@ -22,6 +22,12 @@ import java.util.List;
 @WebServlet ("/search")
 public class SearchBarServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
+    private LibroDAO libroDAO;
+
+    // Permette ai test di iniettare un mock di LibroDAO
+    public void setLibroDAO(LibroDAO libroDAO) {
+        this.libroDAO = libroDAO;
+    }
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
@@ -29,9 +35,11 @@ public class SearchBarServlet extends HttpServlet {
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
+            return;
         }
         String query = request.getParameter("q");
-        LibroDAO libroService = new LibroDAO();
+    // usa l'istanza iniettata (per i test) o crea una nuova istanza di default
+    LibroDAO libroService = this.libroDAO != null ? this.libroDAO : new LibroDAO();
 
         JSONArray jsonArray = new JSONArray();
 

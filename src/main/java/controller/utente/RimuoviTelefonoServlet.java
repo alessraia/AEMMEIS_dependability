@@ -19,6 +19,12 @@ import java.util.List;
 
 @WebServlet("/rimuovi-telefono")
 public class RimuoviTelefonoServlet extends HttpServlet {
+    private UtenteDAO utenteDAO;
+
+    // Permette ai test di iniettare un mock di UtenteDAO
+    public void setUtenteDAO(UtenteDAO utenteDAO) {
+        this.utenteDAO = utenteDAO;
+    }
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // JSON parser object to parse read JSON data from request
         JSONParser jsonParser = new JSONParser();
@@ -34,8 +40,8 @@ public class RimuoviTelefonoServlet extends HttpServlet {
             String email = (String) item.get("email");
             String telefono = (String) item.get("telefono");
 
-            // Chiamata alla funzione del DAO per rimuovere il telefono
-            UtenteDAO service = new UtenteDAO();
+            // Chiamata alla funzione del DAO per rimuovere il telefono (usa istanza iniettata per i test)
+            UtenteDAO service = this.utenteDAO != null ? this.utenteDAO : new UtenteDAO();
             List<String> telefoni = service.cercaTelefoni(email);
             if(telefoni.contains(telefono)) {
                 service.deleteTelefono(email, telefono);

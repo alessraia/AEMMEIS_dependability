@@ -13,6 +13,12 @@ import java.io.IOException;
 
 @WebServlet("/modifica-password")
 public class ModificaPasswordServlet extends HttpServlet {
+    private UtenteDAO utenteDAO;
+
+    // Permette ai test di iniettare un mock di UtenteDAO
+    public void setUtenteDAO(UtenteDAO utenteDAO) {
+        this.utenteDAO = utenteDAO;
+    }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String password = request.getParameter("password");
         String address = null;
@@ -22,7 +28,7 @@ public class ModificaPasswordServlet extends HttpServlet {
         }else {
             address = "area-personale";
 
-            UtenteDAO serviceUtente = new UtenteDAO();
+            UtenteDAO serviceUtente = this.utenteDAO != null ? this.utenteDAO : new UtenteDAO();
             Utente utente = (Utente) request.getSession().getAttribute("utente");
             utente.setCodiceSicurezza(password);
             serviceUtente.updateUtentePassword(utente);

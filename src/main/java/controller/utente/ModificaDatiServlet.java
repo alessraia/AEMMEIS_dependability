@@ -16,10 +16,17 @@ import java.util.List;
 
 @WebServlet("/modifica-dati")
 public class ModificaDatiServlet extends HttpServlet {
+    private UtenteDAO utenteDAO;
+
+    // Permette ai test di iniettare un mock di UtenteDAO
+    public void setUtenteDAO(UtenteDAO utenteDAO) {
+        this.utenteDAO = utenteDAO;
+    }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         HttpSession session = request.getSession();
         Utente utente = (Utente) session.getAttribute("utente");
-        UtenteDAO services = new UtenteDAO();
+        // usa l'istanza iniettata per i test o crea una nuova istanza di default
+        UtenteDAO services = this.utenteDAO != null ? this.utenteDAO : new UtenteDAO();
         String nomeUtente = request.getParameter("nomeUtente");
         String[] telefoni = request.getParameterValues("telefono");
         String address = null;

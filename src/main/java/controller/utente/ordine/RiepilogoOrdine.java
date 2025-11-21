@@ -19,16 +19,24 @@ import java.util.List;
 
 @WebServlet("/riepilogo-ordine")
 public class RiepilogoOrdine extends HttpServlet {
+    private OrdineDAO ordineDAO;
+
+    // Permette ai test di iniettare un mock di OrdineDAO
+    public void setOrdineDAO(OrdineDAO ordineDAO) {
+        this.ordineDAO = ordineDAO;
+    }
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         Utente utente = (Utente) session.getAttribute("utente");
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
             dispatcher.forward(request, response);
+            return;
         }
         String idOrdine = request.getParameter("idOrdine");
-        OrdineDAO ordineDAO = new OrdineDAO();
-        Ordine ordine = ordineDAO.doRetrieveById(idOrdine);
+        // Usa l'istanza iniettata (per i test) o crea una nuova istanza di default
+        OrdineDAO dao = this.ordineDAO != null ? this.ordineDAO : new OrdineDAO();
+        Ordine ordine = dao.doRetrieveById(idOrdine);
         session.setAttribute("ordine", ordine);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/areaPservices/riepilogoOrdine.jsp");
