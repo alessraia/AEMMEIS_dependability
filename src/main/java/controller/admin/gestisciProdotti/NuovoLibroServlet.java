@@ -50,12 +50,16 @@ public class NuovoLibroServlet extends HttpServlet {
             try {
                 double prezzo = Double.parseDouble(price);
                 int sconto = 0;
-                if (!sconto1.isEmpty() && isScontoValid(sconto1) && prezzo > 0) {
-                    sconto = Integer.parseInt(sconto1);
-                }else{
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-                    dispatcher.forward(request, response);
+                if (!sconto1.isEmpty()){
+                    if (isScontoValid(sconto1) && prezzo > 0) {
+                        sconto = Integer.parseInt(sconto1);
+                    }else {
+                        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                        dispatcher.forward(request, response);
+                        return;
+                    }
                 }
+
 
                 String[] nomiAutori = request.getParameterValues("nome");
                 String[] cognomiAutori = request.getParameterValues("cognome");
@@ -68,6 +72,7 @@ public class NuovoLibroServlet extends HttpServlet {
                         if (nomiAutori[i].isEmpty() || cognomiAutori[i].isEmpty() || cfAutori[i].isEmpty()) {
                             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
                             dispatcher.forward(request, response);
+                            return;
                         }
                         Autore autore = new Autore();
                         autore.setNome(nomiAutori[i]);
