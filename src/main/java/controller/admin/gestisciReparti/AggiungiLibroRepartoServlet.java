@@ -16,13 +16,29 @@ import java.util.List;
 
 @WebServlet("/aggiungi-libro")
 public class AggiungiLibroRepartoServlet extends HttpServlet {
+    private RepartoDAO repartoDAO;
+    private LibroDAO libroService;
+
+    public void setRepartoDAO(RepartoDAO repartoDAO) {
+        this.repartoDAO = repartoDAO;
+    }
+
+    public void setLibroDAO(LibroDAO libroDAO) {
+        this.libroService = libroDAO;
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        RepartoDAO repartoDAO = new RepartoDAO();
+        if (repartoDAO == null) {
+            repartoDAO = new RepartoDAO();
+        }
+        if (libroService == null) {
+            libroService = new LibroDAO();
+        }
+
         Reparto r = repartoDAO.doRetrieveById(Integer.parseInt(request.getParameter("idReparto")));
         request.setAttribute("reparto", r);
 
-        LibroDAO libroService = new LibroDAO();
         List<Libro> libri = libroService.doRetriveAll();
         List<Libro> libriGiaPresenti = repartoDAO.getAppartenenza(r.getIdReparto());
 

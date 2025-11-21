@@ -13,8 +13,16 @@ import java.io.IOException;
 
 @WebServlet("/elimina-reparto")
 public class EliminaRepartoServlet extends HttpServlet {
+    private RepartoDAO repartoService;
+
+    public void setRepartoDAO(RepartoDAO repartoDAO) {
+        this.repartoService = repartoDAO;
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        RepartoDAO repartoService = new RepartoDAO();
+        if (repartoService == null) {
+            repartoService = new RepartoDAO();
+        }
         int idReparto = Integer.parseInt(request.getParameter("idReparto"));
         repartoService.deleteReparto(idReparto);
 

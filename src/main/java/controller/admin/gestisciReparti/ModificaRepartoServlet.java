@@ -10,13 +10,25 @@ import java.io.IOException;
 
 @WebServlet("/modifica-reparto")
 public class ModificaRepartoServlet extends HttpServlet {
+    private RepartoDAO repartoDAO;
+
+    public void setRepartoDAO(RepartoDAO repartoDAO) {
+        this.repartoDAO = repartoDAO;
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String isbn = request.getParameter("isbn");
         int idReparto = Integer.parseInt(request.getParameter("idReparto"));
 
-        RepartoDAO repartoDAO = new RepartoDAO();
-        repartoDAO.removeLibroReparto(idReparto, isbn);
+        if (repartoDAO == null) {
+            repartoDAO = new RepartoDAO();
+        }
+        
+        // Check if reparto exists before trying to remove book
+        if (repartoDAO.doRetrieveById(idReparto) != null) {
+            repartoDAO.removeLibroReparto(idReparto, isbn);
+        }
 
         response.sendRedirect("gestisci-reparti");
     }

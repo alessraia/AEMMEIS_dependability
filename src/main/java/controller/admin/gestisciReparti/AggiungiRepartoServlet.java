@@ -14,21 +14,36 @@ import java.util.List;
 
 @WebServlet("/aggiungi-reparto")
 public class AggiungiRepartoServlet extends HttpServlet {
+    private RepartoDAO repartoService;
+
+    public void setRepartoDAO(RepartoDAO repartoDAO) {
+        this.repartoService = repartoDAO;
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         Reparto reparto = new Reparto();
         String nome = request.getParameter("nome");
         String descrizione = request.getParameter("descrizione");
         String immagine = request.getParameter("immagine");
+        
+        // Trim parameters to remove leading/trailing whitespace
+        if(nome != null) nome = nome.trim();
+        if(descrizione != null) descrizione = descrizione.trim();
+        if(immagine != null) immagine = immagine.trim();
+        
         if(nome==null || nome.isEmpty() || descrizione==null || descrizione.isEmpty() || immagine==null || immagine.isEmpty()){
             //pagina di errore per inserimento parametri errato
             response.sendRedirect("/WEB-INF/errorJsp/erroreForm.jsp");//forse
+            return;
         }
 
         reparto.setDescrizione(descrizione);
         reparto.setNome(nome);
         reparto.setImmagine(immagine);
 
-        RepartoDAO repartoService = new RepartoDAO();
+        if (repartoService == null) {
+            repartoService = new RepartoDAO();
+        }
         List<Reparto> reparti= repartoService.doRetrivedAll();
         boolean flag=true;
         for (Reparto rep:reparti){

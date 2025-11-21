@@ -12,9 +12,19 @@ import java.util.List;
 
 @WebServlet("/insert-libroReparto")
 public class InsertLibroRepartoServlet extends HttpServlet {
+    private RepartoDAO repartoDAO;
+
+    public void setRepartoDAO(RepartoDAO repartoDAO) {
+        this.repartoDAO = repartoDAO;
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String[] libriIsbn = (request.getParameterValues("isbn"));
-        RepartoDAO repartoDAO = new RepartoDAO();
+        
+        if (repartoDAO == null) {
+            repartoDAO = new RepartoDAO();
+        }
+        
         if(libriIsbn!=null){
             for(String isbn : libriIsbn){
                 repartoDAO.aggiungiLibroReparto(repartoDAO.doRetrieveById(Integer.parseInt(request.getParameter("idReparto")

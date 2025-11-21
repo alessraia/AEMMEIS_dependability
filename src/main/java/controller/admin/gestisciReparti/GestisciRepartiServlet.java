@@ -14,8 +14,16 @@ import java.util.List;
 
 @WebServlet("/gestisci-reparti")
 public class GestisciRepartiServlet extends HttpServlet {
+    private RepartoDAO repartoService;
+
+    public void setRepartoDAO(RepartoDAO repartoDAO) {
+        this.repartoService = repartoDAO;
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RepartoDAO repartoService = new RepartoDAO();
+        if (repartoService == null) {
+            repartoService = new RepartoDAO();
+        }
         List<Reparto> reparti = repartoService.doRetrivedAll();
         request.setAttribute("reparti", reparti);
 
