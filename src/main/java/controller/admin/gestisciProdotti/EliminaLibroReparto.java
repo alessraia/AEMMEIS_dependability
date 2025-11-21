@@ -13,11 +13,19 @@ import java.io.IOException;
 
 @WebServlet("/eliminaLibro-reparto")
 public class EliminaLibroReparto extends HttpServlet {
+    private RepartoDAO service;
+
+    public void setRepartoDAO(RepartoDAO repartoDAO) {
+        this.service = repartoDAO;
+    }
+
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String isbn= request.getParameter("isbn");
         int idReparto = Integer.parseInt(request.getParameter("idReparto"));
 
-        RepartoDAO service = new RepartoDAO();
+        if (service == null) {
+            service = new RepartoDAO();
+        }
         service.deleteFromAppartenenzaLibro(idReparto, isbn);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("modifica-libro");
