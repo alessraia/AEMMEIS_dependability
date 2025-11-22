@@ -17,6 +17,23 @@ import java.security.NoSuchAlgorithmException;
 
 
 public class UtenteDAO {
+
+    private TesseraDAO tesseraDAO;
+    private RigaCarrelloDAO rigaCarrelloDAO;
+    private CarrelloDAO carrelloDAO;
+    private OrdineDAO ordineDAO;
+
+    public UtenteDAO() {
+        this(new TesseraDAO(), new RigaCarrelloDAO(), new CarrelloDAO(), new OrdineDAO());
+    }
+
+    public UtenteDAO(TesseraDAO tesseraDAO, RigaCarrelloDAO rigaCarrelloDAO, 
+                     CarrelloDAO carrelloDAO, OrdineDAO ordineDAO) {
+        this.tesseraDAO = tesseraDAO;
+        this.rigaCarrelloDAO = rigaCarrelloDAO;
+        this.carrelloDAO = carrelloDAO;
+        this.ordineDAO = ordineDAO;
+    }
     /*@ public behavior
       @   requires email != null && email.length() > 0;
       @   assignable \nothing;
@@ -34,7 +51,7 @@ public class UtenteDAO {
                 Utente p = new Utente();
                 p.setNomeUtente(rs.getString(1));
                 p.setEmail(rs.getString(2));
-                p.setCodiceSicurezza(rs.getString(3));
+                p.setCodiceSicurezzaNoHash(rs.getString(3));
                 p.setTipo(rs.getString(4));
                 p.setTelefoni(this.cercaTelefoni(p.getEmail()));
                 return p;
@@ -67,7 +84,7 @@ public class UtenteDAO {
                 Utente p = new Utente();
                 p.setNomeUtente(rs.getString(1));
                 p.setEmail(rs.getString(2));
-                p.setCodiceSicurezza(rs.getString(3));
+                p.setCodiceSicurezzaNoHash(rs.getString(3));
                 p.setTipo(rs.getString(4));
                 p.setTelefoni(this.cercaTelefoni(p.getEmail()));
                 return p;
@@ -139,7 +156,7 @@ public class UtenteDAO {
                 Utente p = new Utente();
                 p.setNomeUtente(rs.getString(1));
                 p.setEmail(rs.getString(2));
-                p.setCodiceSicurezza(rs.getString(3));
+                p.setCodiceSicurezzaNoHash(rs.getString(3));
                 p.setTipo(rs.getString(4));
                 utenti.add(p);
             }
@@ -215,15 +232,11 @@ public class UtenteDAO {
     public void deleteUtente(String email){
 
         if(this.doRetrieveById(email).getTipo().equalsIgnoreCase("premium")){
-            TesseraDAO tesseraDAO = new TesseraDAO();
             tesseraDAO.deleteTessera(tesseraDAO.doRetrieveByEmail(email).getNumero()); //cancello eventuale tessera
         }
         if(!this.doRetrieveById(email).getTelefoni().isEmpty())
             this.deleteTelefoni(email); //relazione con telefoni
 
-        RigaCarrelloDAO rigaCarrelloDAO = new RigaCarrelloDAO();
-        CarrelloDAO carrelloDAO = new CarrelloDAO();
-        OrdineDAO ordineDAO = new OrdineDAO();
         if(!ordineDAO.doRetrieveByUtente(email).isEmpty())
             ordineDAO.deleteOrdiniByEmail(email);
         Carrello carrello = carrelloDAO.doRetriveByUtente(email);

@@ -13,6 +13,16 @@ import java.util.ArrayList;
 
 public class WishListDAO {
 
+    private final LibroDAO libroDAO;
+
+    public WishListDAO() {
+        this(new LibroDAO());
+    }
+
+    public WishListDAO(LibroDAO libroDAO) {
+        this.libroDAO = libroDAO;
+    }
+
     /*@ public behavior
       @   requires wishList != null
       @        && wishList.getEmail() != null
@@ -56,8 +66,7 @@ public class WishListDAO {
             wishlist.setLibri(new ArrayList<Libro>());
             while (rs.next()) {
                 wishlist.setEmail(rs.getString(1));
-                LibroDAO libroService = new LibroDAO();
-                Libro libro = libroService.doRetrieveById(rs.getString(2));
+                Libro libro = libroDAO.doRetrieveById(rs.getString(2));
                 wishlist.addLibro(libro);
             }
             return wishlist;

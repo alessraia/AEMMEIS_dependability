@@ -13,6 +13,16 @@ import java.util.List;
 
 public class RigaOrdineDAO {
 
+    private LibroDAO libroDAO;
+
+    public RigaOrdineDAO() {
+        this(new LibroDAO());
+    }
+
+    public RigaOrdineDAO(LibroDAO libroDAO) {
+        this.libroDAO = libroDAO;
+    }
+
     /*@ public behavior
       @ requires rigaOrdine != null;
       @ requires rigaOrdine.getIdOrdine() != null && rigaOrdine.getIdOrdine().length() > 0;
@@ -59,10 +69,9 @@ public class RigaOrdineDAO {
             List<RigaOrdine> lista = new ArrayList<RigaOrdine>();
             while (rs.next()) {
                 RigaOrdine p = new RigaOrdine();
-                LibroDAO libroService= new LibroDAO();
                 p.setIdOrdine(rs.getString(1));
                 String isbn=rs.getString(2);
-                p.setLibro(libroService.doRetrieveById(isbn));
+                p.setLibro(libroDAO.doRetrieveById(isbn));
                 //p.setIsbn(rs.getString(2));
                 p.setPrezzoUnitario(rs.getDouble(3));
                 p.setQuantita(rs.getInt(4));
@@ -96,9 +105,8 @@ public class RigaOrdineDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 RigaOrdine p = new RigaOrdine();
-                LibroDAO libroService= new LibroDAO();
                 p.setIdOrdine(rs.getString(1));
-                p.setLibro(libroService.doRetrieveById(isbn));
+                p.setLibro(libroDAO.doRetrieveById(isbn));
                 //p.setIsbn(rs.getString(2));
                 p.setPrezzoUnitario(rs.getDouble(3));
                 p.setQuantita(rs.getInt(4));

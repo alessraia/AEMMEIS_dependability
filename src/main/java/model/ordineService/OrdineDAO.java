@@ -11,6 +11,16 @@ import java.util.List;
 
 public class OrdineDAO {
 
+    private RigaOrdineDAO rigaOrdineDAO;
+
+    public OrdineDAO() {
+        this(new RigaOrdineDAO());
+    }
+
+    public OrdineDAO(RigaOrdineDAO rigaOrdineDAO) {
+        this.rigaOrdineDAO = rigaOrdineDAO;
+    }
+
     /*@ public behavior
       @   requires ordine != null;
       @   requires ordine.getIdOrdine() != null && ordine.getIdOrdine().length() > 0;
@@ -48,9 +58,8 @@ public class OrdineDAO {
             throw new RuntimeException(e);
         }
         //aggiunto questo
-        RigaOrdineDAO rigaService=new RigaOrdineDAO();
         for(RigaOrdine riga: ordine.getRigheOrdine()){
-            rigaService.doSave(riga);
+            rigaOrdineDAO.doSave(riga);
         }
     }
 
@@ -69,7 +78,6 @@ public class OrdineDAO {
             if (rs.next()) {
                 Ordine p = new Ordine();
                 //aggiunto questo
-                RigaOrdineDAO rigaService=new RigaOrdineDAO();
                 p.setIdOrdine(rs.getString(1));
                 p.setCosto(rs.getDouble(2));
                 p.setIndirizzoSpedizione(rs.getString(3));
@@ -90,7 +98,7 @@ public class OrdineDAO {
                 p.setMatricola(rs.getString(10));
                 p.setEmail(rs.getString(11));
                 //aggiunto questo
-                p.setRigheOrdine(rigaService.doRetrivedByOrdine(idOrdine));
+                p.setRigheOrdine(rigaOrdineDAO.doRetrivedByOrdine(idOrdine));
 
                 return p;
             }
@@ -195,9 +203,8 @@ public class OrdineDAO {
     @*/
     public void deleteOrdiniByEmail(String email){
         List<Ordine> ordini = this.doRetrieveByUtente(email);
-        RigaOrdineDAO service = new RigaOrdineDAO();
         for(Ordine o : ordini ){
-            service.deleteRigaOrdineByIdOrdine(o.getIdOrdine());
+            rigaOrdineDAO.deleteRigaOrdineByIdOrdine(o.getIdOrdine());
         }
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =
@@ -218,8 +225,7 @@ public class OrdineDAO {
     @*/
     //aggiunto questo
     public void deleteOrdine(String idOrdine){
-        RigaOrdineDAO service = new RigaOrdineDAO();
-        service.deleteRigaOrdineByIdOrdine(idOrdine);
+        rigaOrdineDAO.deleteRigaOrdineByIdOrdine(idOrdine);
 
         try (Connection con = ConPool.getConnection()) {
             PreparedStatement ps =

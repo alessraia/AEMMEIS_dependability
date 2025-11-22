@@ -117,4 +117,8 @@ public class Utente {
   public void setTelefoni(List<String> telefoni) {
     this.telefoni = telefoni;
   }
-}
+
+  public void setCodiceSicurezzaNoHash(String codiceSicurezza) {
+    this.codiceSicurezza=codiceSicurezza;
+    }
+  }
