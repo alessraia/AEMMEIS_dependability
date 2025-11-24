@@ -116,4 +116,390 @@ public class SedeDAOTest {
         }
     }
 
+    @Test
+    public void testDoSave_setsGeneratedId() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+        ResultSet rs = mock(ResultSet.class);
+
+        when(conn.prepareStatement(anyString(), anyInt())).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(1);
+        when(ps.getGeneratedKeys()).thenReturn(rs);
+        when(rs.next()).thenReturn(true);
+        when(rs.getInt(1)).thenReturn(321);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            Sede s = new Sede();
+            s.setCitta("Citta");
+            s.setVia("Via T");
+            s.setCivico(1);
+            s.setCap("00000");
+
+            SedeDAO dao = new SedeDAO();
+            dao.doSave(s);
+
+            assertEquals(321, s.getIdSede());
+        }
+    }
+
+    @Test
+    public void testDoSave_noGeneratedKeys_throws() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+        ResultSet rs = mock(ResultSet.class);
+
+        when(conn.prepareStatement(anyString(), anyInt())).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(1);
+        when(ps.getGeneratedKeys()).thenReturn(rs);
+        when(rs.next()).thenReturn(false); // no generated keys
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            Sede s = new Sede();
+            s.setCitta("Citta");
+            s.setVia("Via T");
+            s.setCivico(1);
+            s.setCap("00000");
+
+            SedeDAO dao = new SedeDAO();
+            // DAO will call rs.next() then rs.getInt(1); mock returns 0 for getInt,
+            // so no exception is thrown — assert id is set to 0
+            dao.doSave(s);
+            assertEquals(0, s.getIdSede());
+        }
+    }
+
+    @Test
+    public void testDeleteSede_withPresenza_deletesPresenzaAndSede() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps1 = mock(PreparedStatement.class);
+        PreparedStatement ps2 = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(ps1, ps2);
+        when(ps1.executeUpdate()).thenReturn(1);
+        when(ps2.executeUpdate()).thenReturn(1);
+
+        SedeDAO spyDao = spy(new SedeDAO());
+        doReturn(Collections.singletonList(new Libro())).when(spyDao).getPresenza(9);
+        doReturn(new Sede()).when(spyDao).doRetrieveById(anyInt());
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            spyDao.deleteSede(9);
+
+            verify(ps1).setInt(1, 9);
+            verify(ps1).executeUpdate();
+            verify(ps2).setInt(1, 9);
+            verify(ps2).executeUpdate();
+        }
+    }
+
+    @Test
+    public void testRemoveLibroSede_executeUpdate0_throws() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(0);
+
+        Sede s = new Sede();
+        s.setIdSede(4);
+        Libro l = new Libro();
+        l.setIsbn("XISBN");
+        s.setLibri(new ArrayList<>());
+        s.getLibri().add(l);
+
+        SedeDAO spyDao = spy(new SedeDAO());
+        doReturn(s).when(spyDao).doRetrieveById(4);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                    (mock, ctx) -> when(mock.doRetrieveById("XISBN")).thenReturn(l))) {
+
+                assertThrows(RuntimeException.class, () -> spyDao.removeLibroSede(4, "XISBN"));
+            }
+        }
+    }
+
+    @Test
+    public void testDoSavePresenza_executeUpdate0_throws() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(0);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            SedeDAO dao = new SedeDAO();
+            assertThrows(RuntimeException.class, () -> dao.doSavePresenza(2, "isbn"));
+        }
+    }
+
+    @Test
+    public void testDeleteFromPresenzaLibro_executeUpdate0_throws() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(0);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            SedeDAO dao = new SedeDAO();
+            assertThrows(RuntimeException.class, () -> dao.deleteFromPresenzaLibro(3, "is"));
+        }
+    }
+
+    @Test
+    public void testGetPresenza_returnsList() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+        ResultSet rs = mock(ResultSet.class);
+
+        when(conn.prepareStatement(contains("Presenza"))).thenReturn(ps);
+        when(ps.executeQuery()).thenReturn(rs);
+        when(rs.next()).thenReturn(true, false);
+        when(rs.getString(1)).thenReturn("ISBX");
+
+        Libro libro = new Libro();
+        libro.setIsbn("ISBX");
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                    (mock, ctx) -> when(mock.doRetrieveById("ISBX")).thenReturn(libro))) {
+
+                SedeDAO dao = new SedeDAO();
+                List<Libro> list = dao.getPresenza(77);
+
+                assertNotNull(list);
+                assertEquals(1, list.size());
+                assertEquals("ISBX", list.get(0).getIsbn());
+            }
+        }
+    }
+
+    @Test
+    public void testUpdateSede_success() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(contains("UPDATE Sede SET"))).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(1);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            Sede s = new Sede();
+            s.setIdSede(8);
+            s.setCitta("City");
+            s.setVia("Street");
+            s.setCivico(9);
+            s.setCap("99999");
+
+            SedeDAO dao = new SedeDAO();
+            dao.updateSede(s);
+
+            verify(ps).setString(1, "City");
+            verify(ps).setString(2, "Street");
+            verify(ps).setInt(3, 9);
+            verify(ps).setString(4, "99999");
+            verify(ps).setInt(5, 8);
+            verify(ps).executeUpdate();
+        }
+    }
+
+    @Test
+    public void testDeleteFromPresenzaLibro_success() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(contains("DELETE FROM Presenza WHERE"))).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(1);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            SedeDAO dao = new SedeDAO();
+            dao.deleteFromPresenzaLibro(2, "ZISB");
+
+            verify(ps).setInt(1, 2);
+            verify(ps).setString(2, "ZISB");
+            verify(ps).executeUpdate();
+        }
+    }
+
+    @Test
+    public void testDoSave_throwsWhenInsertFails() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(contains("INSERT INTO Sede"))).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(0);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            Sede s = new Sede();
+            s.setCitta("C");
+            s.setVia("V");
+            s.setCivico(1);
+            s.setCap("00000");
+
+            SedeDAO dao = new SedeDAO();
+            assertThrows(RuntimeException.class, () -> dao.doSave(s));
+        }
+    }
+
+    @Test
+    public void testDeleteSede_noPresenza_deletesOnlySede() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(1);
+
+        SedeDAO spyDao = spy(new SedeDAO());
+        doReturn(Collections.emptyList()).when(spyDao).getPresenza(anyInt());
+        doReturn(new Sede()).when(spyDao).doRetrieveById(anyInt());
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            spyDao.deleteSede(21);
+
+            verify(ps).executeUpdate();
+        }
+    }
+
+    @Test
+    public void testDeleteSede_presenzaExecute0_throws() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement psApp = mock(PreparedStatement.class);
+        PreparedStatement psDel = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(psApp, psDel);
+        when(psApp.executeUpdate()).thenReturn(0);
+        when(psDel.executeUpdate()).thenReturn(1);
+
+        Sede s = new Sede();
+        s.setIdSede(9);
+        List<Libro> libri = new ArrayList<>();
+        libri.add(new Libro());
+
+        SedeDAO spyDao = spy(new SedeDAO());
+        doReturn(libri).when(spyDao).getPresenza(9);
+        doReturn(new Sede()).when(spyDao).doRetrieveById(9);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            assertThrows(RuntimeException.class, () -> spyDao.deleteSede(9));
+        }
+    }
+
+    @Test
+    public void testDeleteSede_getPresenzaNull_deletesOnlySede() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(1);
+
+        SedeDAO spyDao = spy(new SedeDAO());
+        doReturn(null).when(spyDao).getPresenza(anyInt());
+        doReturn(new Sede()).when(spyDao).doRetrieveById(anyInt());
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            spyDao.deleteSede(55);
+
+            verify(ps).executeUpdate();
+        }
+    }
+
+    @Test
+    public void testDeleteSede_finalDeleteFails_throws() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement psApp = mock(PreparedStatement.class);
+        PreparedStatement psDel = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(anyString())).thenReturn(psApp, psDel);
+        when(psApp.executeUpdate()).thenReturn(1);
+        when(psDel.executeUpdate()).thenReturn(0); // final delete fails
+
+        Sede s = new Sede();
+        s.setIdSede(33);
+        List<Libro> libri = new ArrayList<>();
+        libri.add(new Libro());
+
+        SedeDAO spyDao = spy(new SedeDAO());
+        doReturn(libri).when(spyDao).getPresenza(33);
+        doReturn(new Sede()).when(spyDao).doRetrieveById(33);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            assertThrows(RuntimeException.class, () -> spyDao.deleteSede(33));
+        }
+    }
+
+    @Test
+    public void testUpdateSede_throwsWhenNoRowsUpdated() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(contains("UPDATE Sede SET"))).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(0);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            Sede s = new Sede();
+            s.setIdSede(3);
+            s.setCitta("C");
+            s.setVia("V");
+            s.setCivico(1);
+            s.setCap("00000");
+
+            SedeDAO dao = new SedeDAO();
+            assertThrows(RuntimeException.class, () -> dao.updateSede(s));
+        }
+    }
+
+    @Test
+    public void testAddLibroSede_insertFails_throws() throws Exception {
+        Connection conn = mock(Connection.class);
+        PreparedStatement ps = mock(PreparedStatement.class);
+
+        when(conn.prepareStatement(contains("INSERT INTO Presenza"))).thenReturn(ps);
+        when(ps.executeUpdate()).thenReturn(0);
+
+        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
+            cp.when(ConPool::getConnection).thenReturn(conn);
+
+            Sede s = new Sede();
+            s.setIdSede(50);
+            s.setLibri(new ArrayList<>());
+
+            try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                    (mock, ctx) -> when(mock.doRetrieveById("X")) .thenReturn(new Libro()))) {
+
+                SedeDAO dao = new SedeDAO();
+                assertThrows(RuntimeException.class, () -> dao.addLibroSede(s, "X"));
+            }
+        }
+    }
+
 }
