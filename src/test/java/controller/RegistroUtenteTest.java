@@ -144,4 +144,84 @@ public class RegistroUtenteTest {
 
         verify(dispatcher).forward(request, response);
     }
+
+    @Test
+    void testDoGet_TelefonoGiaPresenteNelDB() throws ServletException, IOException {
+        // Arrange - Parametri validi ma telefono già nel DB
+        when(request.getParameter("nomeUtente")).thenReturn("MarioRossi");
+        when(request.getParameter("email")).thenReturn("mario@example.com");
+        when(request.getParameter("pw")).thenReturn("password");
+        when(request.getParameter("tipo")).thenReturn("standard");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        // Telefoni già presenti nel DB (contiene il telefono che stiamo provando a registrare)
+        ArrayList<String> telefoniDB = new ArrayList<>();
+        telefoniDB.add("1234567890");
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(telefoniDB);
+
+        // Mock del dispatcher per la pagina di errore
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/erroreTelefonoDB.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert
+        verify(dispatcher).forward(request, response);
+        verify(utenteDAO, never()).doSave(any(Utente.class));
+    }
+
+    @Test
+    void testDoGet_TelefonoGiaPresenteNelDB_SecondoTelefonoMatch() throws ServletException, IOException {
+        // Arrange - Due telefoni, il secondo è già nel DB
+        when(request.getParameter("nomeUtente")).thenReturn("MarioRossi");
+        when(request.getParameter("email")).thenReturn("mario@example.com");
+        when(request.getParameter("pw")).thenReturn("password");
+        when(request.getParameter("tipo")).thenReturn("standard");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1111111111", "9999999999"});
+
+        // Telefoni già presenti nel DB (contiene il secondo telefono)
+        ArrayList<String> telefoniDB = new ArrayList<>();
+        telefoniDB.add("9999999999");
+        telefoniDB.add("8888888888");
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(telefoniDB);
+
+        // Mock del dispatcher per la pagina di errore
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/erroreTelefonoDB.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert
+        verify(dispatcher).forward(request, response);
+        verify(utenteDAO, never()).doSave(any(Utente.class));
+    }
+
+    @Test
+    void testDoGet_TelefoniDBNonVuoto_NessunMatch() throws ServletException, IOException {
+        // Arrange - Telefoni nel DB ma nessun match con i nuovi
+        when(request.getParameter("nomeUtente")).thenReturn("MarioRossi");
+        when(request.getParameter("email")).thenReturn("mario@example.com");
+        when(request.getParameter("pw")).thenReturn("password");
+        when(request.getParameter("tipo")).thenReturn("standard");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        // Telefoni già presenti nel DB (ma NON contiene il telefono che stiamo registrando)
+        ArrayList<String> telefoniDB = new ArrayList<>();
+        telefoniDB.add("9999999999");
+        telefoniDB.add("8888888888");
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(telefoniDB);
+
+        // La mail non è presente nel DB
+        when(utenteDAO.doRetrieveById("mario@example.com")).thenReturn(null);
+
+        // Mock del dispatcher per successo
+        when(request.getRequestDispatcher("/WEB-INF/results/login.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert
+        verify(dispatcher).forward(request, response);
+        verify(utenteDAO).doSave(any(Utente.class));
+    }
 }

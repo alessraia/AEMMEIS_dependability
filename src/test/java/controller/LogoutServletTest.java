@@ -309,4 +309,88 @@ class LogoutServletTest {
         verify(session).invalidate();
         verify(response).sendRedirect("index.html");
     }
+
+    @Test
+    void testDoGet_nonAdmin_dbCartExistsButEmpty() throws ServletException, IOException {
+        String email = "user@example.com";
+        Utente utente = new Utente();
+        utente.setEmail(email);
+        utente.setTipo("Cliente");
+
+        Carrello carrello = new Carrello();
+        carrello.setIdCarrello("cart123");
+        List<RigaCarrello> righe = new ArrayList<>();
+        RigaCarrello riga = new RigaCarrello();
+        righe.add(riga);
+        carrello.setRigheCarrello(righe);
+
+        WishList wishList = new WishList();
+        wishList.setLibri(new ArrayList<>());
+
+        when(session.getAttribute("carrello")).thenReturn(carrello);
+        when(session.getAttribute("wishList")).thenReturn(wishList);
+        when(session.getAttribute("utente")).thenReturn(utente);
+
+        // DB cart exists but is empty
+        Carrello dbCart = new Carrello();
+        dbCart.setIdCarrello("dbCart456");
+        dbCart.setRigheCarrello(new ArrayList<>());
+        when(carrelloDAO.doRetriveByUtente(email)).thenReturn(dbCart);
+
+        when(wishListDAO.doRetrieveByEmail(email)).thenReturn(null);
+
+        servlet.doGet(request, response);
+
+        // Verify no delete called (cart is empty)
+        verify(rigaCarrelloDAO, never()).deleteRigheCarrelloByIdCarrello(anyString());
+
+        // Verify cart items saved
+        verify(rigaCarrelloDAO, times(1)).doSave(any(RigaCarrello.class));
+
+        // Verify session invalidated and redirect
+        verify(session).invalidate();
+        verify(response).sendRedirect("index.html");
+    }
+
+    @Test
+    void testDoGet_nonAdmin_dbWishListExistsButEmpty() throws ServletException, IOException {
+        String email = "user@example.com";
+        Utente utente = new Utente();
+        utente.setEmail(email);
+        utente.setTipo("Cliente");
+
+        Carrello carrello = new Carrello();
+        carrello.setIdCarrello("cart123");
+        carrello.setRigheCarrello(new ArrayList<>());
+
+        WishList wishList = new WishList();
+        List<Libro> libri = new ArrayList<>();
+        Libro libro = new Libro();
+        libro.setIsbn("978-123");
+        libri.add(libro);
+        wishList.setLibri(libri);
+
+        when(session.getAttribute("carrello")).thenReturn(carrello);
+        when(session.getAttribute("wishList")).thenReturn(wishList);
+        when(session.getAttribute("utente")).thenReturn(utente);
+
+        when(carrelloDAO.doRetriveByUtente(email)).thenReturn(null);
+
+        // DB wishlist exists but is empty
+        WishList dbWishList = new WishList();
+        dbWishList.setLibri(new ArrayList<>());
+        when(wishListDAO.doRetrieveByEmail(email)).thenReturn(dbWishList);
+
+        servlet.doGet(request, response);
+
+        // Verify no delete called (wishlist is empty)
+        verify(wishListDAO, never()).deleteWishListByEmail(anyString());
+
+        // Verify wishlist items saved
+        verify(wishListDAO, times(1)).doSave(eq(wishList), eq("978-123"));
+
+        // Verify session invalidated and redirect
+        verify(session).invalidate();
+        verify(response).sendRedirect("index.html");
+    }
 }

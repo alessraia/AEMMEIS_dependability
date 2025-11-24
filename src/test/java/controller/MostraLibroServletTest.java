@@ -122,4 +122,119 @@ public class MostraLibroServletTest {
             verify(dispatcher, times(1)).forward(request, response);
         }
     }
+
+    @Test
+    public void showBookFromWishlist_whenCarrelloIsNull() throws Exception {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        Libro libroInWishlist = new Libro();
+        libroInWishlist.setIsbn("222-BBB");
+
+        List<Libro> libri = new ArrayList<>();
+        libri.add(libroInWishlist);
+
+        WishList wishList = new WishList();
+        wishList.setLibri(libri);
+
+        Utente user = new Utente();
+        user.setTipo("Cliente");
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("utente")).thenReturn(user);
+        when(session.getAttribute("carrello")).thenReturn(null);
+        when(session.getAttribute("wishList")).thenReturn(wishList);
+        when(request.getParameter("isbn")).thenReturn("222-BBB");
+        when(request.getRequestDispatcher("/WEB-INF/results/mostraLibro.jsp")).thenReturn(dispatcher);
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, context) -> when(mock.getScrittura("222-BBB")).thenReturn(new ArrayList<Autore>()))) {
+
+            new MostraLibroServlet().doGet(request, response);
+
+            verify(request).setAttribute("libro", libroInWishlist);
+            verify(request).setAttribute(eq("autori"), anyList());
+            verify(dispatcher, times(1)).forward(request, response);
+        }
+    }
+
+    @Test
+    public void showBookNotFoundInCartOrWishlist_usesDAO() throws Exception {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        // Cart has different ISBN
+        Libro libroInCart = new Libro();
+        libroInCart.setIsbn("111-AAA");
+        RigaCarrello riga = new RigaCarrello();
+        riga.setLibro(libroInCart);
+        List<RigaCarrello> righe = new ArrayList<>();
+        righe.add(riga);
+        Carrello carrello = new Carrello();
+        carrello.setRigheCarrello(righe);
+
+        Utente user = new Utente();
+        user.setTipo("Cliente");
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("utente")).thenReturn(user);
+        when(session.getAttribute("carrello")).thenReturn(carrello);
+        when(session.getAttribute("wishList")).thenReturn(null);
+        when(request.getParameter("isbn")).thenReturn("333-CCC");
+        when(request.getRequestDispatcher("/WEB-INF/results/mostraLibro.jsp")).thenReturn(dispatcher);
+
+        Libro daoLibro = new Libro();
+        daoLibro.setIsbn("333-CCC");
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, context) -> {
+                    when(mock.doRetrieveById("333-CCC")).thenReturn(daoLibro);
+                    when(mock.getScrittura("333-CCC")).thenReturn(new ArrayList<Autore>());
+                })) {
+
+            new MostraLibroServlet().doGet(request, response);
+
+            verify(request).setAttribute("libro", daoLibro);
+            verify(request).setAttribute(eq("autori"), anyList());
+            verify(dispatcher, times(1)).forward(request, response);
+        }
+    }
+
+    @Test
+    public void showBook_nullCarrelloAndWishlist() throws Exception {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        Utente user = new Utente();
+        user.setTipo("Cliente");
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("utente")).thenReturn(user);
+        when(session.getAttribute("carrello")).thenReturn(null);
+        when(session.getAttribute("wishList")).thenReturn(null);
+        when(request.getParameter("isbn")).thenReturn("444-DDD");
+        when(request.getRequestDispatcher("/WEB-INF/results/mostraLibro.jsp")).thenReturn(dispatcher);
+
+        Libro daoLibro = new Libro();
+        daoLibro.setIsbn("444-DDD");
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, context) -> {
+                    when(mock.doRetrieveById("444-DDD")).thenReturn(daoLibro);
+                    when(mock.getScrittura("444-DDD")).thenReturn(new ArrayList<Autore>());
+                })) {
+
+            new MostraLibroServlet().doGet(request, response);
+
+            verify(request).setAttribute("libro", daoLibro);
+            verify(request).setAttribute(eq("autori"), anyList());
+            verify(dispatcher, times(1)).forward(request, response);
+        }
+    }
 }

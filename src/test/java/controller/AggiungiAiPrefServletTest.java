@@ -161,4 +161,109 @@ class AggiungiAiPrefServletTest {
                 "La risposta JSON deve contenere isInWishList = false");
     }
 
+    @Test
+    void testDoGet_AdminUser_ForwardsToAdminHomepage() throws ServletException, IOException {
+        // 1) Admin user in session
+        Utente admin = new Utente();
+        admin.setEmail("admin@example.com");
+        admin.setTipo("Gestore-Admin");
+        when(session.getAttribute("utente")).thenReturn(admin);
+
+        when(request.getParameter("isbn")).thenReturn("123");
+        
+        Libro mockLibro = new Libro();
+        mockLibro.setIsbn("123");
+        when(mockLibroDAO.doRetrieveById("123")).thenReturn(mockLibro);
+
+        // 2) Mock dispatcher
+        jakarta.servlet.RequestDispatcher dispatcher = mock(jakarta.servlet.RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp")).thenReturn(dispatcher);
+
+        // 3) Execute
+        servletUnderTest.doGet(request, response);
+
+        // 4) Verify forward to admin page
+        verify(dispatcher).forward(request, response);
+        verify(response, never()).getWriter();
+    }
+
+    @Test
+    void testDoGet_NullWishList_InitializesNewWishList() throws ServletException, IOException {
+        // 1) Parameters
+        String isbn = "978-1234567890";
+        when(request.getParameter("isbn")).thenReturn(isbn);
+        
+        Libro mockLibro = new Libro();
+        mockLibro.setIsbn(isbn);
+        when(mockLibroDAO.doRetrieveById(isbn)).thenReturn(mockLibro);
+
+        // 2) User logged in
+        Utente utente = new Utente();
+        utente.setEmail("user@example.com");
+        utente.setTipo("Cliente");
+        when(session.getAttribute("utente")).thenReturn(utente);
+
+        // 3) WishList is null in session
+        WishList wishList = new WishList();
+        when(session.getAttribute("wishList")).thenReturn(wishList);
+
+        // 4) Simulate writer
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        // 5) Execute
+        servletUnderTest.doGet(request, response);
+
+        // 6) Verify wishList.libri was initialized and book added
+        assertNotNull(wishList.getLibri(), "Libri list should be initialized");
+        assertEquals(1, wishList.getLibri().size(), "Should contain 1 book");
+        assertEquals(isbn, wishList.getLibri().get(0).getIsbn());
+
+        // 7) Verify JSON response
+        pw.flush();
+        String jsonResponse = sw.toString();
+        assertTrue(jsonResponse.contains("\"isInWishList\":true"));
+    }
+
+    @Test
+    void testDoGet_WishListWithNullLibri_InitializesLibriList() throws ServletException, IOException {
+        // 1) Parameters
+        String isbn = "978-9999999999";
+        when(request.getParameter("isbn")).thenReturn(isbn);
+        
+        Libro mockLibro = new Libro();
+        mockLibro.setIsbn(isbn);
+        when(mockLibroDAO.doRetrieveById(isbn)).thenReturn(mockLibro);
+
+        // 2) User logged in
+        Utente utente = new Utente();
+        utente.setEmail("user@example.com");
+        utente.setTipo("Standard");
+        when(session.getAttribute("utente")).thenReturn(utente);
+
+        // 3) WishList exists but getLibri() returns null
+        WishList wishList = new WishList();
+        wishList.setLibri(null);
+        when(session.getAttribute("wishList")).thenReturn(wishList);
+
+        // 4) Simulate writer
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        // 5) Execute
+        servletUnderTest.doGet(request, response);
+
+        // 6) Verify libri list was initialized and book added
+        assertNotNull(wishList.getLibri(), "Libri should be initialized");
+        assertEquals(1, wishList.getLibri().size());
+        assertEquals(isbn, wishList.getLibri().get(0).getIsbn());
+
+        // 7) Verify JSON response
+        pw.flush();
+        String jsonResponse = sw.toString();
+        assertTrue(jsonResponse.contains("\"isInWishList\":true"));
+    }
+
 }

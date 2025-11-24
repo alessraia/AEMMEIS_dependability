@@ -1,6 +1,8 @@
 package model.libroService;
 
 import model.ConPool;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
@@ -9,245 +11,275 @@ import org.mockito.Mockito;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-public class AutoreDAOTest {
+/**
+ * Test class for AutoreDAO
+ * Tests all CRUD operations and author management methods
+ */
+class AutoreDAOTest {
 
-    @Test
-    public void testDoSave_success() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    private AutoreDAO autoreDAO;
+    private Connection mockConnection;
+    private PreparedStatement mockPreparedStatement;
+    private ResultSet mockResultSet;
+    private MockedStatic<ConPool> mockedConPool;
 
-        when(conn.prepareStatement(anyString(), anyInt())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
+    @BeforeEach
+    void setUp() throws SQLException {
+        mockConnection = mock(Connection.class);
+        mockPreparedStatement = mock(PreparedStatement.class);
+        mockResultSet = mock(ResultSet.class);
+        
+        autoreDAO = new AutoreDAO();
+        
+        mockedConPool = mockStatic(ConPool.class);
+        mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
+    }
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            AutoreDAO dao = new AutoreDAO();
-            Autore a = new Autore();
-            a.setCf("CF123");
-            a.setNome("Mario");
-            a.setCognome("Rossi");
-
-            dao.doSave(a);
-
-            verify(ps).setString(1, "CF123");
-            verify(ps).setString(2, "Mario");
-            verify(ps).setString(3, "Rossi");
-            verify(ps).executeUpdate();
+    @AfterEach
+    void tearDown() {
+        if (mockedConPool != null) {
+            mockedConPool.close();
         }
     }
 
+    // ==================== Helper Methods ====================
+
+    private Autore createTestAutore(String cf, String nome, String cognome) {
+        Autore autore = new Autore();
+        autore.setCf(cf);
+        autore.setNome(nome);
+        autore.setCognome(cognome);
+        return autore;
+    }
+
+    // ==================== doSave Tests ====================
+
     @Test
-    public void testDeleteAutore_success() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    void testDoSave_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
+        Autore a = createTestAutore("CF123", "Mario", "Rossi");
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        // Act
+        assertDoesNotThrow(() -> autoreDAO.doSave(a));
 
-            AutoreDAO dao = new AutoreDAO();
-            dao.deleteAutore("CFDEL");
-
-            verify(ps).setString(1, "CFDEL");
-            verify(ps).executeUpdate();
-        }
+        // Assert
+        verify(mockPreparedStatement).setString(1, "CF123");
+        verify(mockPreparedStatement).setString(2, "Mario");
+        verify(mockPreparedStatement).setString(3, "Rossi");
+        verify(mockPreparedStatement).executeUpdate();
     }
 
     @Test
-    public void testSearchAutore_found() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testDoSave_InsertFails() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(true);
-        when(rs.getString(1)).thenReturn("Luca");
-        when(rs.getString(2)).thenReturn("Bianchi");
+        Autore a = createTestAutore("CFERR", "Nome", "Cognome");
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            AutoreDAO dao = new AutoreDAO();
-            Autore a = dao.searchAutore("CFSRCH");
-
-            assertNotNull(a);
-            assertEquals("CFSRCH", a.getCf());
-            assertEquals("Luca", a.getNome());
-            assertEquals("Bianchi", a.getCognome());
-        }
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> autoreDAO.doSave(a));
     }
 
     @Test
-    public void testGetScrittura_returnsList() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testDoSave_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenThrow(new SQLException("fail"));
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        // First call -> true (isbn1), second -> true (isbn2), then false
-        when(rs.next()).thenReturn(true, true, false);
-        when(rs.getString(1)).thenReturn("ISBN1", "ISBN2");
+        Autore a = createTestAutore("CFSQL", "N", "C");
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> autoreDAO.doSave(a));
+    }
 
-            Libro l1 = new Libro();
-            l1.setIsbn("ISBN1");
-            Libro l2 = new Libro();
-            l2.setIsbn("ISBN2");
+    // ==================== deleteAutore Tests ====================
 
-            try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
-                    (mock, context) -> {
-                        when(mock.doRetrieveById("ISBN1")).thenReturn(l1);
-                        when(mock.doRetrieveById("ISBN2")).thenReturn(l2);
-                    })) {
+    @Test
+    void testDeleteAutore_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
 
-                AutoreDAO dao = new AutoreDAO();
-                List<Libro> list = dao.getScrittura("CFSCR");
+        // Act
+        assertDoesNotThrow(() -> autoreDAO.deleteAutore("CFDEL"));
 
-                assertNotNull(list);
-                assertEquals(2, list.size());
-                assertEquals("ISBN1", list.get(0).getIsbn());
-                assertEquals("ISBN2", list.get(1).getIsbn());
-            }
-        }
+        // Assert
+        verify(mockPreparedStatement).setString(1, "CFDEL");
+        verify(mockPreparedStatement).executeUpdate();
     }
 
     @Test
-    public void testDoSave_failure_throwsRuntimeException_whenExecuteUpdateNot1() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    void testDeleteAutore_DeleteFails() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
 
-        when(conn.prepareStatement(anyString(), anyInt())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(0);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            AutoreDAO dao = new AutoreDAO();
-            Autore a = new Autore();
-            a.setCf("CFERR");
-            a.setNome("Nome");
-            a.setCognome("Cognome");
-
-            assertThrows(RuntimeException.class, () -> dao.doSave(a));
-        }
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> autoreDAO.deleteAutore("CFDELERR"));
     }
 
     @Test
-    public void testDeleteAutore_failure_throwsRuntimeException_whenExecuteUpdateNot1() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    void testDeleteAutore_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("delete error"));
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(0);
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> autoreDAO.deleteAutore("CFSQL"));
+    }
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+    // ==================== searchAutore Tests ====================
 
-            AutoreDAO dao = new AutoreDAO();
-            assertThrows(RuntimeException.class, () -> dao.deleteAutore("CFDELERR"));
-        }
+    @Test
+    void testSearchAutore_Found() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getString(1)).thenReturn("Luca");
+        when(mockResultSet.getString(2)).thenReturn("Bianchi");
+
+        // Act
+        Autore a = autoreDAO.searchAutore("CFSRCH");
+
+        // Assert
+        assertNotNull(a);
+        assertEquals("CFSRCH", a.getCf());
+        assertEquals("Luca", a.getNome());
+        assertEquals("Bianchi", a.getCognome());
     }
 
     @Test
-    public void testSearchAutore_notFound_returnsNull() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testSearchAutore_NotFound() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(false);
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(false);
+        // Act
+        Autore a = autoreDAO.searchAutore("CFNOT");
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            AutoreDAO dao = new AutoreDAO();
-            Autore a = dao.searchAutore("CFNOT");
-
-            assertNull(a);
-        }
+        // Assert
+        assertNull(a);
     }
 
     @Test
-    public void testGetScrittura_empty_returnsEmptyList() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testSearchAutore_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("search error"));
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(false);
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> autoreDAO.searchAutore("CFSQL"));
+    }
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+    @Test
+    void testSearchAutore_ResultSetThrowsSQLException() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getString(1)).thenThrow(new SQLException("ResultSet error"));
 
-            AutoreDAO dao = new AutoreDAO();
-            List<Libro> list = dao.getScrittura("CFSCR_EMPTY");
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> autoreDAO.searchAutore("CFRS_ERROR"));
+    }
 
+    @Test
+    void testSearchAutore_ExecuteQueryThrowsSQLException() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenThrow(new SQLException("executeQuery error"));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> autoreDAO.searchAutore("CFEXEC"));
+    }
+
+    // ==================== getScrittura Tests ====================
+
+    @Test
+    void testGetScrittura_ReturnsList() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true, true, false);
+        when(mockResultSet.getString(1)).thenReturn("ISBN1", "ISBN2");
+
+        Libro l1 = new Libro();
+        l1.setIsbn("ISBN1");
+        Libro l2 = new Libro();
+        l2.setIsbn("ISBN2");
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, context) -> {
+                    when(mock.doRetrieveById("ISBN1")).thenReturn(l1);
+                    when(mock.doRetrieveById("ISBN2")).thenReturn(l2);
+                })) {
+
+            // Act
+            List<Libro> list = autoreDAO.getScrittura("CFSCR");
+
+            // Assert
             assertNotNull(list);
-            assertEquals(0, list.size());
+            assertEquals(2, list.size());
+            assertEquals("ISBN1", list.get(0).getIsbn());
+            assertEquals("ISBN2", list.get(1).getIsbn());
         }
     }
 
     @Test
-    public void testDoSave_sqlException_wrapped() throws Exception {
-        Connection conn = mock(Connection.class);
+    void testGetScrittura_Empty_ReturnsEmptyList() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(false);
 
-        when(conn.prepareStatement(anyString(), anyInt())).thenThrow(new java.sql.SQLException("fail"));
+        // Act
+        List<Libro> list = autoreDAO.getScrittura("CFSCR_EMPTY");
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        // Assert
+        assertNotNull(list);
+        assertEquals(0, list.size());
+    }
 
-            AutoreDAO dao = new AutoreDAO();
-            Autore a = new Autore();
-            a.setCf("CFSQL");
-            a.setNome("N");
-            a.setCognome("C");
+    @Test
+    void testGetScrittura_LibroDAOReturnsNull_ListContainsNull() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true, false);
+        when(mockResultSet.getString(1)).thenReturn("ISBN_NULL");
 
-            assertThrows(RuntimeException.class, () -> dao.doSave(a));
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, context) -> {
+                    when(mock.doRetrieveById("ISBN_NULL")).thenReturn(null);
+                })) {
+
+            // Act
+            List<Libro> list = autoreDAO.getScrittura("CFSCR_NULL");
+
+            // Assert
+            assertNotNull(list);
+            assertEquals(1, list.size());
+            assertNull(list.get(0));
         }
     }
 
     @Test
-    public void testGetScrittura_libroDaoReturnsNull_listContainsNull() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testGetScrittura_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("getScrittura error"));
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(true, false);
-        when(rs.getString(1)).thenReturn("ISBN_NULL");
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
-                    (mock, context) -> {
-                        when(mock.doRetrieveById("ISBN_NULL")).thenReturn(null);
-                    })) {
-
-                AutoreDAO dao = new AutoreDAO();
-                List<Libro> list = dao.getScrittura("CFSCR_NULL");
-
-                assertNotNull(list);
-                assertEquals(1, list.size());
-                assertNull(list.get(0));
-            }
-        }
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> autoreDAO.getScrittura("CFSQL"));
     }
 
 }

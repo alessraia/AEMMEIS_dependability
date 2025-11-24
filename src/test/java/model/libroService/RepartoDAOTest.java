@@ -1,6 +1,8 @@
 package model.libroService;
 
 import model.ConPool;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
@@ -9,6 +11,7 @@ import org.mockito.Mockito;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,161 +20,258 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-public class RepartoDAOTest {
+/**
+ * Test class for RepartoDAO
+ * Tests all CRUD operations and reparto management methods
+ */
+class RepartoDAOTest {
 
-    @Test
-    public void testDoRetrieveById_found() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    private RepartoDAO repartoDAO;
+    private Connection mockConnection;
+    private PreparedStatement mockPreparedStatement;
+    private ResultSet mockResultSet;
+    private MockedStatic<ConPool> mockedConPool;
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(true);
-        when(rs.getInt(1)).thenReturn(7);
-        when(rs.getString(2)).thenReturn("NomeR");
-        when(rs.getString(3)).thenReturn("Desc");
-        when(rs.getString(4)).thenReturn("img.png");
+    @BeforeEach
+    void setUp() throws SQLException {
+        mockConnection = mock(Connection.class);
+        mockPreparedStatement = mock(PreparedStatement.class);
+        mockResultSet = mock(ResultSet.class);
+        
+        repartoDAO = new RepartoDAO();
+        
+        mockedConPool = mockStatic(ConPool.class);
+        mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
+    }
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            RepartoDAO spy = spy(new RepartoDAO());
-            doReturn(Collections.emptyList()).when(spy).getAppartenenza(7);
-
-            Reparto r = spy.doRetrieveById(7);
-
-            assertNotNull(r);
-            assertEquals(7, r.getIdReparto());
-            assertEquals("NomeR", r.getNome());
-            assertEquals("Desc", r.getDescrizione());
-            assertEquals(0, r.getLibri().size());
+    @AfterEach
+    void tearDown() {
+        if (mockedConPool != null) {
+            mockedConPool.close();
         }
     }
 
+    // ==================== Helper Methods ====================
+
+    private Reparto createTestReparto(int idReparto, String nome, String descrizione, String immagine) {
+        Reparto reparto = new Reparto();
+        reparto.setIdReparto(idReparto);
+        reparto.setNome(nome);
+        reparto.setDescrizione(descrizione);
+        reparto.setImmagine(immagine);
+        return reparto;
+    }
+
+    // ==================== doRetrieveById Tests ====================
+
     @Test
-    public void testDoRetrivedAll_returnsList() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testDoRetrieveById_Found() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getInt(1)).thenReturn(7);
+        when(mockResultSet.getString(2)).thenReturn("NomeR");
+        when(mockResultSet.getString(3)).thenReturn("Desc");
+        when(mockResultSet.getString(4)).thenReturn("img.png");
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(true, true, false);
-        when(rs.getInt(1)).thenReturn(1, 2);
-        when(rs.getString(2)).thenReturn("R1", "R2");
-        when(rs.getString(3)).thenReturn("D1", "D2");
-        when(rs.getString(4)).thenReturn("i1.png", "i2.png");
+        RepartoDAO spy = spy(repartoDAO);
+        doReturn(Collections.emptyList()).when(spy).getAppartenenza(7);
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        // Act
+        Reparto r = spy.doRetrieveById(7);
 
-            RepartoDAO spy = spy(new RepartoDAO());
-            doReturn(Collections.emptyList()).when(spy).getAppartenenza(anyInt());
-
-            List<Reparto> list = spy.doRetrivedAll();
-
-            assertNotNull(list);
-            assertEquals(2, list.size());
-            assertEquals(1, list.get(0).getIdReparto());
-            assertEquals(2, list.get(1).getIdReparto());
-        }
+        // Assert
+        assertNotNull(r);
+        assertEquals(7, r.getIdReparto());
+        assertEquals("NomeR", r.getNome());
+        assertEquals("Desc", r.getDescrizione());
+        assertEquals(0, r.getLibri().size());
     }
 
     @Test
-    public void testAggiungiLibroReparto_addsBookAndCallsLibroDAO() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    void testDoRetrieveById_NotFound() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(false);
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
+        // Act
+        Reparto r = repartoDAO.doRetrieveById(999);
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            Reparto reparto = new Reparto();
-            reparto.setIdReparto(10);
-            reparto.setLibri(new ArrayList<>());
-
-            Libro l = new Libro();
-            l.setIsbn("ISBNX");
-
-            try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
-                    (mock, ctx) -> when(mock.doRetrieveById("ISBNX")).thenReturn(l))) {
-
-                RepartoDAO dao = new RepartoDAO();
-                dao.aggiungiLibroReparto(reparto, "ISBNX");
-
-                verify(ps).setInt(1, 10);
-                verify(ps).setString(2, "ISBNX");
-                verify(ps).executeUpdate();
-
-                // LibroDAO.doRetrieveById should have been called and libro added to reparto
-                assertEquals(1, reparto.getLibri().size());
-                assertEquals("ISBNX", reparto.getLibri().get(0).getIsbn());
-            }
-        }
+        // Assert
+        assertNull(r);
     }
 
     @Test
-    public void testDoSave_setsGeneratedId() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testDoRetrieveById_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("retrieve error"));
 
-        when(conn.prepareStatement(anyString(), anyInt())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
-        when(ps.getGeneratedKeys()).thenReturn(rs);
-        when(rs.next()).thenReturn(true);
-        when(rs.getInt(1)).thenReturn(123);
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.doRetrieveById(1));
+    }
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+    // ==================== doRetrivedAll Tests ====================
 
-            Reparto r = new Reparto();
-            r.setNome("N");
-            r.setDescrizione("D");
+    @Test
+    void testDoRetrivedAll_ReturnsList() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true, true, false);
+        when(mockResultSet.getInt(1)).thenReturn(1, 2);
+        when(mockResultSet.getString(2)).thenReturn("R1", "R2");
+        when(mockResultSet.getString(3)).thenReturn("D1", "D2");
+        when(mockResultSet.getString(4)).thenReturn("i1.png", "i2.png");
 
-            RepartoDAO dao = new RepartoDAO();
-            dao.doSave(r);
+        RepartoDAO spy = spy(repartoDAO);
+        doReturn(Collections.emptyList()).when(spy).getAppartenenza(anyInt());
 
-            assertEquals(123, r.getIdReparto());
-        }
+        // Act
+        List<Reparto> list = spy.doRetrivedAll();
+
+        // Assert
+        assertNotNull(list);
+        assertEquals(2, list.size());
+        assertEquals(1, list.get(0).getIdReparto());
+        assertEquals(2, list.get(1).getIdReparto());
     }
 
     @Test
-    public void testDoSave_noGeneratedKeys_throws() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testDoRetrivedAll_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("retriveAll error"));
 
-        when(conn.prepareStatement(anyString(), anyInt())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
-        when(ps.getGeneratedKeys()).thenReturn(rs);
-        when(rs.next()).thenReturn(false); // no generated keys
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.doRetrivedAll());
+    }
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+    // ==================== doSave Tests ====================
 
-            Reparto r = new Reparto();
-            r.setNome("N");
-            r.setDescrizione("D");
+    @Test
+    void testDoSave_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        when(mockPreparedStatement.getGeneratedKeys()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getInt(1)).thenReturn(123);
 
-            RepartoDAO dao = new RepartoDAO();
-            // the DAO will call rs.next() then rs.getInt(1); our mock returns 0 for getInt,
-            // so no SQLException is thrown — assert id is set to 0
-            dao.doSave(r);
-            assertEquals(0, r.getIdReparto());
-        }
+        Reparto r = createTestReparto(0, "N", "D", null);
+
+        // Act
+        repartoDAO.doSave(r);
+
+        // Assert
+        assertEquals(123, r.getIdReparto());
     }
 
     @Test
-    public void testDeleteReparto_withAppartenenza_deletesBoth() throws Exception {
-        Connection conn = mock(Connection.class);
+    void testDoSave_InsertFails() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("INSERT INTO Reparto"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+
+        Reparto r = createTestReparto(0, "N", "D", null);
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.doSave(r));
+    }
+
+    @Test
+    void testDoSave_NoGeneratedKeys() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        when(mockPreparedStatement.getGeneratedKeys()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(false);
+
+        Reparto r = createTestReparto(0, "N", "D", null);
+
+        // Act
+        repartoDAO.doSave(r);
+
+        // Assert
+        assertEquals(0, r.getIdReparto());
+    }
+
+    @Test
+    void testDoSave_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenThrow(new SQLException("save error"));
+
+        Reparto r = createTestReparto(0, "N", "D", null);
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.doSave(r));
+    }
+
+    @Test
+    void testDoSave_GetGeneratedKeysThrowsSQLException() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        when(mockPreparedStatement.getGeneratedKeys()).thenThrow(new SQLException("keys error"));
+
+        Reparto r = createTestReparto(0, "N", "D", null);
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.doSave(r));
+    }
+
+    // ==================== updateReparto Tests ====================
+
+    @Test
+    void testUpdateReparto_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("UPDATE Reparto SET"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        Reparto r = createTestReparto(5, "Name", "NEWDES", "imgx.png");
+
+        // Act
+        assertDoesNotThrow(() -> repartoDAO.updateReparto(r));
+
+        // Assert
+        verify(mockPreparedStatement).setString(1, "NEWDES");
+        verify(mockPreparedStatement).setString(2, "imgx.png");
+        verify(mockPreparedStatement).setInt(3, 5);
+        verify(mockPreparedStatement).executeUpdate();
+    }
+
+    @Test
+    void testUpdateReparto_NoRowsUpdated() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("UPDATE Reparto SET"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+
+        Reparto r = createTestReparto(5, "N", "D", "i.png");
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.updateReparto(r));
+    }
+
+    @Test
+    void testUpdateReparto_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("UPDATE Reparto SET"))).thenThrow(new SQLException("update error"));
+
+        Reparto r = createTestReparto(5, "N", "D", "i.png");
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.updateReparto(r));
+    }
+
+    // ==================== deleteReparto Tests ====================
+
+    @Test
+    void testDeleteReparto_WithAppartenenza_Success() throws SQLException {
+        // Arrange
         PreparedStatement ps1 = mock(PreparedStatement.class);
         PreparedStatement ps2 = mock(PreparedStatement.class);
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps1, ps2);
+        when(mockConnection.prepareStatement(anyString())).thenReturn(ps1, ps2);
         when(ps1.executeUpdate()).thenReturn(1);
         when(ps2.executeUpdate()).thenReturn(1);
 
@@ -180,116 +280,44 @@ public class RepartoDAOTest {
         List<Libro> libri = new ArrayList<>();
         libri.add(new Libro());
 
-        RepartoDAO spyDao = spy(new RepartoDAO());
+        RepartoDAO spyDao = spy(repartoDAO);
         doReturn(libri).when(spyDao).getAppartenenza(7);
         doReturn(reparto).when(spyDao).doRetrieveById(7);
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        // Act
+        assertDoesNotThrow(() -> spyDao.deleteReparto(7));
 
-            spyDao.deleteReparto(7);
-
-            verify(ps1).setInt(1, 7);
-            verify(ps1).executeUpdate();
-            verify(ps2).setInt(1, 7);
-            verify(ps2).executeUpdate();
-        }
+        // Assert
+        verify(ps1).setInt(1, 7);
+        verify(ps1).executeUpdate();
+        verify(ps2).setInt(1, 7);
+        verify(ps2).executeUpdate();
     }
 
     @Test
-    public void testRemoveLibroReparto_executeUpdate0_throws() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    void testDeleteReparto_NoAppartenenza_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(0);
-
-        Reparto reparto = new Reparto();
-        reparto.setIdReparto(5);
-        Libro l = new Libro();
-        l.setIsbn("BISBN");
-        reparto.setLibri(new ArrayList<>());
-        reparto.getLibri().add(l);
-
-        RepartoDAO spyDao = spy(new RepartoDAO());
-        doReturn(reparto).when(spyDao).doRetrieveById(5);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
-                    (mock, ctx) -> when(mock.doRetrieveById("BISBN")).thenReturn(l))) {
-
-                assertThrows(RuntimeException.class, () -> spyDao.removeLibroReparto(5, "BISBN"));
-            }
-        }
-    }
-
-    @Test
-    public void testDoSave_throwsWhenInsertFails() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-
-        when(conn.prepareStatement(contains("INSERT INTO Reparto"))).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(0);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            Reparto r = new Reparto();
-            r.setNome("N");
-            r.setDescrizione("D");
-
-            RepartoDAO dao = new RepartoDAO();
-            assertThrows(RuntimeException.class, () -> dao.doSave(r));
-        }
-    }
-
-    @Test
-    public void testDeleteReparto_noAppartenenza_deletesOnlyReparto() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
-
-        RepartoDAO spyDao = spy(new RepartoDAO());
+        RepartoDAO spyDao = spy(repartoDAO);
         doReturn(Collections.emptyList()).when(spyDao).getAppartenenza(anyInt());
         doReturn(new Reparto()).when(spyDao).doRetrieveById(anyInt());
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        // Act
+        assertDoesNotThrow(() -> spyDao.deleteReparto(11));
 
-            spyDao.deleteReparto(11);
-
-            verify(ps, atLeastOnce()).executeUpdate();
-        }
+        // Assert
+        verify(mockPreparedStatement, atLeastOnce()).executeUpdate();
     }
 
     @Test
-    public void testDoSaveAppartenenza_executeUpdate0_throws() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-
-        when(conn.prepareStatement(contains("INSERT INTO Appartenenza"))).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(0);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            RepartoDAO dao = new RepartoDAO();
-            assertThrows(RuntimeException.class, () -> dao.doSaveAppartenenza(2, "isbn"));
-        }
-    }
-
-    @Test
-    public void testDeleteReparto_appartenenzaExecute0_throws() throws Exception {
-        Connection conn = mock(Connection.class);
+    void testDeleteReparto_AppartenenzaExecuteFails() throws SQLException {
+        // Arrange
         PreparedStatement psApp = mock(PreparedStatement.class);
         PreparedStatement psRep = mock(PreparedStatement.class);
 
-        // first prepared statement (DELETE FROM Appartenenza) will return 0 -> cause exception
-        when(conn.prepareStatement(anyString())).thenReturn(psApp, psRep);
+        when(mockConnection.prepareStatement(anyString())).thenReturn(psApp, psRep);
         when(psApp.executeUpdate()).thenReturn(0);
         when(psRep.executeUpdate()).thenReturn(1);
 
@@ -298,239 +326,274 @@ public class RepartoDAOTest {
         List<Libro> libri = new ArrayList<>();
         libri.add(new Libro());
 
-        RepartoDAO spyDao = spy(new RepartoDAO());
+        RepartoDAO spyDao = spy(repartoDAO);
         doReturn(libri).when(spyDao).getAppartenenza(7);
         doReturn(reparto).when(spyDao).doRetrieveById(7);
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            assertThrows(RuntimeException.class, () -> spyDao.deleteReparto(7));
-        }
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> spyDao.deleteReparto(7));
     }
 
     @Test
-    public void testDeleteReparto_getAppartenenzaNull_deletesOnlyReparto() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    void testDeleteReparto_GetAppartenenzaNull_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
 
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
-
-        RepartoDAO spyDao = spy(new RepartoDAO());
+        RepartoDAO spyDao = spy(repartoDAO);
         doReturn(null).when(spyDao).getAppartenenza(anyInt());
         doReturn(new Reparto()).when(spyDao).doRetrieveById(anyInt());
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        // Act
+        assertDoesNotThrow(() -> spyDao.deleteReparto(13));
 
-            // should not throw
-            spyDao.deleteReparto(13);
-
-            verify(ps).setInt(1, 13);
-            verify(ps).executeUpdate();
-        }
+        // Assert
+        verify(mockPreparedStatement).setInt(1, 13);
+        verify(mockPreparedStatement).executeUpdate();
     }
 
     @Test
-    public void testDeleteReparto_repartoDeleteFails_throws() throws Exception {
-        Connection conn = mock(Connection.class);
+    void testDeleteReparto_RepartoDeleteFails() throws SQLException {
+        // Arrange
         PreparedStatement psApp = mock(PreparedStatement.class);
         PreparedStatement psRep = mock(PreparedStatement.class);
 
-        when(conn.prepareStatement(anyString())).thenReturn(psApp, psRep);
+        when(mockConnection.prepareStatement(anyString())).thenReturn(psApp, psRep);
         when(psApp.executeUpdate()).thenReturn(1);
-        when(psRep.executeUpdate()).thenReturn(0); // final delete fails
+        when(psRep.executeUpdate()).thenReturn(0);
 
         Reparto reparto = new Reparto();
         reparto.setIdReparto(22);
         List<Libro> libri = new ArrayList<>();
         libri.add(new Libro());
 
-        RepartoDAO spyDao = spy(new RepartoDAO());
+        RepartoDAO spyDao = spy(repartoDAO);
         doReturn(libri).when(spyDao).getAppartenenza(22);
         doReturn(reparto).when(spyDao).doRetrieveById(22);
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> spyDao.deleteReparto(22));
+    }
 
-            assertThrows(RuntimeException.class, () -> spyDao.deleteReparto(22));
+    @Test
+    void testDeleteReparto_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        RepartoDAO spyDao = spy(repartoDAO);
+        doThrow(new RuntimeException(new SQLException("delete error"))).when(spyDao).getAppartenenza(anyInt());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> spyDao.deleteReparto(5));
+    }
+
+    // ==================== aggiungiLibroReparto Tests ====================
+
+    @Test
+    void testAggiungiLibroReparto_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        Reparto reparto = new Reparto();
+        reparto.setIdReparto(10);
+        reparto.setLibri(new ArrayList<>());
+
+        Libro l = new Libro();
+        l.setIsbn("ISBNX");
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, ctx) -> when(mock.doRetrieveById("ISBNX")).thenReturn(l))) {
+
+            // Act
+            repartoDAO.aggiungiLibroReparto(reparto, "ISBNX");
+
+            // Assert
+            verify(mockPreparedStatement).setInt(1, 10);
+            verify(mockPreparedStatement).setString(2, "ISBNX");
+            verify(mockPreparedStatement).executeUpdate();
+
+            assertEquals(1, reparto.getLibri().size());
+            assertEquals("ISBNX", reparto.getLibri().get(0).getIsbn());
         }
     }
 
     @Test
-    public void testGetAppartenenza_returnsList() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
+    void testAggiungiLibroReparto_InsertFails() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
 
-        when(conn.prepareStatement(contains("Appartenenza"))).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(true, false);
-        when(rs.getString(1)).thenReturn("ISBN-G1");
+        Reparto reparto = new Reparto();
+        reparto.setIdReparto(20);
+        reparto.setLibri(new ArrayList<>());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.aggiungiLibroReparto(reparto, "XISBN"));
+    }
+
+    @Test
+    void testAggiungiLibroReparto_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("aggiungi error"));
+
+        Reparto reparto = new Reparto();
+        reparto.setIdReparto(20);
+        reparto.setLibri(new ArrayList<>());
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.aggiungiLibroReparto(reparto, "XISBN"));
+    }
+
+    // ==================== removeLibroReparto Tests ====================
+
+    @Test
+    void testRemoveLibroReparto_ExecuteUpdateFails() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+
+        Reparto reparto = new Reparto();
+        reparto.setIdReparto(5);
+        Libro l = new Libro();
+        l.setIsbn("BISBN");
+        reparto.setLibri(new ArrayList<>());
+        reparto.getLibri().add(l);
+
+        RepartoDAO spyDao = spy(repartoDAO);
+        doReturn(reparto).when(spyDao).doRetrieveById(5);
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, ctx) -> when(mock.doRetrieveById("BISBN")).thenReturn(l))) {
+
+            // Act & Assert
+            assertThrows(RuntimeException.class, () -> spyDao.removeLibroReparto(5, "BISBN"));
+        }
+    }
+
+    @Test
+    void testRemoveLibroReparto_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("remove error"));
+
+        Reparto reparto = new Reparto();
+        reparto.setIdReparto(5);
+
+        RepartoDAO spyDao = spy(repartoDAO);
+        doReturn(reparto).when(spyDao).doRetrieveById(5);
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> spyDao.removeLibroReparto(5, "BISBN"));
+    }
+
+    // ==================== doSaveAppartenenza Tests ====================
+
+    @Test
+    void testDoSaveAppartenenza_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("INSERT INTO Appartenenza"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        // Act
+        assertDoesNotThrow(() -> repartoDAO.doSaveAppartenenza(2, "isbn-okay"));
+
+        // Assert
+        verify(mockPreparedStatement).setInt(1, 2);
+        verify(mockPreparedStatement).setString(2, "isbn-okay");
+        verify(mockPreparedStatement).executeUpdate();
+    }
+
+    @Test
+    void testDoSaveAppartenenza_ExecuteUpdateFails() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("INSERT INTO Appartenenza"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.doSaveAppartenenza(2, "isbn"));
+    }
+
+    // ==================== deleteFromAppartenenzaLibro Tests ====================
+
+    @Test
+    void testDeleteFromAppartenenzaLibro_Success() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("DELETE FROM Appartenenza WHERE"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        // Act
+        assertDoesNotThrow(() -> repartoDAO.deleteFromAppartenenzaLibro(3, "AAA"));
+
+        // Assert
+        verify(mockPreparedStatement).setInt(1, 3);
+        verify(mockPreparedStatement).setString(2, "AAA");
+        verify(mockPreparedStatement).executeUpdate();
+    }
+
+    @Test
+    void testDeleteFromAppartenenzaLibro_ExecuteUpdateFails() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("DELETE FROM Appartenenza WHERE"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(0);
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.deleteFromAppartenenzaLibro(3, "AAA"));
+    }
+
+    @Test
+    void testDeleteFromAppartenenzaLibro_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("DELETE FROM Appartenenza WHERE"))).thenThrow(new SQLException("deleteFrom error"));
+
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.deleteFromAppartenenzaLibro(3, "AAA"));
+    }
+
+    // ==================== getAppartenenza Tests ====================
+
+    @Test
+    void testGetAppartenenza_ReturnsList() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("Appartenenza"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true, false);
+        when(mockResultSet.getString(1)).thenReturn("ISBN-G1");
 
         Libro libro = new Libro();
         libro.setIsbn("ISBN-G1");
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, ctx) -> when(mock.doRetrieveById("ISBN-G1")).thenReturn(libro))) {
 
-            try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
-                    (mock, ctx) -> when(mock.doRetrieveById("ISBN-G1")).thenReturn(libro))) {
+            // Act
+            List<Libro> list = repartoDAO.getAppartenenza(9);
 
-                RepartoDAO dao = new RepartoDAO();
-                List<Libro> list = dao.getAppartenenza(9);
-
-                assertNotNull(list);
-                assertEquals(1, list.size());
-                assertEquals("ISBN-G1", list.get(0).getIsbn());
-            }
+            // Assert
+            assertNotNull(list);
+            assertEquals(1, list.size());
+            assertEquals("ISBN-G1", list.get(0).getIsbn());
         }
     }
 
     @Test
-    public void testUpdateReparto_success() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    void testGetAppartenenza_EmptyList() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("Appartenenza"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(false);
 
-        when(conn.prepareStatement(contains("UPDATE Reparto SET"))).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
+        // Act
+        List<Libro> list = repartoDAO.getAppartenenza(9);
 
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            Reparto r = new Reparto();
-            r.setIdReparto(5);
-            r.setDescrizione("NEWDES");
-            r.setImmagine("imgx.png");
-
-            RepartoDAO dao = new RepartoDAO();
-            dao.updateReparto(r);
-
-            verify(ps).setString(1, "NEWDES");
-            verify(ps).setString(2, "imgx.png");
-            verify(ps).setInt(3, 5);
-            verify(ps).executeUpdate();
-        }
+        // Assert
+        assertNotNull(list);
+        assertEquals(0, list.size());
     }
 
     @Test
-    public void testDeleteFromAppartenenzaLibro_success() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
+    void testGetAppartenenza_SQLExceptionThrown() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(contains("Appartenenza"))).thenThrow(new SQLException("getAppartenenza error"));
 
-        when(conn.prepareStatement(contains("DELETE FROM Appartenenza WHERE"))).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            RepartoDAO dao = new RepartoDAO();
-            // should not throw
-            dao.deleteFromAppartenenzaLibro(3, "AAA");
-
-            verify(ps).setInt(1, 3);
-            verify(ps).setString(2, "AAA");
-            verify(ps).executeUpdate();
-        }
+        // Act & Assert
+        assertThrows(RuntimeException.class, () -> repartoDAO.getAppartenenza(9));
     }
-
-    @Test
-    public void testDoRetrieveById_notFound_returnsNull() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-        ResultSet rs = mock(ResultSet.class);
-
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeQuery()).thenReturn(rs);
-        when(rs.next()).thenReturn(false);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            RepartoDAO dao = new RepartoDAO();
-            Reparto r = dao.doRetrieveById(999);
-
-            assertNull(r);
-        }
-    }
-
-    @Test
-    public void testAggiungiLibroReparto_insertFails_throws() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-
-        when(conn.prepareStatement(anyString())).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(0);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            Reparto reparto = new Reparto();
-            reparto.setIdReparto(20);
-            reparto.setLibri(new ArrayList<>());
-
-            RepartoDAO dao = new RepartoDAO();
-            assertThrows(RuntimeException.class, () -> dao.aggiungiLibroReparto(reparto, "XISBN"));
-        }
-    }
-
-    @Test
-    public void testUpdateReparto_executeUpdate0_throws() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-
-        when(conn.prepareStatement(contains("UPDATE Reparto SET"))).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(0);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            Reparto r = new Reparto();
-            r.setIdReparto(5);
-            r.setDescrizione("D");
-            r.setImmagine("i.png");
-
-            RepartoDAO dao = new RepartoDAO();
-            assertThrows(RuntimeException.class, () -> dao.updateReparto(r));
-        }
-    }
-
-    @Test
-    public void testDeleteFromAppartenenzaLibro_executeUpdate0_throws() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-
-        when(conn.prepareStatement(contains("DELETE FROM Appartenenza WHERE"))).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(0);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            RepartoDAO dao = new RepartoDAO();
-            assertThrows(RuntimeException.class, () -> dao.deleteFromAppartenenzaLibro(3, "AAA"));
-        }
-    }
-
-    @Test
-    public void testDoSaveAppartenenza_success() throws Exception {
-        Connection conn = mock(Connection.class);
-        PreparedStatement ps = mock(PreparedStatement.class);
-
-        when(conn.prepareStatement(contains("INSERT INTO Appartenenza"))).thenReturn(ps);
-        when(ps.executeUpdate()).thenReturn(1);
-
-        try (MockedStatic<ConPool> cp = Mockito.mockStatic(ConPool.class)) {
-            cp.when(ConPool::getConnection).thenReturn(conn);
-
-            RepartoDAO dao = new RepartoDAO();
-            // should not throw
-            dao.doSaveAppartenenza(2, "isbn-okay");
-
-            verify(ps).setInt(1, 2);
-            verify(ps).setString(2, "isbn-okay");
-            verify(ps).executeUpdate();
-        }
-    }
-
 }
