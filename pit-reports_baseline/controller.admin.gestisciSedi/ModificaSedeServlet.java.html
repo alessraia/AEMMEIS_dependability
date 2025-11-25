@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>ModificaSedeServlet.java</h1>
+
+<table class="src">
+
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package controller.admin.gestisciSedi;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import jakarta.servlet.annotation.WebServlet;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import jakarta.servlet.http.HttpServlet;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import jakarta.servlet.http.HttpServletRequest;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import jakarta.servlet.http.HttpServletResponse;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_7'/>
+7
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_7'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import model.libroService.RepartoDAO;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import model.libroService.SedeDAO;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_10'/>
+10
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_10'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import java.io.IOException;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_11'/>
+11
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_11'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_12'/>
+12
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_12'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>@WebServlet(&#34;/modifica-sede&#34;)</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_13'/>
+13
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_13'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>public class ModificaSedeServlet extends HttpServlet {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_14'/>
+14
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_14'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_15'/>
+15
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_15'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_16'/>
+16
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_16'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        String isbn = request.getParameter(&#34;isbn&#34;);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_17'/>
+17
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_17'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        int idSede = Integer.parseInt(request.getParameter(&#34;idSede&#34;));</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_18'/>
+18
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_18'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_19'/>
+19
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_19'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>        SedeDAO sedeDAO = new SedeDAO();</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_20'/>
+20
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_20'>1</a>
+<span>
+
+1. doGet : removed call to model/libroService/SedeDAO::removeLibroSede &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        sedeDAO.removeLibroSede(idSede, isbn);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_21'/>
+21
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_21'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_22'/>
+22
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_22'>1</a>
+<span>
+
+1. doGet : removed call to jakarta/servlet/http/HttpServletResponse::sendRedirect &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        response.sendRedirect(&#34;gestisci-sedi&#34;);</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_23'/>
+23
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_23'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class=''>    }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@68017525_24'/>
+24
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@68017525_24'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68017525_20'>20</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68017525_20'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>doGet<br/><b>Killed by : </b>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_IsbnStringPreservation()]</span></span> removed call to model/libroService/SedeDAO::removeLibroSede &rarr; KILLED</p> 
+</td>
+</tr>
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@68017525_22'>22</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@68017525_22'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>doGet<br/><b>Killed by : </b>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_SuccessfulBookRemoval()]</span></span> removed call to jakarta/servlet/http/HttpServletResponse::sendRedirect &rarr; KILLED</p> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+
+<li class='mutator'>EMPTY_RETURNS</li>
+
+<li class='mutator'>FALSE_RETURNS</li>
+
+<li class='mutator'>INCREMENTS</li>
+
+<li class='mutator'>INVERT_NEGS</li>
+
+<li class='mutator'>MATH</li>
+
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+
+<li class='mutator'>NULL_RETURNS</li>
+
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+
+<li class='mutator'>TRUE_RETURNS</li>
+
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_IsbnStringPreservation()] (1 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_NumericIsbn()] (1 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_ZeroSedeId()] (1 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_RemoveLibroSedeCalledOnce()] (1 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_NegativeSedeId()] (1 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_MinimumSedeId()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_NoRequestDispatcher()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_RemovalWithDifferentIds()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_LargeSedeId()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_ExceptionPropagation()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_IsbnWithHyphens()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_EmptyIsbn()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_SuccessfulBookRemoval()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_RedirectAfterRemoval()] (3 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_RemovalBeforeRedirect()] (2 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_CorrectRedirectUrl()] (3 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_StandardIsbnFormat()] (3 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_CorrectParameterParsing()] (3 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_MultipleSequentialRemovals()] (4 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_SedeDAOInstantiated()] (5 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_LongIsbnString()] (5 ms)</li><li>controller.admin.gestisciSedi.ModificaSedeServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciSedi.ModificaSedeServletTest]/[method:testDoGet_AlphanumericIsbn()] (11 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.16.1
+
+</body>
+</html>

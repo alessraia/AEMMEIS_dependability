@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Utente.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.utenteService</a> &gt; <span class="el_source">Utente.java</span></div><h1>Utente.java</h1><pre class="source lang-java linenums">package model.utenteService;
+
+
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
+
+/*@ nullable_by_default @*/
+<span class="fc" id="L12">public class Utente {</span>
+  //@ spec_public
+  private String nomeUtente;
+  //@ spec_public
+  private String codiceSicurezza;
+  //@ spec_public
+  private String email;
+  //@ spec_public
+  private String tipo;
+  //@ spec_public
+  private List&lt;String&gt; telefoni;
+
+
+  /*@ public normal_behavior
+      @   ensures \result == codiceSicurezza;
+      @   assignable \nothing;
+      @*/
+  public /*@ pure @*/ String getCodiceSicurezza() {
+<span class="fc" id="L30">    return codiceSicurezza;</span>
+  }
+
+  /*@ public behavior
+    @   requires codiceSicurezza != null &amp;&amp; codiceSicurezza.length() &gt; 0;
+    @   assignable this.codiceSicurezza;
+    @   ensures this.codiceSicurezza != null;
+    @   ensures this.codiceSicurezza.length() == 40;
+    @   signals (RuntimeException e) true;
+    @*/
+  public void setCodiceSicurezza(String codiceSicurezza) {// password è inserita dall’utente
+    //this.codiceSicurezza=codiceSicurezza;
+     try {
+<span class="fc" id="L43">        MessageDigest digest =</span>
+<span class="fc" id="L44">                MessageDigest.getInstance(&quot;SHA-1&quot;);</span>
+<span class="fc" id="L45">        digest.reset();</span>
+<span class="fc" id="L46">        digest.update(codiceSicurezza.getBytes(StandardCharsets.UTF_8));</span>
+<span class="fc" id="L47">        this.codiceSicurezza = String.format(&quot;%040x&quot;, new</span>
+<span class="fc" id="L48">                BigInteger(1, digest.digest()));</span>
+<span class="nc" id="L49">      } catch (NoSuchAlgorithmException e) {</span>
+<span class="nc" id="L50">        throw new RuntimeException(e);</span>
+
+<span class="fc" id="L52">      }</span>
+<span class="fc" id="L53">  }</span>
+
+  /*@ public normal_behavior
+      @   ensures \result == email;
+      @   assignable \nothing;
+      @*/
+  public /*@ pure @*/ String getEmail() {
+<span class="fc" id="L60">    return email;</span>
+  }
+
+  /*@ public normal_behavior
+      @   assignable this.email;
+      @   ensures this.email == email;
+      @*/
+  public void setEmail(String email) {
+<span class="fc" id="L68">    this.email = email;</span>
+<span class="fc" id="L69">  }</span>
+
+  /*@ public normal_behavior
+      @   ensures \result == nomeUtente;
+      @   assignable \nothing;
+      @*/
+  public /*@ pure @*/ String getNomeUtente() {
+<span class="fc" id="L76">    return nomeUtente;</span>
+  }
+
+  /*@ public normal_behavior
+      @   assignable this.nomeUtente;
+      @   ensures this.nomeUtente == nomeUtente;
+      @*/
+  public void setNomeUtente(String nomeUtente) {
+<span class="fc" id="L84">    this.nomeUtente = nomeUtente;</span>
+<span class="fc" id="L85">  }</span>
+
+  /*@ public normal_behavior
+      @   ensures \result == tipo;
+      @   assignable \nothing;
+      @*/
+  public /*@ pure @*/ String getTipo() {
+<span class="fc" id="L92">    return tipo;</span>
+  }
+
+  /*@ public normal_behavior
+      @   assignable this.tipo;
+      @   ensures this.tipo == tipo;
+      @*/
+  public void setTipo(String tipo) {
+<span class="fc" id="L100">    this.tipo = tipo;</span>
+<span class="fc" id="L101">  }</span>
+
+  /*@ public normal_behavior
+      @   ensures \result == telefoni;
+      @   assignable \nothing;
+      @*/
+  public /*@ pure @*/ List&lt;String&gt; getTelefoni() {
+<span class="fc" id="L108">    return telefoni;</span>
+  }
+
+  /*@ public normal_behavior
+      @ requires telefoni == null
+      @     || (\forall int i; 0 &lt;= i &amp;&amp; i &lt; telefoni.size(); telefoni.get(i) != null);
+      @ assignable this.telefoni;
+      @ ensures this.telefoni == telefoni;
+     */
+  public void setTelefoni(List&lt;String&gt; telefoni) {
+<span class="fc" id="L118">    this.telefoni = telefoni;</span>
+<span class="fc" id="L119">  }</span>
+
+  public void setCodiceSicurezzaNoHash(String codiceSicurezza) {
+<span class="fc" id="L122">    this.codiceSicurezza=codiceSicurezza;</span>
+<span class="fc" id="L123">    }</span>
+  }
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

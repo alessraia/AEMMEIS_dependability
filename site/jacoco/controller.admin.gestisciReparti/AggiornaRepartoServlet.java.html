@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AggiornaRepartoServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.admin.gestisciReparti</a> &gt; <span class="el_source">AggiornaRepartoServlet.java</span></div><h1>AggiornaRepartoServlet.java</h1><pre class="source lang-java linenums">package controller.admin.gestisciReparti;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import model.libroService.Libro;
+import model.libroService.LibroDAO;
+import model.libroService.Reparto;
+import model.libroService.RepartoDAO;
+
+import java.awt.datatransfer.DataFlavor;
+import java.io.IOException;
+
+@WebServlet(&quot;/aggiorna-reparto&quot;)
+<span class="fc" id="L18">public class AggiornaRepartoServlet extends HttpServlet {</span>
+    private RepartoDAO repartoService;
+
+    public void setRepartoDAO(RepartoDAO repartoDAO) {
+<span class="fc" id="L22">        this.repartoService = repartoDAO;</span>
+<span class="fc" id="L23">    }</span>
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+<span class="fc" id="L26">            int id= Integer.parseInt(request.getParameter(&quot;idReparto&quot;));</span>
+<span class="fc" id="L27">            String descrizione=request.getParameter(&quot;descrizione&quot;);</span>
+<span class="fc" id="L28">            String immagine=request.getParameter(&quot;immagine&quot;);</span>
+            
+            // Trim parameters to remove leading/trailing whitespace
+<span class="fc bfc" id="L31" title="All 2 branches covered.">            if(descrizione != null) descrizione = descrizione.trim();</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">            if(immagine != null) immagine = immagine.trim();</span>
+            
+<span class="fc" id="L34">            String address=&quot;/WEB-INF/results/admin/reparti/gestisciReparti.jsp&quot;;</span>
+<span class="fc bfc" id="L35" title="All 8 branches covered.">            if(descrizione==null || descrizione.isEmpty() || immagine==null || immagine.isEmpty()){</span>
+<span class="fc" id="L36">                    address=&quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;;</span>
+            }
+            else {
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">                    if (repartoService == null) {</span>
+<span class="nc" id="L40">                        repartoService = new RepartoDAO();</span>
+                    }
+<span class="fc" id="L42">                    Reparto reparto = new Reparto();</span>
+<span class="fc" id="L43">                    reparto.setIdReparto(id);</span>
+<span class="fc" id="L44">                    reparto.setDescrizione(descrizione);</span>
+<span class="fc" id="L45">                    reparto.setImmagine(immagine);</span>
+
+<span class="fc" id="L47">                    repartoService.updateReparto(reparto);</span>
+            }
+<span class="fc" id="L49">            RequestDispatcher dispatcher = request.getRequestDispatcher(address);</span>
+<span class="fc" id="L50">            dispatcher.forward(request, response);</span>
+<span class="fc" id="L51">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

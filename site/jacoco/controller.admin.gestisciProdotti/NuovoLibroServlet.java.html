@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NuovoLibroServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.admin.gestisciProdotti</a> &gt; <span class="el_source">NuovoLibroServlet.java</span></div><h1>NuovoLibroServlet.java</h1><pre class="source lang-java linenums">package controller.admin.gestisciProdotti;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import model.libroService.Autore;
+import model.libroService.AutoreDAO;
+import model.libroService.Libro;
+import model.libroService.LibroDAO;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@WebServlet(&quot;/insert-libro&quot;)
+<span class="fc" id="L21">public class NuovoLibroServlet extends HttpServlet {</span>
+<span class="fc" id="L22">    private LibroDAO libroDAO = new LibroDAO();</span>
+
+    public void setLibroDAO(LibroDAO libroDAO){
+<span class="fc" id="L25">        this.libroDAO = libroDAO;</span>
+<span class="fc" id="L26">    }</span>
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+<span class="fc" id="L30">        Libro libro = new Libro();</span>
+<span class="fc" id="L31">        LibroDAO libroService = libroDAO;</span>
+
+<span class="fc" id="L33">        String isbn = request.getParameter(&quot;isbn&quot;);</span>
+<span class="fc" id="L34">        String titolo = request.getParameter(&quot;titolo&quot;);</span>
+<span class="fc" id="L35">        String genere = request.getParameter(&quot;genere&quot;);</span>
+<span class="fc" id="L36">        String annoPubblicazioni = request.getParameter(&quot;annoPubb&quot;);</span>
+<span class="fc" id="L37">        String price=request.getParameter(&quot;prezzo&quot;);</span>
+<span class="fc" id="L38">        String sconto1 = request.getParameter(&quot;sconto&quot;);</span>
+<span class="fc" id="L39">        String trama = request.getParameter(&quot;trama&quot;);</span>
+<span class="fc" id="L40">        String immagine = request.getParameter(&quot;immagine&quot;);</span>
+
+
+<span class="fc bfc" id="L43" title="All 14 branches covered.">        if(isbn == null || isbn.length() != 13 || titolo == null || titolo.isEmpty() || genere == null || genere.isEmpty() ||</span>
+<span class="pc bpc" id="L44" title="1 of 6 branches missed.">                annoPubblicazioni == null || annoPubblicazioni.isEmpty() || !isAnnoPubblicazioneValid(annoPubblicazioni) ||</span>
+<span class="fc bfc" id="L45" title="All 8 branches covered.">                price == null || price.isEmpty() ||</span>
+                sconto1 == null || trama == null || immagine == null){
+<span class="fc" id="L47">                RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;);</span>
+<span class="fc" id="L48">                dispatcher.forward(request, response);</span>
+<span class="fc" id="L49">        }else {</span>
+            try {
+<span class="fc" id="L51">                double prezzo = Double.parseDouble(price);</span>
+<span class="fc" id="L52">                int sconto = 0;</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">                if (!sconto1.isEmpty()){</span>
+<span class="pc bpc" id="L54" title="1 of 4 branches missed.">                    if (isScontoValid(sconto1) &amp;&amp; prezzo &gt; 0) {</span>
+<span class="fc" id="L55">                        sconto = Integer.parseInt(sconto1);</span>
+                    }else {
+<span class="fc" id="L57">                        RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;);</span>
+<span class="fc" id="L58">                        dispatcher.forward(request, response);</span>
+<span class="fc" id="L59">                        return;</span>
+                    }
+                }
+
+
+<span class="fc" id="L64">                String[] nomiAutori = request.getParameterValues(&quot;nome&quot;);</span>
+<span class="fc" id="L65">                String[] cognomiAutori = request.getParameterValues(&quot;cognome&quot;);</span>
+<span class="fc" id="L66">                String[] cfAutori = request.getParameterValues(&quot;cf&quot;);</span>
+
+<span class="fc" id="L68">                List&lt;Autore&gt; autori = new ArrayList&lt;Autore&gt;();</span>
+
+<span class="pc bpc" id="L70" title="2 of 6 branches missed.">                if (nomiAutori != null &amp;&amp; cognomiAutori != null &amp;&amp; cfAutori != null) {</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">                    for (int i = 0; i &lt; nomiAutori.length; i++) {</span>
+<span class="pc bpc" id="L72" title="2 of 6 branches missed.">                        if (nomiAutori[i].isEmpty() || cognomiAutori[i].isEmpty() || cfAutori[i].isEmpty()) {</span>
+<span class="fc" id="L73">                            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;);</span>
+<span class="fc" id="L74">                            dispatcher.forward(request, response);</span>
+<span class="fc" id="L75">                            return;</span>
+                        }
+<span class="fc" id="L77">                        Autore autore = new Autore();</span>
+<span class="fc" id="L78">                        autore.setNome(nomiAutori[i]);</span>
+<span class="fc" id="L79">                        autore.setCognome(cognomiAutori[i]);</span>
+<span class="fc" id="L80">                        autore.setCf(cfAutori[i]);</span>
+<span class="fc" id="L81">                        autori.add(autore);</span>
+                    }
+                }
+
+<span class="fc" id="L85">                libro.setIsbn(isbn);</span>
+<span class="fc" id="L86">                libro.setTitolo(titolo);</span>
+<span class="fc" id="L87">                libro.setGenere(genere);</span>
+<span class="fc" id="L88">                libro.setAnnoPubblicazioni(annoPubblicazioni);</span>
+<span class="fc" id="L89">                libro.setPrezzo(prezzo);</span>
+<span class="fc" id="L90">                libro.setSconto(sconto);</span>
+<span class="fc" id="L91">                libro.setTrama(trama);</span>
+<span class="fc" id="L92">                libro.setImmagine(immagine);</span>
+<span class="fc" id="L93">                libro.setDisponibile(true);</span>
+<span class="fc" id="L94">                libro.setAutori(autori);</span>
+
+<span class="fc" id="L96">                List&lt;Libro&gt; libri = libroService.doRetriveAll();</span>
+<span class="fc" id="L97">                boolean flag = true;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                for(Libro l: libri) {</span>
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">                    if(l.getIsbn().equals(isbn)) {</span>
+<span class="fc" id="L100">                        request.setAttribute(&quot;esito&quot;, &quot;non riuscito&quot;);//per poter mostrare un errore nell'inserimento</span>
+<span class="fc" id="L101">                        RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/prodotti/nuovoProdotto.jsp&quot;);</span>
+<span class="fc" id="L102">                        dispatcher.forward(request, response);</span>
+<span class="fc" id="L103">                        flag = false;</span>
+                    }
+<span class="fc" id="L105">                }</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">                if(flag) {</span>
+<span class="fc" id="L107">                    libroService.doSave(libro);</span>
+<span class="fc" id="L108">                    response.sendRedirect(&quot;gestisci-prodotti&quot;);</span>
+                }
+
+<span class="fc" id="L111">            } catch (NumberFormatException e) {</span>
+<span class="fc" id="L112">                RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;);</span>
+<span class="fc" id="L113">                dispatcher.forward(request, response);</span>
+<span class="fc" id="L114">            }</span>
+        }
+<span class="fc" id="L116">    }</span>
+
+    public boolean isScontoValid(String str){
+<span class="fc bfc" id="L119" title="All 2 branches covered.">        if(str.matches(&quot;\\d+&quot;)){</span>
+<span class="fc" id="L120">            int strInt = Integer.parseInt(str);</span>
+<span class="pc bpc" id="L121" title="1 of 4 branches missed.">            return strInt &gt; 0 &amp;&amp; strInt &lt;= 100;</span>
+        }
+<span class="fc" id="L123">        return false;</span>
+    }
+
+    public boolean isAnnoPubblicazioneValid(String str){
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if(str.matches(&quot;\\d+&quot;)){</span>
+<span class="fc" id="L128">            int strInt = Integer.parseInt(str);</span>
+<span class="pc bpc" id="L129" title="2 of 4 branches missed.">            return strInt &lt;= LocalDateTime.now().getYear() &amp;&amp; strInt &gt; 0;</span>
+        }
+<span class="fc" id="L131">        return false;</span>
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="fc" id="L136">        this.doGet(req, resp);</span>
+<span class="fc" id="L137">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

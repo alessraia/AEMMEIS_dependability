@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RigaOrdineDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.ordineService</a> &gt; <span class="el_source">RigaOrdineDAO.java</span></div><h1>RigaOrdineDAO.java</h1><pre class="source lang-java linenums">package model.ordineService;
+
+import model.ConPool;
+import model.carrelloService.RigaCarrello;
+import model.libroService.LibroDAO;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class RigaOrdineDAO {
+
+    private LibroDAO libroDAO;
+
+    public RigaOrdineDAO() {
+<span class="fc" id="L19">        this(new LibroDAO());</span>
+<span class="fc" id="L20">    }</span>
+
+<span class="fc" id="L22">    public RigaOrdineDAO(LibroDAO libroDAO) {</span>
+<span class="fc" id="L23">        this.libroDAO = libroDAO;</span>
+<span class="fc" id="L24">    }</span>
+
+    /*@ public behavior
+      @ requires rigaOrdine != null;
+      @ requires rigaOrdine.getIdOrdine() != null &amp;&amp; rigaOrdine.getIdOrdine().length() &gt; 0;
+      @ requires rigaOrdine.getLibro().getIsbn() != null &amp;&amp; rigaOrdine.getLibro().getIsbn().length() &gt; 0;
+      @ requires rigaOrdine.getPrezzoUnitario() &gt;= 0.0;
+      @ requires rigaOrdine.getQuantita() &gt;= 1;
+      @ assignable \nothing;
+      @ ensures true;
+      @ signals (RuntimeException e) true;
+      @*/
+    public void doSave(RigaOrdine rigaOrdine){
+<span class="fc" id="L37">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L38">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO RigaOdine (idOrdine, isbn, prezzoUnitario, quantita) VALUES(?,?,?, ?)&quot;);
+<span class="fc" id="L40">            ps.setString(1, rigaOrdine.getIdOrdine());</span>
+<span class="fc" id="L41">            ps.setString(2, rigaOrdine.getLibro().getIsbn());</span>
+<span class="fc" id="L42">            ps.setDouble(3, rigaOrdine.getPrezzoUnitario());</span>
+<span class="fc" id="L43">            ps.setInt(4, rigaOrdine.getQuantita());</span>
+<span class="fc bfc" id="L44" title="All 2 branches covered.">            if (ps.executeUpdate() != 1) {</span>
+<span class="fc" id="L45">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+<span class="fc" id="L47">        } catch (SQLException e) {</span>
+<span class="fc" id="L48">            throw new RuntimeException(e);</span>
+<span class="fc" id="L49">        }</span>
+<span class="fc" id="L50">    }</span>
+
+    /*@ public behavior
+  @   requires idOrdine != null &amp;&amp; idOrdine.length() &gt; 0;
+  @   assignable \nothing;
+  @   ensures \result != null;
+  @   ensures (\forall int i; 0 &lt;= i &amp;&amp; i &lt; \result.size();
+  @              \result.get(i) != null
+  @           &amp;&amp; idOrdine.equals(\result.get(i).getIdOrdine())
+  @           &amp;&amp; \result.get(i).getPrezzoUnitario() &gt;= 0.0
+  @           &amp;&amp; \result.get(i).getQuantita() &gt;= 1);
+  @   signals (RuntimeException e) true;
+  @*/
+    public List&lt;RigaOrdine&gt; doRetrivedByOrdine(String idOrdine) {
+<span class="fc" id="L64">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L65">            PreparedStatement ps =</span>
+<span class="fc" id="L66">                    con.prepareStatement(&quot;SELECT * FROM RigaOrdine WHERE idOrdine=?&quot;);</span>
+<span class="fc" id="L67">            ps.setString(1, idOrdine);</span>
+<span class="fc" id="L68">            ResultSet rs = ps.executeQuery();</span>
+<span class="fc" id="L69">            List&lt;RigaOrdine&gt; lista = new ArrayList&lt;RigaOrdine&gt;();</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L71">                RigaOrdine p = new RigaOrdine();</span>
+<span class="fc" id="L72">                p.setIdOrdine(rs.getString(1));</span>
+<span class="fc" id="L73">                String isbn=rs.getString(2);</span>
+<span class="fc" id="L74">                p.setLibro(libroDAO.doRetrieveById(isbn));</span>
+                //p.setIsbn(rs.getString(2));
+<span class="fc" id="L76">                p.setPrezzoUnitario(rs.getDouble(3));</span>
+<span class="fc" id="L77">                p.setQuantita(rs.getInt(4));</span>
+<span class="fc" id="L78">                lista.add(p);</span>
+<span class="fc" id="L79">            }</span>
+<span class="fc" id="L80">            return lista;</span>
+<span class="fc" id="L81">        } catch (SQLException e) {</span>
+<span class="fc" id="L82">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    /*@ public behavior
+  @   requires idOrdine != null &amp;&amp; idOrdine.length() &gt; 0;
+  @   requires isbn != null &amp;&amp; isbn.length() &gt; 0;
+  @   assignable \nothing;
+  @   ensures \result == null
+  @        || ( \result.getIdOrdine() != null
+  @          &amp;&amp; \result.getIdOrdine().equals(idOrdine)
+  @          &amp;&amp; \result.getLibro() != null
+  @          &amp;&amp; \result.getLibro().getIsbn().equals(isbn)
+  @          &amp;&amp; \result.getPrezzoUnitario() &gt;= 0.0
+  @          &amp;&amp; \result.getQuantita() &gt;= 1 );
+  @   signals (RuntimeException e) true;
+  @*/
+    public RigaOrdine doRetriveById(String idOrdine, String isbn){
+<span class="fc" id="L100">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L101">            PreparedStatement ps =</span>
+<span class="fc" id="L102">                    con.prepareStatement(&quot;SELECT * FROM RigaOrdine WHERE idOrdine=? AND isbn=?&quot;);</span>
+<span class="fc" id="L103">            ps.setString(1, idOrdine);</span>
+<span class="fc" id="L104">            ps.setString(2, isbn);</span>
+<span class="fc" id="L105">            ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L106" title="All 2 branches covered.">            if (rs.next()) {</span>
+<span class="fc" id="L107">                RigaOrdine p = new RigaOrdine();</span>
+<span class="fc" id="L108">                p.setIdOrdine(rs.getString(1));</span>
+<span class="fc" id="L109">                p.setLibro(libroDAO.doRetrieveById(isbn));</span>
+                //p.setIsbn(rs.getString(2));
+<span class="fc" id="L111">                p.setPrezzoUnitario(rs.getDouble(3));</span>
+<span class="fc" id="L112">                p.setQuantita(rs.getInt(4));</span>
+<span class="fc" id="L113">                return p;</span>
+            }
+<span class="fc" id="L115">            return null;</span>
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="fc" id="L117">            throw new RuntimeException(e);</span>
+        }
+    }
+    /*@ public behavior
+    @   requires isbn != null &amp;&amp; isbn.length() &gt; 0;
+    @   requires idOrdine != null &amp;&amp; idOrdine.length() &gt; 0;
+    @   assignable \nothing;
+    @   ensures true;
+    @   signals (RuntimeException e) true;
+    @*/
+    public void deleteRigaOrdine(String isbn, String idOrdine){
+<span class="fc" id="L128">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L129">            PreparedStatement ps =</span>
+<span class="fc" id="L130">                    con.prepareStatement(&quot;DELETE FROM RigaOrdine WHERE idOrdine=? AND isbn =?&quot;);</span>
+<span class="fc" id="L131">            ps.setString(1, idOrdine);</span>
+<span class="fc" id="L132">            ps.setString(2, isbn);</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">            if(ps.executeUpdate() != 1)</span>
+<span class="fc" id="L134">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="fc" id="L135">        } catch (SQLException e) {</span>
+<span class="fc" id="L136">            throw new RuntimeException(e);</span>
+<span class="fc" id="L137">        }</span>
+<span class="fc" id="L138">    }</span>
+
+    /*@ public behavior
+    @   requires idOrdine != null &amp;&amp; idOrdine.length() &gt; 0;
+    @   assignable \nothing;
+    @   ensures true;
+    @   signals (RuntimeException e) true;
+    @*/
+    public void deleteRigaOrdineByIdOrdine(String idOrdine){
+<span class="fc" id="L147">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L148">            PreparedStatement ps =</span>
+<span class="fc" id="L149">                    con.prepareStatement(&quot;DELETE FROM RigaOrdine WHERE idOrdine=?&quot;);</span>
+<span class="fc" id="L150">            ps.setString(1, idOrdine);</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">            if(ps.executeUpdate() &lt; 1)</span>
+<span class="fc" id="L152">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="fc" id="L153">        } catch (SQLException e) {</span>
+<span class="fc" id="L154">            throw new RuntimeException(e);</span>
+<span class="fc" id="L155">        }</span>
+<span class="fc" id="L156">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SearchBarServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente</a> &gt; <span class="el_source">SearchBarServlet.java</span></div><h1>SearchBarServlet.java</h1><pre class="source lang-java linenums">package controller.utente;
+
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.libroService.Libro;
+import model.libroService.LibroDAO;
+import model.utenteService.Utente;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+@WebServlet (&quot;/search&quot;)
+<span class="fc" id="L23">public class SearchBarServlet extends HttpServlet {</span>
+    private static final long serialVersionUID = 1L;
+    private LibroDAO libroDAO;
+
+    // Permette ai test di iniettare un mock di LibroDAO
+    public void setLibroDAO(LibroDAO libroDAO) {
+<span class="fc" id="L29">        this.libroDAO = libroDAO;</span>
+<span class="fc" id="L30">    }</span>
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="fc" id="L33">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L34">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">        if(Validator.checkIfUserAdmin(utente)) {</span>
+<span class="fc" id="L36">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="fc" id="L37">            dispatcher.forward(request, response);</span>
+<span class="fc" id="L38">            return;</span>
+        }
+<span class="fc" id="L40">        String query = request.getParameter(&quot;q&quot;);</span>
+    // usa l'istanza iniettata (per i test) o crea una nuova istanza di default
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">    LibroDAO libroService = this.libroDAO != null ? this.libroDAO : new LibroDAO();</span>
+
+<span class="fc" id="L44">        JSONArray jsonArray = new JSONArray();</span>
+
+<span class="pc bpc" id="L46" title="1 of 4 branches missed.">        if (query != null &amp;&amp; !query.trim().isEmpty()) {</span>
+<span class="fc" id="L47">            List&lt;Libro&gt; results = libroService.Search(query);</span>
+            // Creare un JSONArray dai risultati
+
+<span class="pc bpc" id="L50" title="1 of 4 branches missed.">            for (int i = 0; i &lt; results.size() &amp;&amp; i &lt; 10; i++) {</span>
+<span class="fc" id="L51">                JSONObject jsonObject = new JSONObject();</span>
+<span class="fc" id="L52">                jsonObject.put(&quot;isbn&quot;, results.get(i).getIsbn());</span>
+<span class="fc" id="L53">                jsonObject.put(&quot;titolo&quot;, results.get(i).getTitolo());</span>
+<span class="fc" id="L54">                jsonArray.add(jsonObject);</span>
+            }
+        }
+
+        // Impostare il tipo di contenuto della risposta
+<span class="fc" id="L59">        response.setContentType(&quot;application/json&quot;);</span>
+<span class="fc" id="L60">        response.setCharacterEncoding(&quot;UTF-8&quot;);</span>
+
+        // Inviare la risposta JSON al client
+<span class="fc" id="L63">        PrintWriter out = response.getWriter();</span>
+<span class="fc" id="L64">        out.print(jsonArray);</span>
+<span class="fc" id="L65">        out.flush();</span>
+
+
+        // Simula una ricerca nei dati
+        /*List&lt;Libro&gt; results = new ArrayList&lt;&gt;();
+        if (query != null &amp;&amp; !query.trim().isEmpty()) {
+            List&lt;Libro&gt; risultati = libroService.Search(query);
+            for (int i = 0; i&lt; risultati.size() || i &lt; 10; i++) {
+                results.add(risultati.get(i));
+            }
+        }
+
+        response.setContentType(&quot;text/html;charset=UTF-8&quot;);
+        PrintWriter out = response.getWriter();
+
+        if (!results.isEmpty()) {
+            for (String result : results) {
+                out.println(&quot;&lt;div class='search-result-item'&gt;&quot; + result + &quot;&lt;/div&gt;&quot;);
+            }
+        } else {
+            out.println(&quot;&lt;div class='search-result-item'&gt;Nessun risultato trovato&lt;/div&gt;&quot;);
+        }*/
+<span class="fc" id="L87">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HomePageServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.HomePage</a> &gt; <span class="el_source">HomePageServlet.java</span></div><h1>HomePageServlet.java</h1><pre class="source lang-java linenums">package controller.HomePage;
+
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.*;
+import model.carrelloService.Carrello;
+import model.carrelloService.RigaCarrello;
+import model.libroService.Libro;
+import model.libroService.LibroDAO;
+import model.libroService.Reparto;
+import model.libroService.RepartoDAO;
+import model.utenteService.Utente;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@WebServlet(&quot;/index.html&quot;)
+<span class="fc" id="L21">public class HomePageServlet extends HttpServlet {</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Memorizza il carrello nella sessione
+        // Ottieni la sessione corrente, creandone una nuova se non esiste
+<span class="fc" id="L25">        HttpSession session = request.getSession();</span>
+
+<span class="fc" id="L27">        Carrello carrello = (Carrello) session.getAttribute(&quot;carrello&quot;);// Verifica se il carrello è già presente nella sessione</span>
+<span class="fc" id="L28">        Utente utente=(Utente) session.getAttribute(&quot;utente&quot;);</span>
+
+<span class="fc bfc" id="L30" title="All 2 branches covered.">        if(Validator.checkIfUserAdmin(utente)) {</span>
+<span class="fc" id="L31">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="fc" id="L32">            dispatcher.forward(request, response);</span>
+<span class="fc" id="L33">            return;</span>
+        }
+
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        if (carrello == null) { // Se il carrello non è presente nella sessione, ne crea uno nuovo</span>
+<span class="fc" id="L38">            carrello = new Carrello();</span>
+<span class="fc" id="L39">            carrello.setRigheCarrello(new ArrayList&lt;RigaCarrello&gt;());//l'ho aggiunto per far funzionare AggiungiCartServlet</span>
+<span class="fc" id="L40">            session.setAttribute(&quot;carrello&quot;, carrello);// Aggiungi il carrello alla sessione</span>
+        }
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if(request.getAttribute(&quot;libriHome&quot;)==null) {</span>
+<span class="fc" id="L44">            List&lt;Reparto&gt; reparti = (List&lt;Reparto&gt;) getServletContext().getAttribute(&quot;reparti&quot;);</span>
+            // Se per qualche motivo non ci sono (es. InitServlet fallito all'avvio),
+            // li ricarichiamo dal DB e li rimettiamo nel contesto
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            if (reparti == null) {</span>
+<span class="fc" id="L48">                RepartoDAO service = new RepartoDAO();</span>
+<span class="fc" id="L49">                reparti = service.doRetrivedAll();</span>
+<span class="fc" id="L50">                getServletContext().setAttribute(&quot;reparti&quot;, reparti);</span>
+            }
+
+<span class="fc bfc" id="L53" title="All 2 branches covered.">            for (Reparto reparto : reparti) {</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">                if (reparto.getNome().equals(&quot;Libri di Tendenza&quot;)) {</span>
+<span class="fc" id="L55">                    List&lt;Libro&gt; libriHome = reparto.getLibri();</span>
+<span class="fc" id="L56">                    request.setAttribute(&quot;libriHome&quot;, libriHome);</span>
+                }
+<span class="fc" id="L58">            }</span>
+        }
+
+<span class="fc" id="L61">        RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/homepage.jsp&quot;);</span>
+<span class="fc" id="L62">        dispatcher.forward(request, response);</span>
+
+<span class="fc" id="L64">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

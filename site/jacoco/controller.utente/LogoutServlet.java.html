@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogoutServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente</a> &gt; <span class="el_source">LogoutServlet.java</span></div><h1>LogoutServlet.java</h1><pre class="source lang-java linenums">package controller.utente;
+
+import controller.utils.Validator;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.carrelloService.Carrello;
+import model.carrelloService.CarrelloDAO;
+import model.carrelloService.RigaCarrello;
+import model.carrelloService.RigaCarrelloDAO;
+import model.libroService.Libro;
+import model.libroService.Reparto;
+import model.libroService.RepartoDAO;
+import model.utenteService.Utente;
+import model.wishList.WishList;
+import model.wishList.WishListDAO;
+
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet(&quot;/log-out&quot;)
+<span class="fc" id="L25">public class LogoutServlet extends HttpServlet {</span>
+    // Allow dependency injection for testing
+    private model.carrelloService.CarrelloDAO carrelloDAO;
+    private model.wishList.WishListDAO wishListDAO;
+    private model.carrelloService.RigaCarrelloDAO rigaCarrelloDAO;
+    private model.libroService.RepartoDAO repartoDAO;
+
+<span class="fc" id="L32">    public void setCarrelloDAO(model.carrelloService.CarrelloDAO carrelloDAO) { this.carrelloDAO = carrelloDAO; }</span>
+<span class="fc" id="L33">    public void setWishListDAO(model.wishList.WishListDAO wishListDAO) { this.wishListDAO = wishListDAO; }</span>
+<span class="fc" id="L34">    public void setRigaCarrelloDAO(model.carrelloService.RigaCarrelloDAO rigaCarrelloDAO) { this.rigaCarrelloDAO = rigaCarrelloDAO; }</span>
+<span class="fc" id="L35">    public void setRepartoDAO(model.libroService.RepartoDAO repartoDAO) { this.repartoDAO = repartoDAO; }</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="fc" id="L37">        HttpSession session = request.getSession();</span>
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">    CarrelloDAO carrelloDAO = (this.carrelloDAO != null) ? this.carrelloDAO : new CarrelloDAO();</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">    WishListDAO wishListDAO = (this.wishListDAO != null) ? this.wishListDAO : new WishListDAO();</span>
+<span class="fc" id="L40">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+
+        // If user is an admin (Gestore) we only refresh reparti in the servlet context
+        // and do not touch cart/wishlist persistence since admins don't have them.
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">        if (utente != null &amp;&amp; Validator.checkIfUserAdmin(utente)) {</span>
+<span class="fc" id="L45">            getServletContext().removeAttribute(&quot;reparti&quot;);</span>
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">            RepartoDAO service = (this.repartoDAO != null) ? this.repartoDAO : new RepartoDAO();</span>
+<span class="fc" id="L47">            List&lt;Reparto&gt; reparti = service.doRetrivedAll();</span>
+<span class="fc" id="L48">            getServletContext().setAttribute(&quot;reparti&quot;, reparti);</span>
+<span class="fc" id="L49">            session.invalidate();</span>
+<span class="fc" id="L50">            response.sendRedirect(&quot;index.html&quot;);</span>
+<span class="fc" id="L51">            return;</span>
+        }
+
+<span class="fc" id="L54">        Carrello carrello = (Carrello) session.getAttribute(&quot;carrello&quot;);</span>
+<span class="fc" id="L55">        WishList wishList = (WishList) session.getAttribute(&quot;wishList&quot;);</span>
+<span class="pc bpc" id="L56" title="2 of 4 branches missed.">        if (wishList != null &amp;&amp; utente != null) {</span>
+<span class="fc" id="L57">            wishList.setEmail(utente.getEmail());</span>
+        }
+
+        try{
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">            RigaCarrelloDAO rigaCarrelloService = (this.rigaCarrelloDAO != null) ? this.rigaCarrelloDAO : new RigaCarrelloDAO();</span>
+<span class="fc bfc" id="L62" title="All 4 branches covered.">            if(carrelloDAO.doRetriveByUtente(utente.getEmail()) != null &amp;&amp; !(carrelloDAO.doRetriveByUtente(utente.getEmail()).getRigheCarrello().isEmpty())) {</span>
+                //Carrello carrello2=carrelloDAO.doRetriveByUtente(utente.getEmail());
+<span class="fc" id="L64">                rigaCarrelloService.deleteRigheCarrelloByIdCarrello(carrelloDAO.doRetriveByUtente(utente.getEmail()).getIdCarrello());//elimino ciò che è presente nel db</span>
+            }
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">            WishListDAO wishListService = (this.wishListDAO != null) ? this.wishListDAO : new WishListDAO();</span>
+<span class="fc bfc" id="L67" title="All 4 branches covered.">            if(wishListDAO.doRetrieveByEmail(utente.getEmail())!= null &amp;&amp; !(wishListDAO.doRetrieveByEmail(utente.getEmail()).getLibri().isEmpty())) {</span>
+<span class="fc" id="L68">                wishListService.deleteWishListByEmail(utente.getEmail());//elimino ciò che è presente nel db</span>
+            }
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">            if(carrello.getRigheCarrello()!= null) {</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">                for (RigaCarrello riga : carrello.getRigheCarrello())</span>
+<span class="fc" id="L73">                    rigaCarrelloService.doSave(riga); //ripopolo il db con le informazioni presenti in sessione</span>
+            }
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if(wishList.getLibri()!= null) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">                for (Libro libro : wishList.getLibri()) {</span>
+<span class="fc" id="L77">                    wishListService.doSave(wishList, libro.getIsbn()); //ripopolo il db con le informazioni presenti in sessione</span>
+<span class="fc" id="L78">                }</span>
+            }
+
+
+<span class="nc" id="L82">        } catch (Exception e) {</span>
+<span class="nc" id="L83">            throw new RuntimeException(e);</span>
+<span class="fc" id="L84">        }</span>
+
+        //Se l'admin modifica i reparti è necessario apportare modifiche alla lista salvata del serveltContext
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if(Validator.checkIfUserAdmin(utente)){</span>
+<span class="nc" id="L88">            getServletContext().removeAttribute(&quot;reparti&quot;);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            RepartoDAO service = (this.repartoDAO != null) ? this.repartoDAO : new RepartoDAO();</span>
+<span class="nc" id="L90">            List&lt;Reparto&gt; reparti = service.doRetrivedAll();</span>
+<span class="nc" id="L91">            getServletContext().setAttribute(&quot;reparti&quot;, reparti);</span>
+        }
+<span class="fc" id="L93">        session.invalidate();</span>
+<span class="fc" id="L94">        response.sendRedirect(&quot;index.html&quot;);</span>
+
+<span class="fc" id="L96">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

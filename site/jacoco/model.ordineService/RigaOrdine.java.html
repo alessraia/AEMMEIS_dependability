@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RigaOrdine.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.ordineService</a> &gt; <span class="el_source">RigaOrdine.java</span></div><h1>RigaOrdine.java</h1><pre class="source lang-java linenums">package model.ordineService;
+
+import model.libroService.Libro;
+
+/*@ nullable_by_default @*/
+<span class="fc" id="L6">public class RigaOrdine {</span>
+    //@ spec_public
+    private String idOrdine;
+    //@ spec_public
+    private Libro libro;
+    //@ spec_public
+    private double prezzoUnitario;
+    //@ public invariant prezzoUnitario &gt;= 0.0;
+
+    //@ spec_public
+    private int quantita;
+    //@ public invariant quantita &gt;= 1;
+
+    /*@ public normal_behavior
+      @   ensures \result == idOrdine;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ String getIdOrdine() {
+<span class="fc" id="L24">        return idOrdine;</span>
+    }
+
+    /*@ public normal_behavior
+      @   assignable this.idOrdine;
+      @   ensures this.idOrdine == idOrdine;
+      @*/
+    public void setIdOrdine(String idOrdine) {
+<span class="fc" id="L32">        this.idOrdine = idOrdine;</span>
+<span class="fc" id="L33">    }</span>
+
+    /*@ public normal_behavior
+      @   ensures \result == libro;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ Libro getLibro() {
+<span class="fc" id="L40">        return libro;</span>
+    }
+
+    /*@ public normal_behavior
+      @   assignable this.libro;
+      @   ensures this.libro == libro;
+      @*/
+    public void setLibro(Libro libro) {
+<span class="fc" id="L48">        this.libro = libro;</span>
+<span class="fc" id="L49">    }</span>
+
+    /*@ public normal_behavior
+      @   ensures \result == prezzoUnitario;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ double getPrezzoUnitario() {
+<span class="fc" id="L56">        return prezzoUnitario;</span>
+    }
+
+    /*@ public normal_behavior
+      @   requires prezzoUnitario &gt;= 0.0;
+      @   assignable this.prezzoUnitario;
+      @   ensures this.prezzoUnitario == prezzoUnitario;
+      @*/
+    public void setPrezzoUnitario(double prezzoUnitario) {
+<span class="fc" id="L65">        this.prezzoUnitario = prezzoUnitario;</span>
+<span class="fc" id="L66">    }</span>
+
+    /*@ public normal_behavior
+      @   ensures \result == quantita;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ int getQuantita() {
+<span class="fc" id="L73">        return quantita;</span>
+    }
+
+    /*@ public normal_behavior
+      @   requires quantita &gt;= 1;
+      @   assignable this.quantita;
+      @   ensures this.quantita == quantita;
+      @*/
+    public void setQuantita(int quantita) {
+<span class="fc" id="L82">        this.quantita = quantita;</span>
+<span class="fc" id="L83">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

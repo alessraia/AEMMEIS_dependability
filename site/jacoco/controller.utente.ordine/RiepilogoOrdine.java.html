@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RiepilogoOrdine.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente.ordine</a> &gt; <span class="el_source">RiepilogoOrdine.java</span></div><h1>RiepilogoOrdine.java</h1><pre class="source lang-java linenums">package controller.utente.ordine;
+
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.ordineService.Ordine;
+import model.ordineService.OrdineDAO;
+import model.ordineService.RigaOrdine;
+import model.ordineService.RigaOrdineDAO;
+import model.utenteService.Utente;
+
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet(&quot;/riepilogo-ordine&quot;)
+<span class="fc" id="L21">public class RiepilogoOrdine extends HttpServlet {</span>
+    private OrdineDAO ordineDAO;
+
+    // Permette ai test di iniettare un mock di OrdineDAO
+    public void setOrdineDAO(OrdineDAO ordineDAO) {
+<span class="fc" id="L26">        this.ordineDAO = ordineDAO;</span>
+<span class="fc" id="L27">    }</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="fc" id="L29">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L30">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if(Validator.checkIfUserAdmin(utente)) {</span>
+<span class="fc" id="L32">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="fc" id="L33">            dispatcher.forward(request, response);</span>
+<span class="fc" id="L34">            return;</span>
+        }
+<span class="fc" id="L36">        String idOrdine = request.getParameter(&quot;idOrdine&quot;);</span>
+        // Usa l'istanza iniettata (per i test) o crea una nuova istanza di default
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">        OrdineDAO dao = this.ordineDAO != null ? this.ordineDAO : new OrdineDAO();</span>
+<span class="fc" id="L39">        Ordine ordine = dao.doRetrieveById(idOrdine);</span>
+<span class="fc" id="L40">        session.setAttribute(&quot;ordine&quot;, ordine);</span>
+
+<span class="fc" id="L42">        RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/areaPservices/riepilogoOrdine.jsp&quot;);</span>
+<span class="fc" id="L43">        dispatcher.forward(request, response);</span>
+<span class="fc" id="L44">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

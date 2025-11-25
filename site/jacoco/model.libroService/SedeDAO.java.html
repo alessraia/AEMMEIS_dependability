@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SedeDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.libroService</a> &gt; <span class="el_source">SedeDAO.java</span></div><h1>SedeDAO.java</h1><pre class="source lang-java linenums">package model.libroService;
+
+import model.ConPool;
+import model.carrelloService.RigaCarrello;
+import model.gestoreService.Gestore;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="fc" id="L11">public class SedeDAO {</span>
+
+    //@ requires sede != null;
+    //@ requires sede.getCitta() != null;
+    //@ requires sede.getVia() != null;
+    //@ requires sede.getCivico() &gt;= 0;
+    //@ requires sede.getCap() != null;
+    //@ assignable sede.idSede;
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nell'inserimento nel database *);
+    public void doSave(Sede sede){
+<span class="fc" id="L22">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L23">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO Sede (citta, via, numeroCivico, cap) VALUES(?,?,?,?)&quot;, Statement.RETURN_GENERATED_KEYS);
+<span class="fc" id="L25">            ps.setString(1, sede.getCitta());</span>
+<span class="fc" id="L26">            ps.setString(2, sede.getVia());</span>
+<span class="fc" id="L27">            ps.setInt(3, sede.getCivico());</span>
+<span class="fc" id="L28">            ps.setString(4, sede.getCap());</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">            if (ps.executeUpdate() != 1) {</span>
+<span class="nc" id="L30">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+<span class="fc" id="L32">            ResultSet rs = ps.getGeneratedKeys();</span>
+<span class="fc" id="L33">            rs.next();</span>
+<span class="fc" id="L34">            int id = rs.getInt(1);</span>
+<span class="fc" id="L35">            sede.setIdSede(id);</span>
+<span class="fc" id="L36">        } catch (SQLException e) {</span>
+<span class="fc" id="L37">            throw new RuntimeException(e);</span>
+<span class="fc" id="L38">        }</span>
+<span class="fc" id="L39">    }</span>
+
+    //@ requires idSede &gt;= 0;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nella cancellazione dal database *);
+    public void deleteSede(int idSede){
+<span class="fc" id="L46">        try (Connection con = ConPool.getConnection()) {</span>
+            //prima cancello da appartenenza (che ha riferimenti a reparto) solo se ci sono elementi
+<span class="fc" id="L48">            List&lt;Libro&gt; l = this.getPresenza(idSede);</span>
+<span class="fc" id="L49">            Sede s = this.doRetrieveById(idSede);</span>
+<span class="fc bfc" id="L50" title="All 4 branches covered.">            if (l!=null &amp;&amp; !l.isEmpty()) {</span>
+<span class="fc" id="L51">                PreparedStatement ps =</span>
+<span class="fc" id="L52">                        con.prepareStatement(&quot;DELETE FROM Presenza WHERE idSede=?&quot;);</span>
+<span class="fc" id="L53">                ps.setInt(1, idSede);</span>
+<span class="fc" id="L54">                s.setLibri(null);</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">                if(ps.executeUpdate() &lt; 1)</span>
+<span class="fc" id="L56">                    throw new RuntimeException(&quot;DELETE error from appartenenza.&quot;);</span>
+            }
+            //poi elimino il reparto in questione
+<span class="fc" id="L59">            PreparedStatement ps =</span>
+<span class="fc" id="L60">                    con.prepareStatement(&quot;DELETE FROM sede WHERE idSede=?&quot;);</span>
+<span class="fc" id="L61">            ps.setInt(1, idSede);</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">            if(ps.executeUpdate() != 1)</span>
+<span class="fc" id="L63">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="nc" id="L64">        } catch (SQLException e) {</span>
+<span class="nc" id="L65">            throw new RuntimeException(e);</span>
+<span class="fc" id="L66">        }</span>
+<span class="fc" id="L67">    }</span>
+
+    //@ requires sede != null;
+    //@ requires sede.getIdSede() &gt;= 0;
+    //@ requires sede.getCitta() != null;
+    //@ requires sede.getVia() != null;
+    //@ requires sede.getCivico() &gt;= 0;
+    //@ requires sede.getCap() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    public void updateSede(Sede sede){
+<span class="fc" id="L78">        try(Connection con = ConPool.getConnection()){</span>
+<span class="fc" id="L79">            PreparedStatement ps = con.prepareStatement(&quot;UPDATE Sede SET citta = ?, via = ?, numeroCivico = ?, cap = ? WHERE idSede = ?&quot;);</span>
+<span class="fc" id="L80">            ps.setString(1, sede.getCitta());</span>
+<span class="fc" id="L81">            ps.setString(2, sede.getVia());</span>
+<span class="fc" id="L82">            ps.setInt(3, sede.getCivico());</span>
+<span class="fc" id="L83">            ps.setString(4, sede.getCap());</span>
+<span class="fc" id="L84">            ps.setInt(5, sede.getIdSede());</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            if(ps.executeUpdate() != 1)</span>
+<span class="fc" id="L86">                throw new RuntimeException(&quot;UPDATE error.&quot;);</span>
+<span class="fc" id="L87">        } catch (SQLException e) {</span>
+<span class="fc" id="L88">            throw new RuntimeException(e);</span>
+<span class="fc" id="L89">        }</span>
+
+<span class="fc" id="L91">    }</span>
+
+    //@ requires idSede &gt;= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    public void removeLibroSede(int idSede, String isbn){
+<span class="fc" id="L98">        try(Connection con = ConPool.getConnection()){</span>
+<span class="fc" id="L99">            PreparedStatement ps = con.prepareStatement(&quot;DELETE FROM Presenza WHERE idSede=? AND isbn = ?&quot;);</span>
+<span class="fc" id="L100">            ps.setInt(1,idSede);</span>
+<span class="fc" id="L101">            ps.setString(2, isbn);</span>
+
+<span class="fc" id="L103">            Sede p = this.doRetrieveById(idSede);</span>
+<span class="fc" id="L104">            LibroDAO libroService = new LibroDAO();</span>
+<span class="fc" id="L105">            Libro l = libroService.doRetrieveById(isbn);</span>
+<span class="fc" id="L106">            p.getLibri().remove(l); //ho tolto il contains perchè credo lo faccia da solo.</span>
+
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">            if(ps.executeUpdate() != 1)</span>
+<span class="nc" id="L109">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="fc" id="L110">        } catch (SQLException e) {</span>
+<span class="fc" id="L111">            throw new RuntimeException(e);</span>
+<span class="fc" id="L112">        }</span>
+
+<span class="fc" id="L114">    }</span>
+
+    //@ requires sede != null;
+    //@ requires sede.getIdSede() &gt;= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    public void addLibroSede(Sede sede, String isbn){
+<span class="fc" id="L122">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L123">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO Presenza (idSede, isbn) VALUES(?, ?)&quot;);
+<span class="fc" id="L125">            ps.setInt(1, sede.getIdSede());</span>
+<span class="fc" id="L126">            ps.setString(2, isbn);</span>
+
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            if (ps.executeUpdate() != 1) {</span>
+<span class="fc" id="L129">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+<span class="fc" id="L131">            LibroDAO libroService = new LibroDAO();</span>
+<span class="fc" id="L132">            sede.getLibri().add(libroService.doRetrieveById(isbn));</span>
+
+<span class="fc" id="L134">        } catch (SQLException e) {</span>
+<span class="fc" id="L135">            throw new RuntimeException(e);</span>
+<span class="fc" id="L136">        }</span>
+<span class="fc" id="L137">    }</span>
+
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 &lt;= i &amp;&amp; i &lt; \result.size(); \result.get(i) != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    public List&lt;Sede&gt; doRetrivedAll(){
+<span class="fc" id="L144">        List&lt;Sede&gt; sedi = new ArrayList&lt;Sede&gt;();</span>
+<span class="fc" id="L145">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L146">            PreparedStatement ps =</span>
+<span class="fc" id="L147">                    con.prepareStatement(&quot;SELECT * FROM Sede&quot;);</span>
+
+<span class="fc" id="L149">            ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L151">                Sede p = new Sede();</span>
+<span class="fc" id="L152">                p.setIdSede(rs.getInt(1));</span>
+<span class="fc" id="L153">                p.setCitta(rs.getString(2));</span>
+<span class="fc" id="L154">                p.setVia(rs.getString(3));</span>
+<span class="fc" id="L155">                p.setCivico(rs.getInt(4));</span>
+<span class="fc" id="L156">                p.setCap(rs.getString(5));</span>
+<span class="fc" id="L157">                p.setLibri(this.getPresenza(p.getIdSede()));</span>
+<span class="fc" id="L158">                sedi.add(p);</span>
+<span class="fc" id="L159">            }</span>
+<span class="fc" id="L160">            return sedi;</span>
+<span class="fc" id="L161">        } catch(SQLException e){</span>
+<span class="fc" id="L162">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    //@ requires idSede &gt;= 0;
+    //@ ensures \result == null || \result.getIdSede() == idSede;
+    //@ ensures \result != null ==&gt; \result.getCitta() != null;
+    //@ ensures \result != null ==&gt; \result.getLibri() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
+    public Sede doRetrieveById(int idSede) {
+<span class="fc" id="L174">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L175">            PreparedStatement ps =</span>
+<span class="fc" id="L176">                    con.prepareStatement(&quot;SELECT * FROM Sede WHERE idSede=?&quot;);</span>
+<span class="fc" id="L177">            ps.setInt(1, idSede);</span>
+<span class="fc" id="L178">            ResultSet rs = ps.executeQuery();</span>
+<span class="pc bpc" id="L179" title="1 of 2 branches missed.">            if (rs.next()) {</span>
+<span class="fc" id="L180">                Sede p = new Sede();</span>
+<span class="fc" id="L181">                p.setIdSede(rs.getInt(1));</span>
+<span class="fc" id="L182">                p.setCitta(rs.getString(2));</span>
+<span class="fc" id="L183">                p.setVia(rs.getString(3));</span>
+<span class="fc" id="L184">                p.setCivico(rs.getInt(4));</span>
+<span class="fc" id="L185">                p.setCap(rs.getString(5));</span>
+<span class="fc" id="L186">                p.setLibri(this.getPresenza(p.getIdSede()));</span>
+<span class="fc" id="L187">                return p;</span>
+            }
+<span class="nc" id="L189">            return null;</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="fc" id="L191">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    //@ requires idSede &gt;= 0;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 &lt;= i &amp;&amp; i &lt; \result.size(); \result.get(i) != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    public List&lt;Libro&gt; getPresenza(int idSede){
+<span class="fc" id="L201">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L202">            PreparedStatement ps =</span>
+<span class="fc" id="L203">                    con.prepareStatement(&quot;SELECT isbn FROM Presenza WHERE idSede=?&quot;);</span>
+<span class="fc" id="L204">            ps.setInt(1, idSede);</span>
+<span class="fc" id="L205">            List&lt;Libro&gt; lista=new ArrayList&lt;Libro&gt;();</span>
+<span class="fc" id="L206">            ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L208">                String isbn = rs.getString(1);</span>
+<span class="fc" id="L209">                LibroDAO p = new LibroDAO();</span>
+<span class="fc" id="L210">                Libro libro=p.doRetrieveById(isbn);</span>
+<span class="fc" id="L211">                lista.add(libro);</span>
+<span class="fc" id="L212">            }</span>
+<span class="fc" id="L213">            return lista;</span>
+<span class="fc" id="L214">        } catch (SQLException e) {</span>
+<span class="fc" id="L215">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    //@ requires idSede &gt;= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    public void deleteFromPresenzaLibro(int idSede, String isbn){
+<span class="fc" id="L224">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L225">            PreparedStatement ps =</span>
+<span class="fc" id="L226">                    con.prepareStatement(&quot;DELETE FROM Presenza WHERE idSede=? AND isbn=?&quot;);</span>
+<span class="fc" id="L227">            ps.setInt(1, idSede);</span>
+<span class="fc" id="L228">            ps.setString(2, isbn);</span>
+<span class="fc bfc" id="L229" title="All 2 branches covered.">            if(ps.executeUpdate() != 1)</span>
+<span class="fc" id="L230">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="fc" id="L231">        } catch (SQLException e) {</span>
+<span class="fc" id="L232">            throw new RuntimeException(e);</span>
+<span class="fc" id="L233">        }</span>
+<span class="fc" id="L234">    }</span>
+
+    //@ requires idSede &gt;= 0;
+    //@ requires isbn != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    public void doSavePresenza(int idSede, String isbn){
+<span class="fc" id="L241">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L242">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO Presenza (idSede, isbn) VALUES(?,?)&quot;);
+<span class="fc" id="L244">            ps.setInt(1, idSede);</span>
+<span class="fc" id="L245">            ps.setString(2, isbn);</span>
+<span class="fc bfc" id="L246" title="All 2 branches covered.">            if (ps.executeUpdate() != 1) {</span>
+<span class="fc" id="L247">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+<span class="nc" id="L249">        } catch (SQLException e) {</span>
+<span class="nc" id="L250">            throw new RuntimeException(e);</span>
+<span class="fc" id="L251">        }</span>
+<span class="fc" id="L252">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

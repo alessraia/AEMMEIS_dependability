@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../style.css">
+</head>
+<body>
+
+
+<h1>Validator.java</h1>
+
+<table class="src">
+
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_1'/>
+1
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_1'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>package controller.utils;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_2'/>
+2
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_2'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_3'/>
+3
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_3'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>import model.utenteService.Utente;</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_4'/>
+4
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_4'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''></span></pre></td></tr>
+
+
+<tr>
+<td class='uncovered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_5'/>
+5
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_5'></a>
+<span>
+</span>
+</span>
+</td>
+<td class='uncovered'><pre><span  class=''>public class Validator {</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_6'/>
+6
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_6'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    public static boolean checkIfUserAdmin(Utente utente){</span></pre></td></tr>
+
+
+<tr>
+<td class='covered'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_7'/>
+7
+</td>
+<td class='killed'>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_7'>3</a>
+<span>
+
+1. checkIfUserAdmin : negated conditional &rarr; KILLED<br/>
+
+2. checkIfUserAdmin : replaced boolean return with true for controller/utils/Validator::checkIfUserAdmin &rarr; KILLED<br/>
+
+3. checkIfUserAdmin : negated conditional &rarr; KILLED<br/>
+
+</span>
+</span>
+</td>
+<td class='covered'><pre><span  class='killed'>        return utente != null &#38;&#38; utente.getTipo().startsWith(&#34;Gestore&#34;);</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_8'/>
+8
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_8'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>    }</span></pre></td></tr>
+
+
+<tr>
+<td class='na'>
+<a name='org.pitest.mutationtest.report.html.SourceFile@2c94299a_9'/>
+9
+</td>
+<td class=''>
+<span class='pop'>
+<a href='#grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_9'></a>
+<span>
+</span>
+</span>
+</td>
+<td class=''><pre><span  class=''>}</span></pre></td></tr>
+
+
+
+<tr><td></td><td></td><td><h2>Mutations</h2></td></tr>
+
+
+<tr>
+<td><a href='#org.pitest.mutationtest.report.html.SourceFile@2c94299a_7'>7</a></td> 
+<td></td>
+<td>
+
+<a name='grouporg.pitest.mutationtest.report.html.SourceFile@2c94299a_7'/> 
+
+<p class='KILLED'><span class='pop'>1.<span><b>1</b><br/><b>Location : </b>checkIfUserAdmin<br/><b>Killed by : </b>controller.utente.ordine.RiepilogoOrdineTest.[engine:junit-jupiter]/[class:controller.utente.ordine.RiepilogoOrdineTest]/[method:testDoGet_UserIsAdmin()]</span></span> negated conditional &rarr; KILLED</p> <p class='KILLED'><span class='pop'>2.<span><b>2</b><br/><b>Location : </b>checkIfUserAdmin<br/><b>Killed by : </b>controller.utente.ordine.OrdineSupportoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.OrdineSupportoTest]/[method:testDoGet_UserNotLogged()]</span></span> replaced boolean return with true for controller/utils/Validator::checkIfUserAdmin &rarr; KILLED</p> <p class='KILLED'><span class='pop'>3.<span><b>3</b><br/><b>Location : </b>checkIfUserAdmin<br/><b>Killed by : </b>controller.utente.ordine.RiepilogoOrdineTest.[engine:junit-jupiter]/[class:controller.utente.ordine.RiepilogoOrdineTest]/[method:testDoGet_UserIsAdmin()]</span></span> negated conditional &rarr; KILLED</p> 
+</td>
+</tr>
+
+</table>
+
+
+<h2>Active mutators</h2>
+<ul>
+
+<li class='mutator'>CONDITIONALS_BOUNDARY</li>
+
+<li class='mutator'>EMPTY_RETURNS</li>
+
+<li class='mutator'>FALSE_RETURNS</li>
+
+<li class='mutator'>INCREMENTS</li>
+
+<li class='mutator'>INVERT_NEGS</li>
+
+<li class='mutator'>MATH</li>
+
+<li class='mutator'>NEGATE_CONDITIONALS</li>
+
+<li class='mutator'>NULL_RETURNS</li>
+
+<li class='mutator'>PRIMITIVE_RETURNS</li>
+
+<li class='mutator'>TRUE_RETURNS</li>
+
+<li class='mutator'>VOID_METHOD_CALLS</li>
+
+</ul>
+
+<h2>Tests examined</h2>
+<ul>
+<li>controller.utente.ordine.RiepilogoOrdineTest.[engine:junit-jupiter]/[class:controller.utente.ordine.RiepilogoOrdineTest]/[method:testDoGet_UserIsAdmin()] (1 ms)</li><li>controller.utente.ordine.OrdineSupportoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.OrdineSupportoTest]/[method:testDoGet_UserNotLogged()] (2 ms)</li><li>controller.utente.ordine.PuntiServletTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PuntiServletTest]/[method:testDoGet_UserIsAdmin()] (1 ms)</li><li>controller.utente.supporto.ModificaPasswordSupportoTest.[engine:junit-jupiter]/[class:controller.utente.supporto.ModificaPasswordSupportoTest]/[method:testDoGet_UserIsNotAdmin()] (1 ms)</li><li>controller.HomePage.MostraRepartoServletTest.[engine:junit-jupiter]/[class:controller.HomePage.MostraRepartoServletTest]/[method:whenUserIsAdmin_forwardToAdminHomepage()] (1 ms)</li><li>controller.utente.SearchBarServletTest.[engine:junit-jupiter]/[class:controller.utente.SearchBarServletTest]/[method:testDoGet_UserIsAdmin()] (1 ms)</li><li>controller.HomePage.ShowWishListTest.[engine:junit-jupiter]/[class:controller.HomePage.ShowWishListTest]/[method:whenUserIsNotLoggedIn_forwardToLoginPage()] (2 ms)</li><li>controller.utente.supporto.ModificaPasswordSupportoTest.[engine:junit-jupiter]/[class:controller.utente.supporto.ModificaPasswordSupportoTest]/[method:testDoGet_UserIsAdmin()] (2 ms)</li><li>controller.utente.ordine.RimuoviDaOrdineTest.[engine:junit-jupiter]/[class:controller.utente.ordine.RimuoviDaOrdineTest]/[method:whenUserIsAdmin_forwardToAdminHomepage()] (2 ms)</li><li>controller.utente.RicercaServletTest.[engine:junit-jupiter]/[class:controller.utente.RicercaServletTest]/[method:testDoGet_EmptyQuery_ForwardsToIndex()] (1 ms)</li><li>controller.utente.RicercaServletTest.[engine:junit-jupiter]/[class:controller.utente.RicercaServletTest]/[method:testDoGet_UserIsAdmin()] (2 ms)</li><li>controller.HomePage.ShowWishListTest.[engine:junit-jupiter]/[class:controller.HomePage.ShowWishListTest]/[method:whenRegularUserWithEmail_forwardToWishList()] (2 ms)</li><li>controller.HomePage.CarrelloServletTest.[engine:junit-jupiter]/[class:controller.HomePage.CarrelloServletTest]/[method:whenUserIsAdmin_forwardToAdminHomepage()] (2 ms)</li><li>controller.HomePage.HomePageServletTest.[engine:junit-jupiter]/[class:controller.HomePage.HomePageServletTest]/[method:whenLibriHomeAlreadySet_doesNotReload()] (2 ms)</li><li>controller.HomePage.ShowWishListTest.[engine:junit-jupiter]/[class:controller.HomePage.ShowWishListTest]/[method:whenSessionExistsWithoutUser_forwardToLoginPage()] (3 ms)</li><li>controller.HomePage.ShowWishListTest.[engine:junit-jupiter]/[class:controller.HomePage.ShowWishListTest]/[method:whenUserIsLoggedIn_forwardToShowWishList()] (2 ms)</li><li>controller.utente.SearchBarServletTest.[engine:junit-jupiter]/[class:controller.utente.SearchBarServletTest]/[method:testDoGet_EmptyQueryReturnsEmptyJsonArray()] (1 ms)</li><li>controller.utente.ordine.VisualizzaOrdiniTest.[engine:junit-jupiter]/[class:controller.utente.ordine.VisualizzaOrdiniTest]/[method:testDoGet_UserIsAdmin()] (3 ms)</li><li>controller.HomePage.HomePageServletTest.[engine:junit-jupiter]/[class:controller.HomePage.HomePageServletTest]/[method:whenUserIsAdmin_forwardToAdminHomepage()] (3 ms)</li><li>controller.HomePage.AreaPersonaleServletTest.[engine:junit-jupiter]/[class:controller.HomePage.AreaPersonaleServletTest]/[method:doPost_callsDoGet()] (3 ms)</li><li>controller.utente.RicercaServletTest.[engine:junit-jupiter]/[class:controller.utente.RicercaServletTest]/[method:testDoGet_SearchWithResults_ForwardsAndSetsAttributes()] (1 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_SpecialCharactersInUserEmail()] (2 ms)</li><li>controller.MostraLibroServletTest.[engine:junit-jupiter]/[class:controller.MostraLibroServletTest]/[method:whenUserIsAdmin_forwardToAdminHomepage()] (3 ms)</li><li>controller.HomePage.AreaPersonaleServletTest.[engine:junit-jupiter]/[class:controller.HomePage.AreaPersonaleServletTest]/[method:whenAdminUserLoggedIn_forwardToAreaPersonaleAdmin()] (3 ms)</li><li>controller.RimuoviDalCartServletTest.[engine:junit-jupiter]/[class:controller.RimuoviDalCartServletTest]/[method:whenUserIsAdmin_forwardToAdminHomepage()] (4 ms)</li><li>controller.AggiungiAiPrefServletTest.[engine:junit-jupiter]/[class:controller.AggiungiAiPrefServletTest]/[method:testDoGet_UserNotLoggedIn()] (4 ms)</li><li>controller.HomePage.ShowWishListTest.[engine:junit-jupiter]/[class:controller.HomePage.ShowWishListTest]/[method:whenUserIsAdmin_forwardToAdminHomepage()] (3 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_OnlyNonAdminUsersPresent()] (3 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_OnlyAdminUsersPresent()] (3 ms)</li><li>controller.utente.ordine.VisualizzaOrdiniTest.[engine:junit-jupiter]/[class:controller.utente.ordine.VisualizzaOrdiniTest]/[method:testDoGet_UserIsNotAdmin()] (3 ms)</li><li>controller.utente.ordine.PagamentoEffettuatoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PagamentoEffettuatoTest]/[method:testDoGet_InvalidCardData()] (2 ms)</li><li>controller.utente.ordine.PuntiServletTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PuntiServletTest]/[method:testDoGet_UserIsNotAdmin()] (1 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_SuccessfulNonAdminUserRetrieval()] (3 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_MultipleRequests()] (4 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_AdminUserFiltering()] (3 ms)</li><li>controller.HomePage.MostraRepartoServletTest.[engine:junit-jupiter]/[class:controller.HomePage.MostraRepartoServletTest]/[method:whenRepartoNotFound_forwardToErrorPage()] (3 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_AdminTypeVariations()] (4 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_LargeUserList()] (4 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_CorrectOperationSequence()] (4 ms)</li><li>controller.HomePage.AreaPersonaleServletTest.[engine:junit-jupiter]/[class:controller.HomePage.AreaPersonaleServletTest]/[method:whenGestoreOrdiniLoggedIn_forwardToAreaPersonaleAdmin()] (6 ms)</li><li>controller.HomePage.CarrelloServletTest.[engine:junit-jupiter]/[class:controller.HomePage.CarrelloServletTest]/[method:whenCarrelloIsEmpty_setDisponibileNo()] (5 ms)</li><li>controller.HomePage.AreaPersonaleServletTest.[engine:junit-jupiter]/[class:controller.HomePage.AreaPersonaleServletTest]/[method:whenRegularUserLoggedIn_forwardToAreaPersonale()] (6 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_FilteringMaintainsOrder()] (4 ms)</li><li>controller.utente.ordine.RimuoviDaOrdineTest.[engine:junit-jupiter]/[class:controller.utente.ordine.RimuoviDaOrdineTest]/[method:removeExistingRiga_iteratorRemovesAndRedirects()] (2 ms)</li><li>controller.MostraLibroServletTest.[engine:junit-jupiter]/[class:controller.MostraLibroServletTest]/[method:showBook_nullCarrelloAndWishlist()] (3 ms)</li><li>controller.utente.ordine.ProcediOrdineTest.[engine:junit-jupiter]/[class:controller.utente.ordine.ProcediOrdineTest]/[method:testDoGet_Success()] (2 ms)</li><li>controller.utente.ordine.PagamentoEffettuatoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PagamentoEffettuatoTest]/[method:testDoGet_InvalidPoints()] (1 ms)</li><li>controller.utente.ordine.PagamentoEffettuatoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PagamentoEffettuatoTest]/[method:testDoGet_SuccessStandard()] (2 ms)</li><li>controller.utente.ordine.PagamentoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PagamentoTest]/[method:testDoGet_SedeForm_Error()] (1 ms)</li><li>controller.utente.AggiornaCartServletTest.[engine:junit-jupiter]/[class:controller.utente.AggiornaCartServletTest]/[method:testDoGet_UpdateQuantitySuccess()] (2 ms)</li><li>controller.MostraLibroServletTest.[engine:junit-jupiter]/[class:controller.MostraLibroServletTest]/[method:showBookNotInCartOrWishlist_usesDaoAndForwards()] (5 ms)</li><li>controller.HomePage.CarrelloServletTest.[engine:junit-jupiter]/[class:controller.HomePage.CarrelloServletTest]/[method:whenFirstBookIsAvailable_breaksLoopEarly()] (3 ms)</li><li>controller.HomePage.MostraRepartoServletTest.[engine:junit-jupiter]/[class:controller.HomePage.MostraRepartoServletTest]/[method:whenUserIsNull_processRepartoNormally()] (4 ms)</li><li>controller.HomePage.CarrelloServletTest.[engine:junit-jupiter]/[class:controller.HomePage.CarrelloServletTest]/[method:whenCarrelloHasNoAvailableBooks_setDisponibileNo()] (3 ms)</li><li>controller.HomePage.HomePageServletTest.[engine:junit-jupiter]/[class:controller.HomePage.HomePageServletTest]/[method:whenRepartiInContext_usesContextReparti()] (3 ms)</li><li>controller.RimuoviDalCartServletTest.[engine:junit-jupiter]/[class:controller.RimuoviDalCartServletTest]/[method:removeExistingBook_returnsSuccessTrue()] (3 ms)</li><li>controller.HomePage.CarrelloServletTest.[engine:junit-jupiter]/[class:controller.HomePage.CarrelloServletTest]/[method:whenUserIsNull_processesCartNormally()] (5 ms)</li><li>controller.RimuoviDalCartServletTest.[engine:junit-jupiter]/[class:controller.RimuoviDalCartServletTest]/[method:removeNonExistingBook_returnsSuccessFalse()] (3 ms)</li><li>controller.admin.gestisciOrdini.GestisciOrdiniServletTest.[engine:junit-jupiter]/[class:controller.admin.gestisciOrdini.GestisciOrdiniServletTest]/[method:testDoGet_MixedUserTypesAndAdminVariants()] (6 ms)</li><li>controller.HomePage.HomePageServletTest.[engine:junit-jupiter]/[class:controller.HomePage.HomePageServletTest]/[method:whenRegularUser_forwardsToHomepage()] (4 ms)</li><li>controller.utente.ordine.PagamentoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PagamentoTest]/[method:testDoGet_AddressForm_Error()] (3 ms)</li><li>controller.MostraLibroServletTest.[engine:junit-jupiter]/[class:controller.MostraLibroServletTest]/[method:showBookFromWishlist_whenCarrelloIsNull()] (3 ms)</li><li>controller.HomePage.HomePageServletTest.[engine:junit-jupiter]/[class:controller.HomePage.HomePageServletTest]/[method:whenMultipleReparti_findsLibriDiTendenza()] (3 ms)</li><li>controller.HomePage.MostraRepartoServletTest.[engine:junit-jupiter]/[class:controller.HomePage.MostraRepartoServletTest]/[method:whenMultipleRepartiExist_selectsCorrectReparto()] (4 ms)</li><li>controller.HomePage.CarrelloServletTest.[engine:junit-jupiter]/[class:controller.HomePage.CarrelloServletTest]/[method:whenCarrelloHasAvailableBooks_setDisponibileSi()] (5 ms)</li><li>controller.utente.ordine.OrdineSupportoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.OrdineSupportoTest]/[method:testDoGet_Success()] (4 ms)</li><li>controller.HomePage.CarrelloServletTest.[engine:junit-jupiter]/[class:controller.HomePage.CarrelloServletTest]/[method:whenAllBooksAvailable_setDisponibileSi()] (4 ms)</li><li>controller.AggiungiCartServletTest.[engine:junit-jupiter]/[class:controller.AggiungiCartServletTest]/[method:whenUserIsAdmin_forwardToAdminHomepage()] (10 ms)</li><li>controller.LogoutServletTest.[engine:junit-jupiter]/[class:controller.LogoutServletTest]/[method:testDoGet_nonAdmin_invalidDBNoSaves()] (2 ms)</li><li>controller.HomePage.HomePageServletTest.[engine:junit-jupiter]/[class:controller.HomePage.HomePageServletTest]/[method:whenCarrelloIsNull_createsNewCarrello()] (5 ms)</li><li>controller.HomePage.MostraRepartoServletTest.[engine:junit-jupiter]/[class:controller.HomePage.MostraRepartoServletTest]/[method:whenRepartiListIsEmpty_forwardToErrorPage()] (7 ms)</li><li>controller.utente.SearchBarServletTest.[engine:junit-jupiter]/[class:controller.utente.SearchBarServletTest]/[method:testDoGet_SearchReturnsJson()] (6 ms)</li><li>controller.MostraLibroServletTest.[engine:junit-jupiter]/[class:controller.MostraLibroServletTest]/[method:showBookFromCart_setsLibroAndAutoriAndForwards()] (5 ms)</li><li>controller.MostraLibroServletTest.[engine:junit-jupiter]/[class:controller.MostraLibroServletTest]/[method:showBookNotFoundInCartOrWishlist_usesDAO()] (4 ms)</li><li>controller.AggiungiAiPrefServletTest.[engine:junit-jupiter]/[class:controller.AggiungiAiPrefServletTest]/[method:testDoGet_BookAlreadyInWishlist()] (5 ms)</li><li>controller.AggiungiAiPrefServletTest.[engine:junit-jupiter]/[class:controller.AggiungiAiPrefServletTest]/[method:testDoGet_NullWishList_InitializesNewWishList()] (6 ms)</li><li>controller.utente.ordine.PagamentoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PagamentoTest]/[method:testDoGet_AddressForm_Success()] (1 ms)</li><li>controller.LogoutServletTest.[engine:junit-jupiter]/[class:controller.LogoutServletTest]/[method:testDoGet_nonAdmin_dbWishListExistsButEmpty()] (2 ms)</li><li>controller.AggiungiCartServletTest.[engine:junit-jupiter]/[class:controller.AggiungiCartServletTest]/[method:addExistingBook_incrementsQuantity_andForwardsToSource()] (5 ms)</li><li>controller.HomePage.HomePageServletTest.[engine:junit-jupiter]/[class:controller.HomePage.HomePageServletTest]/[method:whenCarrelloExists_doesNotCreateNew()] (9 ms)</li><li>controller.LogoutServletTest.[engine:junit-jupiter]/[class:controller.LogoutServletTest]/[method:testDoGet_nonAdmin_dbCartExistsButEmpty()] (4 ms)</li><li>controller.LogoutServletTest.[engine:junit-jupiter]/[class:controller.LogoutServletTest]/[method:testDoGet_admin_deletesAndSavesAndUpdatesReparti()] (8 ms)</li><li>controller.utente.ordine.RimuoviDaOrdineTest.[engine:junit-jupiter]/[class:controller.utente.ordine.RimuoviDaOrdineTest]/[method:whenIsbnNull_noRemoval_andRedirects()] (12 ms)</li><li>controller.AggiungiAiPrefServletTest.[engine:junit-jupiter]/[class:controller.AggiungiAiPrefServletTest]/[method:testDoGet_WishListWithNullLibri_InitializesLibriList()] (10 ms)</li><li>controller.LogoutServletTest.[engine:junit-jupiter]/[class:controller.LogoutServletTest]/[method:testDoGet_nonAdmin_emptyCartAndWishList_noDBOperations()] (3 ms)</li><li>controller.HomePage.MostraRepartoServletTest.[engine:junit-jupiter]/[class:controller.HomePage.MostraRepartoServletTest]/[method:whenRepartoExists_setRepartoAndForwardToRepartoPage()] (11 ms)</li><li>controller.LogoutServletTest.[engine:junit-jupiter]/[class:controller.LogoutServletTest]/[method:testDoGet_nonAdmin_withPopulatedCartAndWishList_deletesOldAndSavesNew()] (2 ms)</li><li>controller.HomePage.MostraRepartoServletTest.[engine:junit-jupiter]/[class:controller.HomePage.MostraRepartoServletTest]/[method:whenRepartoExistsWithPosition_appendPositionToAddress()] (14 ms)</li><li>controller.utente.AggiornaCartServletTest.[engine:junit-jupiter]/[class:controller.utente.AggiornaCartServletTest]/[method:testDoGet_ItemNotFound()] (18 ms)</li><li>controller.AggiungiCartServletTest.[engine:junit-jupiter]/[class:controller.AggiungiCartServletTest]/[method:addNewBook_addsRiga_andForwardsToComputedAddress()] (18 ms)</li><li>controller.utente.ordine.PagamentoTest.[engine:junit-jupiter]/[class:controller.utente.ordine.PagamentoTest]/[method:testDoGet_SedeForm_Success()] (21 ms)</li><li>controller.utente.ordine.OrdineServletTest.[engine:junit-jupiter]/[class:controller.utente.ordine.OrdineServletTest]/[method:testDoGet_Success()] (12 ms)</li><li>controller.LogoutServletTest.[engine:junit-jupiter]/[class:controller.LogoutServletTest]/[method:testDoGet_nonAdmin_noExistingDBData_savesNewCartAndWishList()] (32 ms)</li><li>controller.AggiungiAiPrefServletTest.[engine:junit-jupiter]/[class:controller.AggiungiAiPrefServletTest]/[method:testDoGet_AdminUser_ForwardsToAdminHomepage()] (44 ms)</li><li>controller.HomePage.HomePageServletTest.[engine:junit-jupiter]/[class:controller.HomePage.HomePageServletTest]/[method:whenRepartiNotInContext_loadsFromDatabase()] (48 ms)</li><li>controller.utente.ordine.RiepilogoOrdineTest.[engine:junit-jupiter]/[class:controller.utente.ordine.RiepilogoOrdineTest]/[method:testDoGet_UserIsNotAdmin()] (60 ms)</li><li>controller.HomePage.AreaPersonaleServletTest.[engine:junit-jupiter]/[class:controller.HomePage.AreaPersonaleServletTest]/[method:whenSessionExistsWithDifferentAdminType_forwardToCorrectPage()] (136 ms)</li><li>controller.utente.AggiornaCartServletTest.[engine:junit-jupiter]/[class:controller.utente.AggiornaCartServletTest]/[method:testDoGet_UserIsAdmin()] (236 ms)</li><li>controller.AggiungiAiPrefServletTest.[engine:junit-jupiter]/[class:controller.AggiungiAiPrefServletTest]/[method:testDoGet_SuccessAddBook()] (1788 ms)</li>
+</ul>
+
+<br/>
+
+Report generated by <a href='https://pitest.org'>PIT</a> 1.16.1
+
+</body>
+</html>

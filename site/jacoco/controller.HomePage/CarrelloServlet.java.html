@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CarrelloServlet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.HomePage</a> &gt; <span class="el_source">CarrelloServlet.java</span></div><h1>CarrelloServlet.java</h1><pre class="source lang-java linenums">package controller.HomePage;
+
+import controller.utils.Validator;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.carrelloService.Carrello;
+import model.carrelloService.RigaCarrello;
+import model.libroService.Reparto;
+import model.libroService.RepartoDAO;
+import model.utenteService.Utente;
+
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet(&quot;/cart-servlet&quot;)
+<span class="fc" id="L21">public class CarrelloServlet extends HttpServlet {</span>
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+<span class="fc" id="L23">        HttpSession session = request.getSession();</span>
+<span class="fc" id="L24">        Utente utente = (Utente) session.getAttribute(&quot;utente&quot;);</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">        if (Validator.checkIfUserAdmin(utente)) {</span>
+<span class="fc" id="L26">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/admin/homepageAdmin.jsp&quot;);</span>
+<span class="fc" id="L27">            dispatcher.forward(request, response);</span>
+<span class="fc" id="L28">        }</span>
+        else {
+<span class="fc" id="L30">            Carrello carrello = (Carrello) session.getAttribute(&quot;carrello&quot;);</span>
+<span class="fc" id="L31">            List&lt;RigaCarrello&gt; righe = carrello.getRigheCarrello();</span>
+<span class="fc" id="L32">            String disponibile = &quot;no&quot;;</span>
+<span class="fc bfc" id="L33" title="All 2 branches covered.">            for (RigaCarrello r : righe) {</span>
+<span class="fc bfc" id="L34" title="All 2 branches covered.">                if (r.getLibro().isDisponibile()) {</span>
+<span class="fc" id="L35">                    disponibile = &quot;si&quot;;</span>
+<span class="fc" id="L36">                    break;</span>
+                }
+<span class="fc" id="L38">            }</span>
+<span class="fc" id="L39">            request.setAttribute(&quot;disponibile&quot;, disponibile);</span>
+<span class="fc" id="L40">            RequestDispatcher dispatcher = request.getRequestDispatcher(&quot;/WEB-INF/results/stampaCarrello.jsp&quot;);</span>
+<span class="fc" id="L41">            dispatcher.forward(request, response);</span>
+        }
+<span class="fc" id="L43">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Reparto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.libroService</a> &gt; <span class="el_source">Reparto.java</span></div><h1>Reparto.java</h1><pre class="source lang-java linenums">package model.libroService;
+
+import java.util.List;
+import java.util.Objects;
+/*@ nullable_by_default @*/
+<span class="fc" id="L6">public class Reparto {</span>
+    //@ spec_public
+    private int idReparto;
+
+    //@ spec_public
+    private String nome;
+
+    //@ spec_public
+    private String descrizione;
+
+    //@ spec_public
+    private String immagine;
+
+    //@ spec_public
+    private List&lt;Libro&gt; libri;
+
+    //@ public invariant idReparto &gt;= 0;
+
+    //@ ensures \result &gt;= 0;
+    //@ pure
+    public int getIdReparto() {
+<span class="fc" id="L27">        return idReparto;</span>
+    }
+
+    //@ requires idReparto &gt;= 0;
+    //@ assignable this.idReparto;
+    //@ ensures this.idReparto == idReparto;
+    public void setIdReparto(int idReparto) {
+<span class="fc" id="L34">        this.idReparto = idReparto;</span>
+<span class="fc" id="L35">    }</span>
+
+    //@ ensures \result != null;
+    //@ pure
+    public String getDescrizione() {
+<span class="fc" id="L40">        return descrizione;</span>
+    }
+
+    //@ requires descrizione != null;
+    //@ assignable this.descrizione;
+    //@ ensures this.descrizione == descrizione;
+    public void setDescrizione(String descrizione) {
+<span class="fc" id="L47">        this.descrizione = descrizione;</span>
+<span class="fc" id="L48">    }</span>
+
+    //@ ensures \result != null;
+    //@ pure
+    public List&lt;Libro&gt; getLibri() {
+<span class="fc" id="L53">        return libri;</span>
+    }
+
+    //@ requires libri != null;
+    //@ assignable this.libri;
+    //@ ensures this.libri == libri;
+    public void setLibri(List&lt;Libro&gt; libri) {
+<span class="fc" id="L60">        this.libri = libri;</span>
+<span class="fc" id="L61">    }</span>
+
+    //@ also
+    //@ requires o != null;
+    //@ ensures \result ==&gt; (o instanceof Reparto);
+    //@ pure
+    @Override
+    public boolean equals(Object o) { //per il metodo contains
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L71">        Reparto reparto = (Reparto) o;</span>
+<span class="pc bpc" id="L72" title="1 of 4 branches missed.">        return idReparto == reparto.idReparto &amp;&amp; descrizione.equals(reparto.descrizione);</span>
+    }
+
+    //@ ensures \result != null;
+    //@ pure
+    public String getNome() {
+<span class="fc" id="L78">        return nome;</span>
+    }
+
+    //@ requires nome != null;
+    //@ assignable this.nome;
+    //@ ensures this.nome == nome;
+    public void setNome(String nome) {
+<span class="fc" id="L85">        this.nome = nome;</span>
+<span class="fc" id="L86">    }</span>
+
+    //@ ensures \result != null;
+    //@ pure
+    public String getImmagine() {
+<span class="fc" id="L91">        return immagine;</span>
+    }
+
+    //@ assignable this.immagine;
+    //@ ensures this.immagine == immagine;
+    public void setImmagine(String immagine) {
+<span class="fc" id="L97">        this.immagine = immagine;</span>
+<span class="fc" id="L98">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

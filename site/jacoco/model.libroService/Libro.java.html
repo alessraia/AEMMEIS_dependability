@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Libro.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.libroService</a> &gt; <span class="el_source">Libro.java</span></div><h1>Libro.java</h1><pre class="source lang-java linenums">package model.libroService;
+
+import java.util.List;
+import java.util.Objects;
+/*@ nullable_by_default @*/
+<span class="fc" id="L6">public class Libro {</span>
+    //@ spec_public
+    private String isbn;
+
+    //@ spec_public
+    private String titolo;
+
+    //@ spec_public
+    private String genere;
+
+    //@ spec_public
+    private String annoPubblicazioni;
+
+    //@ spec_public
+    private double prezzo;
+
+    //@ spec_public
+    private int sconto;
+
+    //@ spec_public
+    private String trama;
+
+    //@ spec_public
+    private String immagine;
+
+    //@ spec_public
+    private boolean disponibile;
+
+    //@ spec_public
+    private List&lt;Autore&gt; autori;
+
+    //@ public invariant prezzo &gt;= 0;
+    //@ public invariant sconto &gt;= 0 &amp;&amp; sconto &lt;= 100;
+
+    //@ ensures \result != null;
+    //@ pure
+    public String getTitolo() {
+<span class="fc" id="L43">        return titolo;</span>
+    }
+
+    //@ requires titolo != null;
+    //@ assignable this.titolo;
+    //@ ensures this.titolo == titolo;
+    public void setTitolo(String titolo) {
+<span class="fc" id="L50">        this.titolo = titolo;</span>
+<span class="fc" id="L51">    }</span>
+
+    //@ ensures \result &gt;= 0 &amp;&amp; \result &lt;= 100;
+    //@ pure
+    public int getSconto() {
+<span class="fc" id="L56">        return sconto;</span>
+    }
+
+    //@ requires sconto &gt;= 0 &amp;&amp; sconto &lt;= 100;
+    //@ assignable this.sconto;
+    //@ ensures this.sconto == sconto;
+    public void setSconto(int sconto) {
+<span class="fc" id="L63">        this.sconto = sconto;</span>
+<span class="fc" id="L64">    }</span>
+
+    //@ ensures \result &gt;= 0;
+    //@ pure
+    public double getPrezzo() {
+<span class="fc" id="L69">        return prezzo;</span>
+    }
+
+    //@ requires prezzo &gt;= 0;
+    //@ assignable this.prezzo;
+    //@ ensures this.prezzo == prezzo;
+    public void setPrezzo(double prezzo) {
+<span class="fc" id="L76">        this.prezzo = prezzo;</span>
+<span class="fc" id="L77">    }</span>
+
+    //@ ensures \result != null;
+    //@ pure
+    public String getIsbn() {
+<span class="fc" id="L82">        return isbn;</span>
+    }
+
+    //@ requires isbn != null;
+    //@ assignable this.isbn;
+    //@ ensures this.isbn == isbn;
+    public void setIsbn(String isbn) {
+<span class="fc" id="L89">        this.isbn = isbn;</span>
+<span class="fc" id="L90">    }</span>
+
+    //@ pure
+    public String getGenere() {
+<span class="fc" id="L94">        return genere;</span>
+    }
+
+    //@ assignable this.genere;
+    //@ ensures this.genere == genere;
+    public void setGenere(String genere) {
+<span class="fc" id="L100">        this.genere = genere;</span>
+<span class="fc" id="L101">    }</span>
+
+    //@ pure
+    public String getAnnoPubblicazioni() {
+<span class="fc" id="L105">        return annoPubblicazioni;</span>
+    }
+
+    //@ assignable this.annoPubblicazioni;
+    //@ ensures this.annoPubblicazioni == annoPubblicazioni;
+    public void setAnnoPubblicazioni(String annoPubblicazioni) {
+<span class="fc" id="L111">        this.annoPubblicazioni = annoPubblicazioni;</span>
+<span class="fc" id="L112">    }</span>
+
+    //@ pure
+    public String getTrama() {
+<span class="fc" id="L116">        return trama;</span>
+    }
+
+    //@ assignable this.trama;
+    //@ ensures this.trama == trama;
+    public void setTrama(String trama) {
+<span class="fc" id="L122">        this.trama = trama;</span>
+<span class="fc" id="L123">    }</span>
+
+    //@ pure
+    public String getImmagine() {
+<span class="fc" id="L127">        return immagine;</span>
+    }
+
+    //@ assignable this.immagine;
+    //@ ensures this.immagine == immagine;
+    public void setImmagine(String immagine) {
+<span class="fc" id="L133">        this.immagine = immagine;</span>
+<span class="fc" id="L134">    }</span>
+
+    //@ ensures \result != null;
+    //@ pure
+    public List&lt;Autore&gt; getAutori() {
+<span class="fc" id="L139">        return autori;</span>
+    }
+
+    //@ requires autori != null;
+    //@ assignable this.autori;
+    //@ ensures this.autori == autori;
+    public void setAutori(List&lt;Autore&gt; autori) {
+<span class="fc" id="L146">        this.autori = autori;</span>
+<span class="fc" id="L147">    }</span>
+
+    //@ also
+    //@ requires isbn != null;
+    //@ ensures o == null ==&gt; !\result;
+    //@ ensures \result ==&gt; (o instanceof Libro);
+    //@ ensures \result ==&gt; this.isbn.equals(((Libro)o).isbn);
+    //@ pure
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L157" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L158" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L159">        Libro libro = (Libro) o;</span>
+<span class="fc" id="L160">        return isbn.equals(libro.isbn);</span>
+        //si potrebbe fare anche solo sull'isbn
+    }
+
+    //@ pure
+    public boolean isDisponibile() {
+<span class="fc" id="L166">        return disponibile;</span>
+    }
+
+    //@ assignable this.disponibile;
+    //@ ensures this.disponibile == disponibile;
+    public void setDisponibile(boolean disponibile) {
+<span class="fc" id="L172">        this.disponibile = disponibile;</span>
+<span class="fc" id="L173">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Tessera.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.tesseraService</a> &gt; <span class="el_source">Tessera.java</span></div><h1>Tessera.java</h1><pre class="source lang-java linenums">package model.tesseraService;
+import java.time.LocalDate;
+
+/*@ nullable_by_default @*/
+<span class="fc" id="L5">public class Tessera {</span>
+    //@ spec_public
+    private String numero;
+    //@ spec_public
+    private LocalDate dataCreazione;
+    //@ spec_public
+    private LocalDate dataScadenza;
+    //@ spec_public
+    private int punti;
+    //@ spec_public
+    private String email;
+
+    /*@
+      @ public normal_behavior
+      @   ensures \result == this.numero;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ String getNumero() {
+<span class="fc" id="L23">        return numero;</span>
+    }
+
+    /*@
+      @ public normal_behavior
+      @   requires numero != null &amp;&amp; !numero.isEmpty();
+      @   assignable this.numero;
+      @   ensures this.numero == numero;
+      @*/
+    public void setNumero(String numero) {
+<span class="fc" id="L33">        this.numero = numero;</span>
+<span class="fc" id="L34">    }</span>
+
+    /*@
+      @ public normal_behavior
+      @   ensures \result == this.dataCreazione;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ LocalDate getDataCreazione() {
+<span class="fc" id="L42">        return dataCreazione;</span>
+    }
+
+    /*@
+      @ public normal_behavior
+      @   requires dataCreazione != null;
+      @   assignable this.dataCreazione;
+      @   ensures this.dataCreazione == dataCreazione;
+      @*/
+    public void setDataCreazione(LocalDate dataCreazione) {
+<span class="fc" id="L52">        this.dataCreazione = dataCreazione;</span>
+<span class="fc" id="L53">    }</span>
+
+    /*@
+      @ public normal_behavior
+      @   ensures \result == this.dataScadenza;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ LocalDate getDataScadenza() {
+<span class="fc" id="L61">        return dataScadenza;</span>
+    }
+
+    /*@
+      @ public normal_behavior
+      @   requires dataScadenza != null;
+      @   assignable this.dataScadenza;
+      @   ensures this.dataScadenza == dataScadenza;
+      @*/
+    public void setDataScadenza(LocalDate dataScadenza) {
+<span class="fc" id="L71">        this.dataScadenza = dataScadenza;</span>
+<span class="fc" id="L72">    }</span>
+
+    /*@
+      @ public normal_behavior
+      @   ensures \result == this.punti;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ int getPunti() {
+<span class="fc" id="L80">        return punti;</span>
+    }
+
+    /*@
+      @ public normal_behavior
+      @   requires punti &gt;= 0;
+      @   assignable this.punti;
+      @   ensures this.punti == punti;
+      @*/
+    public void setPunti(int punti) {
+<span class="fc" id="L90">        this.punti = punti;</span>
+<span class="fc" id="L91">    }</span>
+
+    /*@
+      @ public normal_behavior
+      @   ensures \result == this.email;
+      @   assignable \nothing;
+      @*/
+    public /*@ pure @*/ String getEmail() {
+<span class="fc" id="L99">        return email;</span>
+    }
+
+    /*@
+      @ public normal_behavior
+      @   requires email != null &amp;&amp; !email.isEmpty();
+      @   assignable this.email;
+      @   ensures this.email == email;
+      @*/
+    public void setEmail(String email) {
+<span class="fc" id="L109">        this.email = email;</span>
+<span class="fc" id="L110">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

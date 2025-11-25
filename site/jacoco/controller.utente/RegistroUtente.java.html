@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RegistroUtente.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">controller.utente</a> &gt; <span class="el_source">RegistroUtente.java</span></div><h1>RegistroUtente.java</h1><pre class="source lang-java linenums">package controller.utente;
+
+import java.io.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.*;
+import jakarta.servlet.annotation.*;
+import model.carrelloService.Carrello;
+import model.carrelloService.CarrelloDAO;
+import model.tesseraService.Tessera;
+import model.tesseraService.TesseraDAO;
+import model.utenteService.Utente;
+import model.utenteService.UtenteDAO;
+
+@WebServlet(name = &quot;insertUtente&quot;, value = &quot;/insert-utente&quot;)
+<span class="fc" id="L21">public class RegistroUtente extends HttpServlet{</span>
+<span class="fc" id="L22">    private UtenteDAO utenteDAO = new UtenteDAO();</span>
+<span class="fc" id="L23">    private TesseraDAO tesseraDAO = new TesseraDAO();</span>
+<span class="fc" id="L24">    private CarrelloDAO carrelloDAO = new CarrelloDAO();</span>
+    
+    public void setUtenteDAO(UtenteDAO utenteDAO){
+<span class="fc" id="L27">        this.utenteDAO = utenteDAO;</span>
+<span class="fc" id="L28">    }</span>
+    public void setTesseraDAO(TesseraDAO tesseraDAO){
+<span class="fc" id="L30">        this.tesseraDAO = tesseraDAO;</span>
+<span class="fc" id="L31">    }</span>
+    public void setCarrelloDAO(CarrelloDAO carrelloDAO){
+<span class="fc" id="L33">        this.carrelloDAO = carrelloDAO;</span>
+<span class="fc" id="L34">    }</span>
+
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+<span class="fc" id="L38">        Utente utente = new Utente();</span>
+<span class="fc" id="L39">        String nomeUtente = request.getParameter(&quot;nomeUtente&quot;);</span>
+<span class="fc" id="L40">        String email = request.getParameter(&quot;email&quot;);</span>
+<span class="fc" id="L41">        String codiceSicurezza = request.getParameter(&quot;pw&quot;);</span>
+<span class="fc" id="L42">        String tipo = request.getParameter(&quot;tipo&quot;);</span>
+<span class="fc" id="L43">        String address = null;</span>
+
+<span class="pc bpc" id="L45" title="5 of 12 branches missed.">        if (nomeUtente == null || nomeUtente.isEmpty() || (email == null || email.isEmpty() || !email.contains(&quot;@&quot;)) ||</span>
+<span class="pc bpc" id="L46" title="3 of 6 branches missed.">                codiceSicurezza == null || codiceSicurezza.isEmpty()  || codiceSicurezza.length()&gt;16 || tipo == null) {</span>
+            //pagina di errore per inserimento parametri errato
+<span class="fc" id="L48">            address = &quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;;</span>
+        }else{
+<span class="fc" id="L50">            String[] numeriTelefono = request.getParameterValues(&quot;telefono&quot;);</span>
+<span class="fc" id="L51">            List&lt;String&gt; telefoni = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            for (String telefono : numeriTelefono) {</span>
+<span class="pc bpc" id="L53" title="1 of 4 branches missed.">                if (!isNumeric(telefono) || telefono.length() != 10) {</span>
+                    //pagina dai errore per inserimento parametri errato
+<span class="fc" id="L55">                    address = &quot;/WEB-INF/errorJsp/erroreForm.jsp&quot;;</span>
+<span class="fc" id="L56">                } else telefoni.add(telefono);</span>
+            }
+
+            //se un telefono è già esistente nel DB va in errore
+<span class="fc" id="L60">            UtenteDAO utenteService = utenteDAO;</span>
+
+<span class="fc" id="L62">            List&lt;String&gt; telefoniDB = utenteService.doRetrieveAllTelefoni();</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">            if(!telefoniDB.isEmpty()){</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">                for(String telefono: telefoni){</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">                    if (telefoniDB.contains(telefono)) {</span>
+<span class="fc" id="L66">                        address = &quot;/WEB-INF/errorJsp/erroreTelefonoDB.jsp&quot;;</span>
+<span class="fc" id="L67">                        RequestDispatcher dispatcher = request.getRequestDispatcher(address);</span>
+<span class="fc" id="L68">                        dispatcher.forward(request, response);</span>
+<span class="fc" id="L69">                        return;</span>
+                    }
+<span class="fc" id="L71">                }</span>
+            }
+
+<span class="fc" id="L74">            utente.setNomeUtente(nomeUtente);</span>
+<span class="fc" id="L75">            utente.setEmail(email);</span>
+<span class="fc" id="L76">            utente.setTipo(tipo);</span>
+<span class="fc" id="L77">            utente.setCodiceSicurezza(codiceSicurezza);</span>
+<span class="fc" id="L78">            utente.setTelefoni(telefoni);</span>
+
+<span class="fc" id="L80">            Utente utenteRetrieved = utenteService.doRetrieveById(utente.getEmail());</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">            if (utenteRetrieved == null) {</span>
+<span class="fc" id="L82">                utenteService.doSave(utente);</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">                if (utente.getTipo().equalsIgnoreCase(&quot;premium&quot;)) {</span>
+<span class="fc" id="L84">                    TesseraDAO tesseraService = tesseraDAO;</span>
+<span class="fc" id="L85">                    Tessera tessera = new Tessera();</span>
+<span class="fc" id="L86">                    tessera.setEmail(utente.getEmail());</span>
+<span class="fc" id="L87">                    tessera.setDataCreazione(LocalDate.now());</span>
+<span class="fc" id="L88">                    tessera.setDataScadenza(LocalDate.now().plusYears(2));</span>
+<span class="fc" id="L89">                    List&lt;String&gt; numeri = tesseraService.doRetrivedAllByNumero();</span>
+                    String numT;
+<span class="fc" id="L91">                    Random random = new Random();</span>
+                    do {
+<span class="fc" id="L93">                        numT = &quot;T&quot; + random.nextInt(10) + random.nextInt(10) + random.nextInt(10);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                    } while (numeri.contains(numT));</span>
+<span class="fc" id="L95">                    tessera.setNumero(numT);</span>
+<span class="fc" id="L96">                    tesseraService.doSave(tessera);</span>
+                }
+                //request.getSession().setAttribute(&quot;utente&quot;, utente);
+<span class="fc" id="L99">                CarrelloDAO carrelloService = carrelloDAO;</span>
+<span class="fc" id="L100">                Carrello carrello = new Carrello();</span>
+<span class="fc" id="L101">                carrello.setEmail(utente.getEmail());</span>
+<span class="fc" id="L102">                carrello.setTotale(0);</span>
+<span class="fc" id="L103">                List&lt;String&gt; id = carrelloService.doRetrivedAllIdCarrelli();</span>
+                String newId;
+<span class="fc" id="L105">                Random random = new Random();</span>
+                do {
+<span class="fc" id="L107">                    char a = (char) (65 + random.nextInt(90 - 65));</span>
+<span class="fc" id="L108">                    char b = (char) (65 + random.nextInt(90 - 65));</span>
+<span class="fc" id="L109">                    char c = (char) (65 + random.nextInt(90 - 65));</span>
+<span class="fc" id="L110">                    newId = a + b + c + String.valueOf(10 + random.nextInt(100 - 10));</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">                } while (id.contains(newId));</span>
+
+<span class="fc" id="L113">                carrello.setIdCarrello(newId);</span>
+<span class="fc" id="L114">                carrelloService.doSave(carrello);</span>
+
+<span class="fc bfc" id="L116" title="All 2 branches covered.">                if(address == null)</span>
+<span class="fc" id="L117">                  address = &quot;/WEB-INF/results/login.jsp&quot;;</span>
+
+<span class="fc" id="L119">            } else {</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">                if(address == null)</span>
+                //pagina di errore nel caso l'email fosse già presente nel db
+<span class="fc" id="L122">                    address = &quot;/WEB-INF/errorJsp/utentePresente.jsp&quot;;</span>
+
+            }
+        }
+
+<span class="fc" id="L127">        RequestDispatcher dispatcher = request.getRequestDispatcher(address);</span>
+<span class="fc" id="L128">        dispatcher.forward(request, response);</span>
+
+<span class="fc" id="L130">    }</span>
+
+    private static boolean isNumeric(String str) {//metodo che utilizza espressione regolare per verificare che una stringa contenga solo numeri
+<span class="pc bpc" id="L133" title="2 of 6 branches missed.">        return str != null &amp;&amp; !str.isEmpty() &amp;&amp; str.matches(&quot;\\d+&quot;);</span>
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L138">        this.doGet(req, resp);</span>
+<span class="nc" id="L139">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

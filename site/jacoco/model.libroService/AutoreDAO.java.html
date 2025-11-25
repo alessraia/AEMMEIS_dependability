@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="it"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AutoreDAO.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AEMMETSW</a> &gt; <a href="index.source.html" class="el_package">model.libroService</a> &gt; <span class="el_source">AutoreDAO.java</span></div><h1>AutoreDAO.java</h1><pre class="source lang-java linenums">package model.libroService;
+import model.ConPool;
+import model.utenteService.Utente;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+<span class="fc" id="L10">public class AutoreDAO {</span>
+
+
+    //@ requires autore != null;
+    //@ requires autore.getCf() != null;
+    //@ requires autore.getNome() != null;
+    //@ requires autore.getCognome() != null;
+    //@ assignable \nothing; // Modifica solo il database, non lo stato dell'oggetto
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nell'inserimento nel database *);
+    public void doSave(Autore autore){
+<span class="fc" id="L21">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L22">            PreparedStatement ps = con.prepareStatement(</span>
+                    &quot;INSERT INTO Autore (cf, nome, cognome) VALUES(?,?,?)&quot;,
+                    Statement.RETURN_GENERATED_KEYS);
+<span class="fc" id="L25">            ps.setString(1, autore.getCf());</span>
+<span class="fc" id="L26">            ps.setString(2, autore.getNome());</span>
+<span class="fc" id="L27">            ps.setString(3, autore.getCognome());</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">            if (ps.executeUpdate() != 1) {</span>
+<span class="fc" id="L29">                throw new RuntimeException(&quot;INSERT error.&quot;);</span>
+            }
+<span class="fc" id="L31">        } catch (SQLException e) {</span>
+<span class="fc" id="L32">            throw new RuntimeException(e);</span>
+<span class="fc" id="L33">        }</span>
+
+<span class="fc" id="L35">    }</span>
+
+
+    //@ requires cf != null;
+    //@ assignable \nothing; // Modifica solo il database
+    //@ signals_only RuntimeException;
+    //@ signals (RuntimeException e) (* errore nella cancellazione dal database *);
+    public void deleteAutore(String cf){
+<span class="fc" id="L43">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L44">            PreparedStatement ps =</span>
+<span class="fc" id="L45">                    con.prepareStatement(&quot;DELETE FROM Autore WHERE cf=?&quot;);</span>
+<span class="fc" id="L46">            ps.setString(1, cf);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">            if(ps.executeUpdate() != 1)</span>
+<span class="fc" id="L48">                throw new RuntimeException(&quot;DELETE error.&quot;);</span>
+<span class="fc" id="L49">        } catch (SQLException e) {</span>
+<span class="fc" id="L50">            throw new RuntimeException(e);</span>
+<span class="fc" id="L51">        }</span>
+<span class="fc" id="L52">    }</span>
+
+
+    //@ requires cf != null;
+    //@ ensures \result == null || \result.getCf().equals(cf);
+    //@ ensures \result != null ==&gt; \result.getNome() != null;
+    //@ ensures \result != null ==&gt; \result.getCognome() != null;
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
+    public Autore searchAutore(String cf) {
+<span class="fc" id="L63">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L64">            PreparedStatement ps =</span>
+<span class="fc" id="L65">                    con.prepareStatement(&quot;SELECT nome, cognome FROM Autore WHERE cf=?&quot;);</span>
+<span class="fc" id="L66">            ps.setString(1, cf);</span>
+<span class="fc" id="L67">            ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">            if (rs.next()) {</span>
+<span class="fc" id="L69">                Autore autore = new Autore();</span>
+<span class="fc" id="L70">                autore.setCf(cf);</span>
+<span class="fc" id="L71">                autore.setNome(rs.getString(1));</span>
+<span class="fc" id="L72">                autore.setCognome(rs.getString(2));</span>
+<span class="fc" id="L73">                return autore;</span>
+            }
+<span class="fc" id="L75">            return null;</span>
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">        } catch (SQLException e) {</span>
+<span class="fc" id="L77">            throw new RuntimeException(e);</span>
+        }
+    }
+
+
+    //@ requires cf != null;
+    //@ ensures \result != null;
+    //@ ensures (\forall int i; 0 &lt;= i &amp;&amp; i &lt; \result.size(); \result.get(i) != null);
+    //@ ensures (\forall int i; 0 &lt;= i &amp;&amp; i &lt; \result.size(); \result.get(i).getIsbn() != null);
+    //@ assignable \nothing;
+    //@ signals_only RuntimeException;
+    //@ pure
+    public List&lt;Libro&gt; getScrittura(String cf){
+<span class="fc" id="L90">        try (Connection con = ConPool.getConnection()) {</span>
+<span class="fc" id="L91">            PreparedStatement ps =</span>
+<span class="fc" id="L92">                    con.prepareStatement(&quot;SELECT isbn FROM Scrittura WHERE cf=?&quot;);</span>
+<span class="fc" id="L93">            ps.setString(1, cf);</span>
+<span class="fc" id="L94">            List&lt;Libro&gt; lista = new ArrayList&lt;Libro&gt;();</span>
+<span class="fc" id="L95">            ResultSet rs = ps.executeQuery();</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">            while (rs.next()) {</span>
+<span class="fc" id="L97">                String isbn = rs.getString(1);</span>
+<span class="fc" id="L98">                LibroDAO p = new LibroDAO();</span>
+<span class="fc" id="L99">                Libro libro=p.doRetrieveById(isbn);</span>
+<span class="fc" id="L100">                lista.add(libro);</span>
+<span class="fc" id="L101">            }</span>
+<span class="fc" id="L102">            return lista;</span>
+<span class="fc" id="L103">        } catch (SQLException e) {</span>
+<span class="fc" id="L104">            throw new RuntimeException(e);</span>
+        }
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
