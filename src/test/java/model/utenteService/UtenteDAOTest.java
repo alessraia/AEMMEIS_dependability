@@ -146,6 +146,9 @@ class UtenteDAOTest {
         assertNotNull(result);
         assertEquals("Mario Rossi", result.getNomeUtente());
         assertEquals("test@example.com", result.getEmail());
+        assertEquals(hashedPassword, result.getCodiceSicurezza());
+        assertEquals("base", result.getTipo());
+        assertEquals(telefoni, result.getTelefoni());
         verify(mockPreparedStatement).setString(1, email);
         verify(mockPreparedStatement).setString(2, hashedPassword);
     }
@@ -199,6 +202,7 @@ class UtenteDAOTest {
         // Assert
         verify(mockPreparedStatement).setString(1, "Mario Rossi");
         verify(mockPreparedStatement).setString(2, "test@example.com");
+        verify(mockPreparedStatement).setString(3, "cbfdac6008f9cab4083784cbd1874f76618d2a97"); // SHA-1 hash of "password123"
         verify(mockPreparedStatement).setString(4, "base");
         verify(mockPreparedStatement).executeUpdate();
         verify(spyDAO, times(2)).addTelefono(eq("test@example.com"), anyString());
@@ -248,8 +252,19 @@ class UtenteDAOTest {
         // Assert
         assertNotNull(result);
         assertEquals(2, result.size());
+        
+        // Verify rs.next() was called exactly 3 times (2x true, 1x false)
+        // This kills the "negated conditional" mutation on line 155
+        verify(mockResultSet, times(3)).next();
+        
         assertEquals("Mario Rossi", result.get(0).getNomeUtente());
+        assertEquals("mario@example.com", result.get(0).getEmail());
+        assertEquals("e24114b7e08681dc91c43a0a76e8b7c14f8c2fb8", result.get(0).getCodiceSicurezza());
+        assertEquals("base", result.get(0).getTipo());
         assertEquals("Luigi Verdi", result.get(1).getNomeUtente());
+        assertEquals("luigi@example.com", result.get(1).getEmail());
+        assertEquals("a94a8fe5ccb19ba61c4c0873d391e987982fbbd3", result.get(1).getCodiceSicurezza());
+        assertEquals("premium", result.get(1).getTipo());
     }
 
     @Test
@@ -301,6 +316,37 @@ class UtenteDAOTest {
         verify(mockPreparedStatement).setString(2, "base");
         verify(mockPreparedStatement).setString(3, "test@example.com");
         verify(mockPreparedStatement).executeUpdate();
+        // Verify that new phone was added (0987654321)
+        verify(spyDAO).addTelefono("test@example.com", "0987654321");
+    }
+
+    @Test
+    void testUpdateUtente_WithPhoneDeletion() throws SQLException {
+        // Arrange
+        Utente utente = createValidUtente();
+        utente.setTelefoni(Arrays.asList("1234567890")); // Only one phone now
+        List<String> existingTelefoni = Arrays.asList("1234567890", "0987654321"); // Two phones in DB
+
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        UtenteDAO spyDAO = spy(utenteDAO);
+        doReturn(existingTelefoni).when(spyDAO).cercaTelefoni("test@example.com");
+        doNothing().when(spyDAO).addTelefono(anyString(), anyString());
+        doNothing().when(spyDAO).deleteTelefono(anyString(), anyString());
+
+        // Act
+        assertDoesNotThrow(() -> spyDAO.updateUtente(utente));
+
+        // Assert
+        verify(mockPreparedStatement).setString(1, "Mario Rossi");
+        verify(mockPreparedStatement).setString(2, "base");
+        verify(mockPreparedStatement).setString(3, "test@example.com");
+        verify(mockPreparedStatement).executeUpdate();
+        // Verify that phone 0987654321 was deleted
+        verify(spyDAO).deleteTelefono("test@example.com", "0987654321");
+        // Verify that addTelefono was never called (no new phones)
+        verify(spyDAO, never()).addTelefono(anyString(), eq("0987654321"));
     }
 
     @Test
@@ -334,6 +380,8 @@ class UtenteDAOTest {
     void testUpdateUtentePassword_Success() throws SQLException {
         // Arrange
         Utente utente = createValidUtente();
+        String newPassword = "newHashedPassword123";
+        utente.setCodiceSicurezza(newPassword);
 
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeUpdate()).thenReturn(1);
@@ -342,6 +390,7 @@ class UtenteDAOTest {
         assertDoesNotThrow(() -> utenteDAO.updateUtentePassword(utente));
 
         // Assert
+        verify(mockPreparedStatement).setString(1, "d8821930bc512da14fb82f62f6588fdc0e97e13d"); // SHA-1 hash of "newHashedPassword123"
         verify(mockPreparedStatement).setString(2, "test@example.com");
         verify(mockPreparedStatement).executeUpdate();
     }
@@ -438,6 +487,26 @@ class UtenteDAOTest {
         // Assert
         verify(mockPreparedStatement).setString(1, email);
         verify(mockPreparedStatement).executeUpdate();
+    }
+
+    @Test
+    void testDeleteTelefoni_OneRowDeleted() throws SQLException {
+        // Arrange - Test boundary case: exactly 1 row deleted
+        String email = "test@example.com";
+
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        // Act - should succeed with 1 row deleted
+        assertDoesNotThrow(() -> utenteDAO.deleteTelefoni(email));
+
+        // Assert
+        verify(mockPreparedStatement).setString(1, email);
+        verify(mockPreparedStatement).executeUpdate();
+        
+        // This test kills the "changed conditional boundary" mutation on line 289
+        // Mutant: if(ps.executeUpdate() <= 1) would fail this test
+        // because it would throw exception when executeUpdate() returns 1
     }
 
     @Test

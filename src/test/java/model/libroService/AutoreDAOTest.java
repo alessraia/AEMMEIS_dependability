@@ -203,6 +203,20 @@ class AutoreDAOTest {
         assertThrows(RuntimeException.class, () -> autoreDAO.searchAutore("CFEXEC"));
     }
 
+    @Test
+    void testSearchAutore_VerifySetStringCalled() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(false);
+
+        // Act
+        autoreDAO.searchAutore("CF_VERIFY");
+
+        // Assert - verify setString was called with the correct cf parameter
+        verify(mockPreparedStatement).setString(1, "CF_VERIFY");
+    }
+
     // ==================== getScrittura Tests ====================
 
     @Test
@@ -280,6 +294,54 @@ class AutoreDAOTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> autoreDAO.getScrittura("CFSQL"));
+    }
+
+    @Test
+    void testGetScrittura_VerifySetStringCalled() throws SQLException {
+        // Arrange
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(false);
+
+        // Act
+        autoreDAO.getScrittura("CF_VERIFY_SCRITTURA");
+
+        // Assert - verify setString was called with the correct cf parameter
+        verify(mockPreparedStatement).setString(1, "CF_VERIFY_SCRITTURA");
+    }
+
+    @Test
+    void testGetScrittura_VerifyLoopTerminates() throws SQLException {
+        // Arrange - setup to verify the while loop correctly terminates
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        // Return true exactly 3 times, then false to terminate
+        when(mockResultSet.next()).thenReturn(true, true, true, false);
+        when(mockResultSet.getString(1)).thenReturn("ISBN1", "ISBN2", "ISBN3");
+
+        Libro l1 = new Libro();
+        l1.setIsbn("ISBN1");
+        Libro l2 = new Libro();
+        l2.setIsbn("ISBN2");
+        Libro l3 = new Libro();
+        l3.setIsbn("ISBN3");
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, context) -> {
+                    when(mock.doRetrieveById("ISBN1")).thenReturn(l1);
+                    when(mock.doRetrieveById("ISBN2")).thenReturn(l2);
+                    when(mock.doRetrieveById("ISBN3")).thenReturn(l3);
+                })) {
+
+            // Act
+            List<Libro> list = autoreDAO.getScrittura("CFLOOP");
+
+            // Assert - verify exactly 3 items processed (loop terminated correctly)
+            assertNotNull(list);
+            assertEquals(3, list.size());
+            // Verify rs.next() was called exactly 4 times (3 true, 1 false)
+            verify(mockResultSet, times(4)).next();
+        }
     }
 
 }

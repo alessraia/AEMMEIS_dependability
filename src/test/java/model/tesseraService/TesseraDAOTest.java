@@ -43,11 +43,18 @@ class TesseraDAOTest {
         tessera.setDataScadenza(today.plusYears(2));
         tessera.setEmail("test@example.com");
 
+        // Create separate mocks for INSERT and SELECT statements
+        PreparedStatement insertPs = mock(PreparedStatement.class);
+        PreparedStatement selectPs = mock(PreparedStatement.class);
+
         try (MockedStatic<ConPool> mockedConPool = mockStatic(ConPool.class)) {
             mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
-            when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
-            when(mockPreparedStatement.executeUpdate()).thenReturn(1);
-            when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+            // Return different PreparedStatements based on SQL
+            when(mockConnection.prepareStatement(contains("INSERT"))).thenReturn(insertPs);
+            when(mockConnection.prepareStatement(contains("SELECT"))).thenReturn(selectPs);
+            
+            when(insertPs.executeUpdate()).thenReturn(1);
+            when(selectPs.executeQuery()).thenReturn(mockResultSet);
             when(mockResultSet.next()).thenReturn(true);
             when(mockResultSet.getString(1)).thenReturn("TESS001");
             when(mockResultSet.getDate(2)).thenReturn(Date.valueOf(today));
@@ -56,7 +63,16 @@ class TesseraDAOTest {
             when(mockResultSet.getString(5)).thenReturn("test@example.com");
 
             assertDoesNotThrow(() -> tesseraDAO.doSave(tessera));
-            verify(mockConnection, atLeastOnce()).prepareStatement(anyString());
+            
+            // Verify INSERT PreparedStatement parameters are set correctly
+            verify(insertPs).setString(1, "TESS001");
+            verify(insertPs).setDate(2, Date.valueOf(today));
+            verify(insertPs).setDate(3, Date.valueOf(today.plusYears(2)));
+            verify(insertPs).setString(4, "test@example.com");
+            verify(insertPs).executeUpdate();
+            
+            // Verify punti is set after save
+            assertEquals(50, tessera.getPunti());
         }
     }
 
@@ -220,6 +236,14 @@ class TesseraDAOTest {
             assertEquals(2, result.size());
             assertEquals("TESS001", result.get(0).getNumero());
             assertEquals(50, result.get(0).getPunti());
+            // Verify dates and email are properly set
+            assertEquals(today, result.get(0).getDataCreazione());
+            assertEquals(today.plusYears(2), result.get(0).getDataScadenza());
+            assertEquals("user1@example.com", result.get(0).getEmail());
+            assertEquals("TESS002", result.get(1).getNumero());
+            assertEquals(today, result.get(1).getDataCreazione());
+            assertEquals(today.plusYears(2), result.get(1).getDataScadenza());
+            assertEquals("user2@example.com", result.get(1).getEmail());
         }
     }
 
@@ -271,6 +295,10 @@ class TesseraDAOTest {
 
             assertNotNull(result);
             assertEquals(3, result.size());
+            // Verify exact order and content to kill timed_out mutation
+            assertEquals("TESS001", result.get(0));
+            assertEquals("TESS002", result.get(1));
+            assertEquals("TESS003", result.get(2));
             assertTrue(result.contains("TESS001"));
             assertTrue(result.contains("TESS002"));
             assertTrue(result.contains("TESS003"));
@@ -326,6 +354,9 @@ class TesseraDAOTest {
             assertEquals("TESS001", result.getNumero());
             assertEquals(150, result.getPunti());
             assertEquals("test@example.com", result.getEmail());
+            // Verify date fields are properly set
+            assertEquals(today, result.getDataCreazione());
+            assertEquals(today.plusYears(2), result.getDataScadenza());
             verify(mockPreparedStatement).setString(1, "TESS001");
         }
     }
@@ -379,6 +410,9 @@ class TesseraDAOTest {
             assertEquals("TESS001", result.getNumero());
             assertEquals("user@example.com", result.getEmail());
             assertEquals(100, result.getPunti());
+            // Verify date fields are properly set
+            assertEquals(today, result.getDataCreazione());
+            assertEquals(today.plusYears(2), result.getDataScadenza());
             verify(mockPreparedStatement).setString(1, "user@example.com");
         }
     }

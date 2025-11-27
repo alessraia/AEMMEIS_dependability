@@ -112,7 +112,36 @@ class RepartoDAOTest {
         assertThrows(RuntimeException.class, () -> repartoDAO.doRetrieveById(1));
     }
 
-    // ==================== doRetrivedAll Tests ====================
+    @Test
+    void testDoRetrieveById_VerifySetIntAndSetImageCalled() throws SQLException {
+        // Arrange - This test kills mutations on lines 168 and 175
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getInt(1)).thenReturn(999);
+        when(mockResultSet.getString(2)).thenReturn("NomeTest");
+        when(mockResultSet.getString(3)).thenReturn("DescTest");
+        when(mockResultSet.getString(4)).thenReturn("imageTest.png");
+
+        RepartoDAO spy = spy(repartoDAO);
+        doReturn(Collections.emptyList()).when(spy).getAppartenenza(999);
+
+        // Act
+        Reparto r = spy.doRetrieveById(999);
+
+        // Assert - Verify setInt was called on PreparedStatement
+        verify(mockPreparedStatement).setInt(1, 999);
+        
+        // Assert - Verify all properties including immagine are set correctly
+        assertNotNull(r);
+        assertEquals(999, r.getIdReparto());
+        assertEquals("NomeTest", r.getNome());
+        assertEquals("DescTest", r.getDescrizione());
+        assertEquals("imageTest.png", r.getImmagine());
+        assertNotNull(r.getLibri());
+    }
+
+    // ==================== getAppartenenza Tests ====================
 
     @Test
     void testDoRetrivedAll_ReturnsList() throws SQLException {
@@ -147,7 +176,39 @@ class RepartoDAOTest {
         assertThrows(RuntimeException.class, () -> repartoDAO.doRetrivedAll());
     }
 
-    // ==================== doSave Tests ====================
+    @Test
+    void testDoRetrivedAll_VerifyAllSettersCalled() throws SQLException {
+        // Arrange - This test kills mutations on lines 145-148
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true, false);
+        when(mockResultSet.getInt(1)).thenReturn(100);
+        when(mockResultSet.getString(2)).thenReturn("RepartoNome");
+        when(mockResultSet.getString(3)).thenReturn("RepartoDescrizione");
+        when(mockResultSet.getString(4)).thenReturn("immagine.png");
+
+        List<Libro> testLibri = new ArrayList<>();
+        testLibri.add(new Libro());
+
+        RepartoDAO spy = spy(repartoDAO);
+        doReturn(testLibri).when(spy).getAppartenenza(100);
+
+        // Act
+        List<Reparto> result = spy.doRetrivedAll();
+
+        // Assert - Verify all setters were called and values are correct
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Reparto r = result.get(0);
+        assertEquals(100, r.getIdReparto());
+        assertEquals("RepartoNome", r.getNome());
+        assertEquals("RepartoDescrizione", r.getDescrizione());
+        assertEquals("immagine.png", r.getImmagine());
+        assertNotNull(r.getLibri());
+        assertEquals(1, r.getLibri().size());
+    }
+
+    // ==================== doRetrieveById Tests ====================
 
     @Test
     void testDoSave_Success() throws SQLException {
@@ -218,6 +279,27 @@ class RepartoDAOTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> repartoDAO.doSave(r));
+    }
+
+    @Test
+    void testDoSave_VerifySetStringCalls() throws SQLException {
+        // Arrange - This test kills mutations on lines 21-23
+        when(mockConnection.prepareStatement(anyString(), anyInt())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        when(mockPreparedStatement.getGeneratedKeys()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getInt(1)).thenReturn(555);
+
+        Reparto r = createTestReparto(0, "TestNome", "TestDesc", "TestImg.jpg");
+
+        // Act
+        repartoDAO.doSave(r);
+
+        // Assert - Verify all setString calls are made
+        verify(mockPreparedStatement).setString(1, "TestNome");
+        verify(mockPreparedStatement).setString(2, "TestDesc");
+        verify(mockPreparedStatement).setString(3, "TestImg.jpg");
+        assertEquals(555, r.getIdReparto());
     }
 
     // ==================== updateReparto Tests ====================
@@ -385,6 +467,33 @@ class RepartoDAOTest {
         assertThrows(RuntimeException.class, () -> spyDao.deleteReparto(5));
     }
 
+    @Test
+    void testDeleteReparto_VerifySetLibriCall() throws SQLException {
+        // Arrange - This test kills mutation on line 51
+        PreparedStatement ps1 = mock(PreparedStatement.class);
+        PreparedStatement ps2 = mock(PreparedStatement.class);
+
+        when(mockConnection.prepareStatement(anyString())).thenReturn(ps1, ps2);
+        when(ps1.executeUpdate()).thenReturn(1);
+        when(ps2.executeUpdate()).thenReturn(1);
+
+        Reparto reparto = spy(new Reparto());
+        reparto.setIdReparto(7);
+        List<Libro> libri = new ArrayList<>();
+        libri.add(new Libro());
+        reparto.setLibri(libri);
+
+        RepartoDAO spyDao = spy(repartoDAO);
+        doReturn(libri).when(spyDao).getAppartenenza(7);
+        doReturn(reparto).when(spyDao).doRetrieveById(7);
+
+        // Act
+        spyDao.deleteReparto(7);
+
+        // Assert - Verify setLibri(null) was called
+        verify(reparto).setLibri(null);
+    }
+
     // ==================== aggiungiLibroReparto Tests ====================
 
     @Test
@@ -482,6 +591,38 @@ class RepartoDAOTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> spyDao.removeLibroReparto(5, "BISBN"));
+    }
+
+    @Test
+    void testRemoveLibroReparto_VerifyPreparedStatementCalls() throws SQLException {
+        // Arrange - This test kills mutations on lines 92-93
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+        Reparto reparto = new Reparto();
+        reparto.setIdReparto(42);
+        Libro libro = new Libro();
+        libro.setIsbn("TEST-ISBN-123");
+        List<Libro> libri = new ArrayList<>();
+        libri.add(libro);
+        reparto.setLibri(libri);
+
+        RepartoDAO spyDao = spy(repartoDAO);
+        doReturn(reparto).when(spyDao).doRetrieveById(42);
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, ctx) -> when(mock.doRetrieveById("TEST-ISBN-123")).thenReturn(libro))) {
+
+            // Act
+            spyDao.removeLibroReparto(42, "TEST-ISBN-123");
+
+            // Assert - Verify setInt and setString were called
+            verify(mockPreparedStatement).setInt(1, 42);
+            verify(mockPreparedStatement).setString(2, "TEST-ISBN-123");
+            verify(mockPreparedStatement).executeUpdate();
+            // Verify libro was removed from list
+            assertEquals(0, reparto.getLibri().size());
+        }
     }
 
     // ==================== doSaveAppartenenza Tests ====================
@@ -595,5 +736,33 @@ class RepartoDAOTest {
 
         // Act & Assert
         assertThrows(RuntimeException.class, () -> repartoDAO.getAppartenenza(9));
+    }
+
+    @Test
+    void testGetAppartenenza_VerifySetIntCalled() throws SQLException {
+        // Arrange - This test kills mutation on line 194
+        when(mockConnection.prepareStatement(contains("Appartenenza"))).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true, false);
+        when(mockResultSet.getString(1)).thenReturn("ISBN-TEST-456");
+
+        Libro libro = new Libro();
+        libro.setIsbn("ISBN-TEST-456");
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, ctx) -> when(mock.doRetrieveById("ISBN-TEST-456")).thenReturn(libro))) {
+
+            // Act
+            List<Libro> list = repartoDAO.getAppartenenza(777);
+
+            // Assert - Verify setInt was called with correct value
+            verify(mockPreparedStatement).setInt(1, 777);
+            verify(mockPreparedStatement).executeQuery();
+            
+            // Verify result is correct
+            assertNotNull(list);
+            assertEquals(1, list.size());
+            assertEquals("ISBN-TEST-456", list.get(0).getIsbn());
+        }
     }
 }

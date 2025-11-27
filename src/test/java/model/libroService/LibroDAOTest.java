@@ -94,11 +94,18 @@ class LibroDAOTest {
         // Act
         Libro result = spyDao.doRetrieveById("ISBN1");
 
-        // Assert
+        // Assert - Verify all properties to kill SURVIVED and TIMED_OUT mutations
         assertNotNull(result);
+        verify(mockPreparedStatement).setString(1, "ISBN1");
         assertEquals("ISBN1", result.getIsbn());
         assertEquals("Titolo", result.getTitolo());
+        assertEquals("Genere", result.getGenere());
+        assertEquals("2020", result.getAnnoPubblicazioni());
         assertEquals(12.5, result.getPrezzo());
+        assertEquals(10, result.getSconto());
+        assertEquals("Trama", result.getTrama());
+        assertEquals("img.png", result.getImmagine());
+        assertTrue(result.isDisponibile());
         assertEquals(1, result.getAutori().size());
     }
 
@@ -147,10 +154,20 @@ class LibroDAOTest {
         // Act
         List<Libro> list = libroDAO.doRetriveAll();
 
-        // Assert
+        // Assert - Verify all properties to kill SURVIVED mutations
         assertNotNull(list);
         assertEquals(1, list.size());
-        assertEquals("ISBNA", list.get(0).getIsbn());
+        Libro libro = list.get(0);
+        assertEquals("ISBNA", libro.getIsbn());
+        assertEquals("TitA", libro.getTitolo());
+        assertEquals("G", libro.getGenere());
+        assertEquals("2019", libro.getAnnoPubblicazioni());
+        assertEquals(7.5, libro.getPrezzo());
+        assertEquals(0, libro.getSconto());
+        assertEquals("tr", libro.getTrama());
+        assertEquals("img", libro.getImmagine());
+        assertTrue(libro.isDisponibile());
+        assertNotNull(libro.getAutori());
     }
 
     // ==================== Search Tests ====================
@@ -175,13 +192,39 @@ class LibroDAOTest {
         doReturn(Collections.emptyList()).when(spyDao).getScrittura(anyString());
 
         // Act
-        List<Libro> list = spyDao.Search("query");
+        List<Libro> list = spyDao.Search("test");
 
-        // Assert
+        // Assert - Verify PreparedStatement setters and all Libro properties
         assertNotNull(list);
+        verify(mockPreparedStatement).setString(1, "%test%");
+        verify(mockPreparedStatement).setString(2, "test%");
         assertEquals(2, list.size());
-        assertEquals("ISBN1", list.get(0).getIsbn());
-        assertEquals("ISBN2", list.get(1).getIsbn());
+        
+        // Verify first book
+        Libro libro1 = list.get(0);
+        assertEquals("ISBN1", libro1.getIsbn());
+        assertEquals("T1", libro1.getTitolo());
+        assertEquals("G1", libro1.getGenere());
+        assertEquals("2020", libro1.getAnnoPubblicazioni());
+        assertEquals(10.0, libro1.getPrezzo());
+        assertEquals(0, libro1.getSconto());
+        assertEquals("tr1", libro1.getTrama());
+        assertEquals("i1.png", libro1.getImmagine());
+        assertTrue(libro1.isDisponibile());
+        assertNotNull(libro1.getAutori());
+        
+        // Verify second book
+        Libro libro2 = list.get(1);
+        assertEquals("ISBN2", libro2.getIsbn());
+        assertEquals("T2", libro2.getTitolo());
+        assertEquals("G2", libro2.getGenere());
+        assertEquals("2021", libro2.getAnnoPubblicazioni());
+        assertEquals(20.0, libro2.getPrezzo());
+        assertEquals(5, libro2.getSconto());
+        assertEquals("tr2", libro2.getTrama());
+        assertEquals("i2.png", libro2.getImmagine());
+        assertFalse(libro2.isDisponibile());
+        assertNotNull(libro2.getAutori());
     }
 
     @Test
@@ -207,7 +250,11 @@ class LibroDAOTest {
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeUpdate()).thenReturn(1);
 
-        Libro l = createTestLibro("NEWISBN", "T", 9.9, 0);
+        Libro l = createTestLibro("NEWISBN", "NewTitle", 9.9, 5);
+        l.setGenere("Fiction");
+        l.setAnnoPubblicazioni("2024");
+        l.setTrama("Test plot");
+        l.setImmagine("test.jpg");
         Autore a = new Autore();
         a.setCf("CFA");
         List<Autore> aut = new ArrayList<>();
@@ -220,8 +267,15 @@ class LibroDAOTest {
         // Act
         assertDoesNotThrow(() -> spyDao.doSave(l));
 
-        // Assert
+        // Assert - Verify all PreparedStatement setter calls to kill mutations
         verify(mockPreparedStatement).setString(1, "NEWISBN");
+        verify(mockPreparedStatement).setString(2, "NewTitle");
+        verify(mockPreparedStatement).setString(3, "Fiction");
+        verify(mockPreparedStatement).setString(4, "2024");
+        verify(mockPreparedStatement).setDouble(5, 9.9);
+        verify(mockPreparedStatement).setInt(6, 5);
+        verify(mockPreparedStatement).setString(7, "Test plot");
+        verify(mockPreparedStatement).setString(8, "test.jpg");
         verify(mockPreparedStatement).executeUpdate();
         verify(spyDao).addAutore(eq("NEWISBN"), any(Autore.class));
     }
@@ -263,8 +317,18 @@ class LibroDAOTest {
         // Act
         assertDoesNotThrow(() -> libroDAO.deleteLibro("GOODISBN"));
 
-        // Assert
+        // Assert - Verify all setString calls to kill mutations
+        verify(ps1).setString(1, "GOODISBN");
+        verify(ps2).setString(1, "GOODISBN");
+        verify(ps3).setString(1, "GOODISBN");
+        verify(ps4).setString(1, "GOODISBN");
+        verify(ps5).setString(1, "GOODISBN");
         verify(ps6).setString(1, "GOODISBN");
+        verify(ps1).executeUpdate();
+        verify(ps2).executeUpdate();
+        verify(ps3).executeUpdate();
+        verify(ps4).executeUpdate();
+        verify(ps5).executeUpdate();
         verify(ps6).executeUpdate();
     }
 
@@ -374,13 +438,23 @@ class LibroDAOTest {
         when(mockConnection.prepareStatement(contains("UPDATE Libro SET"))).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeUpdate()).thenReturn(1);
 
-        Libro l = createTestLibro("U1", "T", 4.5, 2);
+        Libro l = createTestLibro("U1", "UpdatedTitle", 4.5, 2);
+        l.setGenere("Genre1");
+        l.setAnnoPubblicazioni("2023");
+        l.setTrama("Updated plot");
+        l.setImmagine("updated.jpg");
 
         // Act
         assertDoesNotThrow(() -> libroDAO.updateLibro(l));
 
-        // Assert
-        verify(mockPreparedStatement).setString(1, "T");
+        // Assert - Verify all setter calls to kill mutations
+        verify(mockPreparedStatement).setString(1, "UpdatedTitle");
+        verify(mockPreparedStatement).setString(2, "Genre1");
+        verify(mockPreparedStatement).setString(3, "2023");
+        verify(mockPreparedStatement).setDouble(4, 4.5);
+        verify(mockPreparedStatement).setInt(5, 2);
+        verify(mockPreparedStatement).setString(6, "Updated plot");
+        verify(mockPreparedStatement).setString(7, "updated.jpg");
         verify(mockPreparedStatement).setString(8, "U1");
         verify(mockPreparedStatement).executeUpdate();
     }
@@ -591,8 +665,9 @@ class LibroDAOTest {
             // Act
             List<Autore> list = libroDAO.getScrittura("ISBNX");
 
-            // Assert
+            // Assert - Verify setString call to kill mutation
             assertNotNull(list);
+            verify(mockPreparedStatement).setString(1, "ISBNX");
             assertEquals(1, list.size());
             assertEquals(a, list.get(0));
         }
@@ -639,8 +714,9 @@ class LibroDAOTest {
             // Act
             List<Reparto> list = libroDAO.getAppartenenzaReparto("ISBNR");
 
-            // Assert
+            // Assert - Verify setString call to kill mutation
             assertNotNull(list);
+            verify(mockPreparedStatement).setString(1, "ISBNR");
             assertEquals(1, list.size());
             assertEquals(reparto, list.get(0));
         }
@@ -684,8 +760,9 @@ class LibroDAOTest {
             // Act
             List<Sede> list = libroDAO.getPresenzaSede("ISBNS");
 
-            // Assert
+            // Assert - Verify setString call to kill mutation
             assertNotNull(list);
+            verify(mockPreparedStatement).setString(1, "ISBNS");
             assertEquals(1, list.size());
             assertEquals(s, list.get(0));
         }

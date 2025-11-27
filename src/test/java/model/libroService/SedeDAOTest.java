@@ -91,6 +91,7 @@ class SedeDAOTest {
         assertEquals(12, s.getCivico());
         assertEquals("20100", s.getCap());
         assertEquals(0, s.getLibri().size());
+        verify(mockPreparedStatement).setInt(1, 5);
     }
 
     @Test
@@ -126,7 +127,17 @@ class SedeDAOTest {
         assertNotNull(list);
         assertEquals(2, list.size());
         assertEquals(1, list.get(0).getIdSede());
+        assertEquals("C1", list.get(0).getCitta());
+        assertEquals("V1", list.get(0).getVia());
+        assertEquals(10, list.get(0).getCivico());
+        assertEquals("10000", list.get(0).getCap());
+        assertNotNull(list.get(0).getLibri());
         assertEquals(2, list.get(1).getIdSede());
+        assertEquals("C2", list.get(1).getCitta());
+        assertEquals("V2", list.get(1).getVia());
+        assertEquals(20, list.get(1).getCivico());
+        assertEquals("20000", list.get(1).getCap());
+        assertNotNull(list.get(1).getLibri());
     }
 
     @Test
@@ -156,6 +167,10 @@ class SedeDAOTest {
 
         // Assert
         assertEquals(321, s.getIdSede());
+        verify(mockPreparedStatement).setString(1, "Citta");
+        verify(mockPreparedStatement).setString(2, "Via T");
+        verify(mockPreparedStatement).setInt(3, 1);
+        verify(mockPreparedStatement).setString(4, "00000");
     }
 
     @Test
@@ -268,9 +283,10 @@ class SedeDAOTest {
         when(ps1.executeUpdate()).thenReturn(1);
         when(ps2.executeUpdate()).thenReturn(1);
 
+        Sede mockSede = spy(new Sede());
         SedeDAO spyDao = spy(sedeDAO);
         doReturn(Collections.singletonList(new Libro())).when(spyDao).getPresenza(9);
-        doReturn(new Sede()).when(spyDao).doRetrieveById(anyInt());
+        doReturn(mockSede).when(spyDao).doRetrieveById(anyInt());
 
         // Act
         assertDoesNotThrow(() -> spyDao.deleteSede(9));
@@ -280,6 +296,7 @@ class SedeDAOTest {
         verify(ps1).executeUpdate();
         verify(ps2).setInt(1, 9);
         verify(ps2).executeUpdate();
+        verify(mockSede).setLibri(null);
     }
 
     @Test
@@ -516,6 +533,7 @@ class SedeDAOTest {
             assertNotNull(list);
             assertEquals(1, list.size());
             assertEquals("ISBX", list.get(0).getIsbn());
+            verify(mockPreparedStatement).setInt(1, 77);
         }
     }
 
