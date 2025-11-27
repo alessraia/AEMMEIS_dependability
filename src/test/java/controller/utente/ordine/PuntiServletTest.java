@@ -9,9 +9,11 @@ import model.ordineService.Ordine;
 import model.utenteService.Utente;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class PuntiServletTest {
@@ -53,10 +55,89 @@ class PuntiServletTest {
         when(request.getParameter("indirizzo")).thenReturn("Via Test");
         when(request.getParameter("punti")).thenReturn("10");
         when(request.getParameter("costo")).thenReturn("100.0");
+        
+        // ArgumentCaptor per verificare lo stato dell'oggetto Ordine
+        ArgumentCaptor<Ordine> ordineCaptor = ArgumentCaptor.forClass(Ordine.class);
+        
         servletUnderTest.doGet(request, response);
+        
         verify(request).getRequestDispatcher("/WEB-INF/results/pagamentoOrdine.jsp");
         verify(dispatcher).forward(request, response);
-        verify(request).setAttribute(eq("ordine"), any(Ordine.class));
+        verify(request).setAttribute(eq("ordine"), ordineCaptor.capture());
         verify(request).setAttribute(eq("costo"), any());
+        
+        // Verifica che i setter siano stati chiamati e i valori impostati correttamente
+        Ordine capturedOrdine = ordineCaptor.getValue();
+        assertEquals("Roma", capturedOrdine.getCitta());
+        assertEquals("Via Test", capturedOrdine.getIndirizzoSpedizione());
+        assertEquals(10, capturedOrdine.getPuntiSpesi());
+        // Verifica calcolo: 100.0 - (10 * 0.10) = 100.0 - 1.0 = 99.0
+        assertEquals(99.0, capturedOrdine.getCosto(), 0.01);
+    }
+    
+    @Test
+    void testDoGet_WithNullPoints() throws ServletException, IOException {
+        when(utente.getTipo()).thenReturn("user");
+        when(request.getParameter("citta")).thenReturn("Milano");
+        when(request.getParameter("indirizzo")).thenReturn("Via Roma 10");
+        when(request.getParameter("punti")).thenReturn(null);
+        when(request.getParameter("costo")).thenReturn("50.0");
+        
+        ArgumentCaptor<Ordine> ordineCaptor = ArgumentCaptor.forClass(Ordine.class);
+        
+        servletUnderTest.doGet(request, response);
+        
+        verify(request).setAttribute(eq("ordine"), ordineCaptor.capture());
+        
+        Ordine capturedOrdine = ordineCaptor.getValue();
+        assertEquals("Milano", capturedOrdine.getCitta());
+        assertEquals("Via Roma 10", capturedOrdine.getIndirizzoSpedizione());
+        assertEquals(0, capturedOrdine.getPuntiSpesi());
+        // Verifica calcolo: 50.0 - (0 * 0.10) = 50.0
+        assertEquals(50.0, capturedOrdine.getCosto(), 0.01);
+    }
+    
+    @Test
+    void testDoGet_WithEmptyPoints() throws ServletException, IOException {
+        when(utente.getTipo()).thenReturn("user");
+        when(request.getParameter("citta")).thenReturn("Napoli");
+        when(request.getParameter("indirizzo")).thenReturn("Via Garibaldi 5");
+        when(request.getParameter("punti")).thenReturn("");
+        when(request.getParameter("costo")).thenReturn("75.50");
+        
+        ArgumentCaptor<Ordine> ordineCaptor = ArgumentCaptor.forClass(Ordine.class);
+        
+        servletUnderTest.doGet(request, response);
+        
+        verify(request).setAttribute(eq("ordine"), ordineCaptor.capture());
+        
+        Ordine capturedOrdine = ordineCaptor.getValue();
+        assertEquals("Napoli", capturedOrdine.getCitta());
+        assertEquals("Via Garibaldi 5", capturedOrdine.getIndirizzoSpedizione());
+        assertEquals(0, capturedOrdine.getPuntiSpesi());
+        // Verifica calcolo: 75.50 - (0 * 0.10) = 75.50
+        assertEquals(75.50, capturedOrdine.getCosto(), 0.01);
+    }
+    
+    @Test
+    void testDoGet_WithValidPointsCalculation() throws ServletException, IOException {
+        when(utente.getTipo()).thenReturn("Premium");
+        when(request.getParameter("citta")).thenReturn("Torino");
+        when(request.getParameter("indirizzo")).thenReturn("Corso Italia 20");
+        when(request.getParameter("punti")).thenReturn("50");
+        when(request.getParameter("costo")).thenReturn("200.0");
+        
+        ArgumentCaptor<Ordine> ordineCaptor = ArgumentCaptor.forClass(Ordine.class);
+        
+        servletUnderTest.doGet(request, response);
+        
+        verify(request).setAttribute(eq("ordine"), ordineCaptor.capture());
+        
+        Ordine capturedOrdine = ordineCaptor.getValue();
+        assertEquals("Torino", capturedOrdine.getCitta());
+        assertEquals("Corso Italia 20", capturedOrdine.getIndirizzoSpedizione());
+        assertEquals(50, capturedOrdine.getPuntiSpesi());
+        // Verifica calcolo: 200.0 - (50 * 0.10) = 200.0 - 5.0 = 195.0
+        assertEquals(195.0, capturedOrdine.getCosto(), 0.01);
     }
 }
