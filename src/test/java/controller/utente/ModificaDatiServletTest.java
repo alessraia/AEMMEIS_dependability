@@ -174,4 +174,35 @@ class ModificaDatiServletTest {
         verify(request).getRequestDispatcher("modifica-dati-supporto");
         verify(dispatcher).forward(request, response);
     }
+
+    @Test
+    void testDoGet_EmptyTelefoniArray_BoundaryCondition() throws ServletException, IOException {
+        // Test the boundary condition where telefoni.length = 0
+        when(request.getParameter("nomeUtente")).thenReturn("TestUser");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{});
+
+        servletUnderTest.doGet(request, response);
+
+        // With empty array, no telefono should be added
+        assertEquals(0, telefoniList.size(), "No telefono should be added from empty array");
+        verify(utenteMock).setNomeUtente("TestUser");
+        verify(utenteDAOMock).updateUtente(utenteMock);
+        verify(request).getRequestDispatcher("modifica-dati-supporto");
+        verify(dispatcher).forward(request, response);
+    }
+
+    @Test
+    void testDoPost_CallsDoGet() throws ServletException, IOException {
+        when(request.getParameter("nomeUtente")).thenReturn("PostTestUser");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"99999"});
+
+        servletUnderTest.doPost(request, response);
+
+        // Verify that doPost delegates to doGet
+        assert telefoniList.contains("99999");
+        verify(utenteMock).setNomeUtente("PostTestUser");
+        verify(utenteDAOMock).updateUtente(utenteMock);
+        verify(request).getRequestDispatcher("modifica-dati-supporto");
+        verify(dispatcher).forward(request, response);
+    }
 }

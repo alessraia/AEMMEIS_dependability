@@ -63,7 +63,6 @@ public class AggiungiAiPrefServlet extends HttpServlet {
             }
 
             session.setAttribute("wishList", wishList);
-            System.out.println(wishList.getLibri());
 
             // Invia una risposta al client (ad esempio, un oggetto JSON)
             response.setContentType("application/json");

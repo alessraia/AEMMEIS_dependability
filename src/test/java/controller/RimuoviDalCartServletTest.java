@@ -136,4 +136,49 @@ public class RimuoviDalCartServletTest {
             assertTrue(output.contains("\"success\":false"));
         }
     }
+
+    @Test
+    public void removeBook_verifiesContentTypeIsSet() throws Exception {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+
+        // Create the libro that is present in the cart
+        Libro libroInCart = new Libro();
+        libroInCart.setIsbn("123-ABC");
+
+        RigaCarrello riga = new RigaCarrello();
+        riga.setLibro(libroInCart);
+        List<RigaCarrello> righe = new ArrayList<>();
+        righe.add(riga);
+
+        Carrello carrello = new Carrello();
+        carrello.setRigheCarrello(righe);
+
+        Utente user = new Utente();
+        user.setTipo("Cliente");
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("utente")).thenReturn(user);
+        when(session.getAttribute("carrello")).thenReturn(carrello);
+        when(request.getParameter("isbn")).thenReturn("123-ABC");
+
+        // Capture response output
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        // Mock construction of LibroDAO
+        Libro daoLibro = new Libro();
+        daoLibro.setIsbn("123-ABC");
+
+        try (MockedConstruction<LibroDAO> mocked = mockConstruction(LibroDAO.class,
+                (mock, context) -> when(mock.doRetrieveById("123-ABC")).thenReturn(daoLibro))) {
+
+            new RimuoviDalCartServlet().doGet(request, response);
+
+            // Verify that setContentType was called with "application/json"
+            verify(response, times(1)).setContentType("application/json");
+        }
+    }
 }

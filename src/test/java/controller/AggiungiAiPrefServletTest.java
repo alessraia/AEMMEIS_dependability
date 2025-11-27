@@ -88,7 +88,13 @@ class AggiungiAiPrefServletTest {
         assertEquals("9788804664567", added.getIsbn(),
                 "L'ISBN del libro aggiunto deve corrispondere a quello inviato");
 
-        // 7) Verifichiamo il contenuto JSON della risposta
+        // 7) Verifichiamo che session.setAttribute è stata chiamata con la wishlist aggiornata
+        verify(session).setAttribute("wishList", wishList);
+
+        // 8) Verifichiamo che il content type sia stato impostato correttamente
+        verify(response).setContentType("application/json");
+
+        // 9) Verifichiamo il contenuto JSON della risposta
         pw.flush();
         String jsonResponse = sw.toString();
         // Ci aspettiamo { "isInWishList": true }
@@ -154,7 +160,13 @@ class AggiungiAiPrefServletTest {
         // 6) Verifichiamo che ora la wishlist è vuota (il libro è stato rimosso)
         assertFalse(wishList.getLibri().contains(libroEsistente), "La wishlist non deve contenere il vecchio libro dopo la rimozione");
 
-        // 7) JSON di risposta con "isInWishList": false
+        // 7) Verifichiamo che session.setAttribute è stata chiamata
+        verify(session).setAttribute("wishList", wishList);
+
+        // 8) Verifichiamo che il content type sia stato impostato
+        verify(response).setContentType("application/json");
+
+        // 9) JSON di risposta con "isInWishList": false
         pw.flush();
         String jsonResponse = sw.toString();
         assertTrue(jsonResponse.contains("\"isInWishList\":false"),
@@ -220,7 +232,13 @@ class AggiungiAiPrefServletTest {
         assertEquals(1, wishList.getLibri().size(), "Should contain 1 book");
         assertEquals(isbn, wishList.getLibri().get(0).getIsbn());
 
-        // 7) Verify JSON response
+        // 7) Verify session.setAttribute was called
+        verify(session).setAttribute("wishList", wishList);
+
+        // 8) Verify content type was set
+        verify(response).setContentType("application/json");
+
+        // 9) Verify JSON response
         pw.flush();
         String jsonResponse = sw.toString();
         assertTrue(jsonResponse.contains("\"isInWishList\":true"));
@@ -260,7 +278,13 @@ class AggiungiAiPrefServletTest {
         assertEquals(1, wishList.getLibri().size());
         assertEquals(isbn, wishList.getLibri().get(0).getIsbn());
 
-        // 7) Verify JSON response
+        // 7) Verify session.setAttribute was called
+        verify(session).setAttribute("wishList", wishList);
+
+        // 8) Verify content type was set
+        verify(response).setContentType("application/json");
+
+        // 9) Verify JSON response
         pw.flush();
         String jsonResponse = sw.toString();
         assertTrue(jsonResponse.contains("\"isInWishList\":true"));

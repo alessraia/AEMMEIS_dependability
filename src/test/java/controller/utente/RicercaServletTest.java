@@ -83,4 +83,57 @@ class RicercaServletTest {
         verify(request).getRequestDispatcher("index.html");
         verify(dispatcher).forward(request, response);
     }
+
+    /**
+     * Test to kill mutation at line 30: negated conditional on getLibroDAO() != null
+     * This test verifies the ternary operator by checking that when LibroDAO is set to null,
+     * the getLibroDAO method returns null (testing the condition explicitly).
+     */
+    @Test
+    void testGetLibroDAO_WhenSetToNull_ReturnsNull() {
+        servletUnderTest.setLibroDAO(null);
+        
+        LibroDAO actualDAO = servletUnderTest.getLibroDAO();
+        
+        assertNull(actualDAO, "getLibroDAO should return null when explicitly set to null");
+    }
+
+    /**
+     * Test to kill mutation at line 58: replaced return value with null for getLibroDAO
+     * This test verifies that getLibroDAO correctly returns the injected LibroDAO instance.
+     */
+    @Test
+    void testGetLibroDAO_ReturnsInjectedInstance() {
+        LibroDAO expectedDAO = mock(LibroDAO.class);
+        servletUnderTest.setLibroDAO(expectedDAO);
+
+        LibroDAO actualDAO = servletUnderTest.getLibroDAO();
+
+        assertNotNull(actualDAO, "getLibroDAO should not return null when a DAO is injected");
+        assertSame(expectedDAO, actualDAO, "getLibroDAO should return the same instance that was injected");
+    }
+
+    /**
+     * Test to kill mutation at line 30: negated conditional in the ternary operator
+     * This test exercises the doGet method when getLibroDAO() != null condition is true,
+     * ensuring the injected DAO is used instead of creating a new instance.
+     */
+    @Test
+    void testDoGet_WithInjectedDAO_UsesInjectedInstance() throws ServletException, IOException {
+        // Verify that when a DAO is injected, it's actually used
+        LibroDAO injectedDAO = mock(LibroDAO.class);
+        servletUnderTest.setLibroDAO(injectedDAO);
+        
+        when(request.getParameter("q")).thenReturn("testQuery");
+        when(injectedDAO.Search("testQuery")).thenReturn(List.of());
+        
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/results/ricerca.jsp")).thenReturn(dispatcher);
+
+        servletUnderTest.doGet(request, response);
+
+        // Verify the injected DAO's Search method was called (proving it was used)
+        verify(injectedDAO).Search("testQuery");
+        verify(dispatcher).forward(request, response);
+    }
 }

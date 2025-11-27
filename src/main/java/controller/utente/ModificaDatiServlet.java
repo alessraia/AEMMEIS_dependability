@@ -37,12 +37,11 @@ public class ModificaDatiServlet extends HttpServlet {
         }else {
             address = "modifica-dati-supporto";
 
-
-            if (telefoni.length > 0) {
-                for (String tel : telefoni) {
-                    if (!tel.isEmpty() && !(utente.getTelefoni().contains(tel))) {
-                        utente.getTelefoni().add(tel);
-                    }
+            // Process telefoni only if array has elements
+            for (int i = 0; i < telefoni.length; i++) {
+                String tel = telefoni[i];
+                if (!tel.isEmpty() && !(utente.getTelefoni().contains(tel))) {
+                    utente.getTelefoni().add(tel);
                 }
             }
 

@@ -91,4 +91,84 @@ class SearchBarServletTest {
         String out = sw.toString();
         assertEquals("[]", out.trim());
     }
+
+    @Test
+    void testDoGet_SearchReturnsExactlyTenResults() throws ServletException, IOException {
+        when(request.getParameter("q")).thenReturn("keyword");
+        // Create exactly 10 mock books
+        List<Libro> mockBooks = new java.util.ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            Libro libro = mock(Libro.class);
+            when(libro.getIsbn()).thenReturn("isbn" + i);
+            when(libro.getTitolo()).thenReturn("titolo" + i);
+            mockBooks.add(libro);
+        }
+        when(libroDAOMock.Search("keyword")).thenReturn(mockBooks);
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doGet(request, response);
+
+        pw.flush();
+        String out = sw.toString();
+        // Verify all 10 results are included
+        for (int i = 0; i < 10; i++) {
+            assertTrue(out.contains("isbn" + i), "Should contain isbn" + i);
+        }
+    }
+
+    @Test
+    void testDoGet_SearchReturnsMoreThanTenResultsLimitedToTen() throws ServletException, IOException {
+        when(request.getParameter("q")).thenReturn("keyword");
+        // Create 15 mock books but expect only first 10 to be returned
+        List<Libro> mockBooks = new java.util.ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            Libro libro = mock(Libro.class);
+            when(libro.getIsbn()).thenReturn("isbn" + i);
+            when(libro.getTitolo()).thenReturn("titolo" + i);
+            mockBooks.add(libro);
+        }
+        when(libroDAOMock.Search("keyword")).thenReturn(mockBooks);
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doGet(request, response);
+
+        pw.flush();
+        String out = sw.toString();
+        // Verify only first 10 results are included
+        for (int i = 0; i < 10; i++) {
+            assertTrue(out.contains("isbn" + i), "Should contain isbn" + i);
+        }
+        // Verify results beyond 10 are NOT included
+        for (int i = 10; i < 15; i++) {
+            assertFalse(out.contains("isbn" + i), "Should NOT contain isbn" + i);
+        }
+    }
+
+    @Test
+    void testDoGet_VerifyOutputIsFlushed() throws ServletException, IOException {
+        when(request.getParameter("q")).thenReturn("test");
+        Libro libro = mock(Libro.class);
+        when(libro.getIsbn()).thenReturn("isbn123");
+        when(libro.getTitolo()).thenReturn("Test Title");
+        when(libroDAOMock.Search("test")).thenReturn(List.of(libro));
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = spy(new PrintWriter(sw));
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doGet(request, response);
+
+        // Verify flush was called to ensure data is sent to client
+        verify(pw, times(1)).flush();
+        // Verify content is actually written
+        String out = sw.toString();
+        assertTrue(out.contains("isbn123"));
+        assertTrue(out.contains("Test Title"));
+    }
 }
