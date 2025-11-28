@@ -138,4 +138,153 @@ class RimuoviTelefonoServletTest {
         String out = sw.toString();
         assertTrue(out.contains("Errore nella lettura del JSON."));
     }
+
+    @Test
+    void testDoPost_PhoneRemovalFromSessionList() throws ServletException, IOException {
+        // Test per verificare che il telefono viene rimosso dalla lista di sessione
+        String json = "{\"email\":\"test@example.com\",\"telefono\":\"12345\"}";
+        when(request.getInputStream()).thenReturn(toServletInputStream(json));
+
+        when(utenteDAOMock.cercaTelefoni("test@example.com")).thenReturn(List.of("12345", "98765"));
+
+        // Add multiple phones to session list
+        telefoniList.add("12345");
+        telefoniList.add("98765");
+        telefoniList.add("55555");
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doPost(request, response);
+
+        // Verify that the phone was removed from the session list (cattura SURVIVED su loop condition)
+        assertEquals(2, telefoniList.size(), "Telefono dovrebbe essere rimosso dalla lista");
+        assertFalse(telefoniList.contains("12345"), "Telefono rimosso non dovrebbe essere nella lista");
+        assertTrue(telefoniList.contains("98765"), "Gli altri telefoni dovrebbero rimanere");
+        assertTrue(telefoniList.contains("55555"), "Gli altri telefoni dovrebbero rimanere");
+    }
+
+    @Test
+    void testDoPost_FirstPhoneInList() throws ServletException, IOException {
+        // Test con il telefono come primo elemento della lista
+        String json = "{\"email\":\"test@example.com\",\"telefono\":\"FIRST\"}";
+        when(request.getInputStream()).thenReturn(toServletInputStream(json));
+
+        when(utenteDAOMock.cercaTelefoni("test@example.com")).thenReturn(List.of("FIRST"));
+
+        telefoniList.add("FIRST");
+        telefoniList.add("SECOND");
+        telefoniList.add("THIRD");
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doPost(request, response);
+
+        // Verify first phone was removed (cattura negated conditional su i=0)
+        assertEquals(2, telefoniList.size());
+        assertFalse(telefoniList.contains("FIRST"));
+        assertTrue(telefoniList.contains("SECOND"));
+    }
+
+    @Test
+    void testDoPost_MiddlePhoneInList() throws ServletException, IOException {
+        // Test con il telefono nel mezzo della lista
+        String json = "{\"email\":\"test@example.com\",\"telefono\":\"MIDDLE\"}";
+        when(request.getInputStream()).thenReturn(toServletInputStream(json));
+
+        when(utenteDAOMock.cercaTelefoni("test@example.com")).thenReturn(List.of("MIDDLE"));
+
+        telefoniList.add("FIRST");
+        telefoniList.add("MIDDLE");
+        telefoniList.add("LAST");
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doPost(request, response);
+
+        // Verify middle phone was removed (cattura boundary condition su i < size)
+        assertEquals(2, telefoniList.size());
+        assertTrue(telefoniList.contains("FIRST"));
+        assertFalse(telefoniList.contains("MIDDLE"));
+        assertTrue(telefoniList.contains("LAST"));
+    }
+
+    @Test
+    void testDoPost_LastPhoneInList() throws ServletException, IOException {
+        // Test con il telefono come ultimo elemento
+        String json = "{\"email\":\"test@example.com\",\"telefono\":\"LAST\"}";
+        when(request.getInputStream()).thenReturn(toServletInputStream(json));
+
+        when(utenteDAOMock.cercaTelefoni("test@example.com")).thenReturn(List.of("LAST"));
+
+        telefoniList.add("FIRST");
+        telefoniList.add("MIDDLE");
+        telefoniList.add("LAST");
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doPost(request, response);
+
+        // Verify last phone was removed (cattura boundary condition e loop)
+        assertEquals(2, telefoniList.size());
+        assertTrue(telefoniList.contains("FIRST"));
+        assertTrue(telefoniList.contains("MIDDLE"));
+        assertFalse(telefoniList.contains("LAST"));
+    }
+
+    @Test
+    void testDoPost_ResponseHeadersVerified() throws ServletException, IOException {
+        // Test per verificare che setContentType e setCharacterEncoding vengono chiamati
+        String json = "{\"email\":\"test@example.com\",\"telefono\":\"12345\"}";
+        when(request.getInputStream()).thenReturn(toServletInputStream(json));
+
+        when(utenteDAOMock.cercaTelefoni("test@example.com")).thenReturn(List.of("12345"));
+        telefoniList.add("12345");
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doPost(request, response);
+
+        // Verifica che setContentType viene chiamato (cattura SURVIVED su removed call)
+        verify(response).setContentType("text/plain");
+        
+        // Verifica che setCharacterEncoding viene chiamato (cattura SURVIVED su removed call)
+        verify(response).setCharacterEncoding("UTF-8");
+        
+        pw.flush();
+        String out = sw.toString();
+        assertTrue(out.contains("Telefono rimosso con successo."));
+    }
+
+    @Test
+    void testDoPost_PhoneNotInSessionList() throws ServletException, IOException {
+        // Test quando il telefono non è nella lista di sessione ma è nel DB
+        String json = "{\"email\":\"test@example.com\",\"telefono\":\"NOT_IN_SESSION\"}";
+        when(request.getInputStream()).thenReturn(toServletInputStream(json));
+
+        when(utenteDAOMock.cercaTelefoni("test@example.com")).thenReturn(List.of("NOT_IN_SESSION", "OTHER"));
+
+        telefoniList.add("OTHER");
+        telefoniList.add("ANOTHER");
+
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        when(response.getWriter()).thenReturn(pw);
+
+        servletUnderTest.doPost(request, response);
+
+        // Verify that session list is unchanged (cattura negated conditional su equals)
+        assertEquals(2, telefoniList.size());
+        assertTrue(telefoniList.contains("OTHER"));
+        assertTrue(telefoniList.contains("ANOTHER"));
+    }
 }
