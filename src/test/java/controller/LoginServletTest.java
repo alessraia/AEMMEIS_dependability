@@ -201,6 +201,34 @@ class LoginServletTest {
     }
 
     @Test
+    void testDoGet_PasswordExactly16Chars() throws ServletException, IOException {
+        // Test boundary condition: password with exactly 16 characters should be accepted
+        String email = "test@example.com";
+        String pw = "1234567890123456"; // exactly 16 chars
+
+        when(request.getParameter("email")).thenReturn(email);
+        when(request.getParameter("pw")).thenReturn(pw);
+
+        Utente returned = new Utente();
+        returned.setEmail(email);
+
+        when(utenteDAO.doRetrieveByEmailPassword(eq(email), anyString())).thenReturn(returned);
+        when(utenteDAO.doRetrieveById(email)).thenReturn(returned);
+        when(carrelloDAO.doRetriveByUtente(email)).thenReturn(null);
+
+        WishList wish = new WishList();
+        when(wishListDAO.doRetrieveByEmail(email)).thenReturn(wish);
+
+        servlet.doGet(request, response);
+
+        // Should NOT redirect to error page
+        verify(response, never()).sendRedirect("/WEB-INF/errorJsp/loginError.jsp");
+        // Should redirect to index.html (success)
+        verify(response).sendRedirect("index.html");
+        verify(session).setAttribute("utente", returned);
+    }
+
+    @Test
     void testDoGet_SuccessNoDbCart() throws ServletException, IOException {
         // Test when user has no cart in DB (carrelloService.doRetriveByUtente returns null)
         String email = "mario@example.com";

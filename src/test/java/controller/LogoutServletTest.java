@@ -393,4 +393,95 @@ class LogoutServletTest {
         verify(session).invalidate();
         verify(response).sendRedirect("index.html");
     }
+
+    @Test
+    void testDoGet_nonAdmin_wishListNull_skipSetEmail() throws ServletException, IOException {
+        String email = "user@example.com";
+        Utente utente = new Utente();
+        utente.setEmail(email);
+        utente.setTipo("Cliente");
+
+        Carrello carrello = new Carrello();
+        carrello.setIdCarrello("cart123");
+        carrello.setRigheCarrello(new ArrayList<>());
+
+        when(session.getAttribute("carrello")).thenReturn(carrello);
+        when(session.getAttribute("wishList")).thenReturn(null); // wishList is null
+        when(session.getAttribute("utente")).thenReturn(utente);
+
+        when(carrelloDAO.doRetriveByUtente(email)).thenReturn(null);
+        when(wishListDAO.doRetrieveByEmail(email)).thenReturn(null);
+
+        servlet.doGet(request, response);
+
+        // Verify session invalidated and redirect
+        verify(session).invalidate();
+        verify(response).sendRedirect("index.html");
+    }
+
+    @Test
+    void testDoGet_nonAdmin_wishListAndUtentePresent_verifySetEmailCalled() throws ServletException, IOException {
+        String email = "user@example.com";
+        Utente utente = new Utente();
+        utente.setEmail(email);
+        utente.setTipo("Cliente");
+
+        Carrello carrello = new Carrello();
+        carrello.setIdCarrello("cart123");
+        carrello.setRigheCarrello(new ArrayList<>());
+
+        // Use spy to verify setEmail is called
+        WishList wishList = spy(new WishList());
+        wishList.setLibri(new ArrayList<>());
+
+        when(session.getAttribute("carrello")).thenReturn(carrello);
+        when(session.getAttribute("wishList")).thenReturn(wishList);
+        when(session.getAttribute("utente")).thenReturn(utente);
+
+        when(carrelloDAO.doRetriveByUtente(email)).thenReturn(null);
+        when(wishListDAO.doRetrieveByEmail(email)).thenReturn(null);
+
+        servlet.doGet(request, response);
+
+        // Verify setEmail was called with the user's email
+        verify(wishList).setEmail(email);
+
+        // Verify session invalidated and redirect
+        verify(session).invalidate();
+        verify(response).sendRedirect("index.html");
+    }
+
+    @Test
+    void testDoGet_nonAdmin_verifyAdminCheckNotExecuted() throws ServletException, IOException {
+        String email = "user@example.com";
+        Utente utente = new Utente();
+        utente.setEmail(email);
+        utente.setTipo("Cliente"); // non-admin
+
+        Carrello carrello = new Carrello();
+        carrello.setIdCarrello("cart123");
+        carrello.setRigheCarrello(new ArrayList<>());
+
+        WishList wishList = new WishList();
+        wishList.setLibri(new ArrayList<>());
+
+        when(session.getAttribute("carrello")).thenReturn(carrello);
+        when(session.getAttribute("wishList")).thenReturn(wishList);
+        when(session.getAttribute("utente")).thenReturn(utente);
+
+        when(carrelloDAO.doRetriveByUtente(email)).thenReturn(null);
+        when(wishListDAO.doRetrieveByEmail(email)).thenReturn(null);
+
+        servlet.doGet(request, response);
+
+        // For non-admin user, the second admin check should NOT call removeAttribute/setAttribute for reparti
+        // We verify the servlet context was called only once (from the admin early return at top)
+        ServletContext ctx = servlet.getServletConfig().getServletContext();
+        verify(ctx, never()).removeAttribute("reparti");
+        verify(ctx, never()).setAttribute(eq("reparti"), any());
+
+        // Verify session invalidated and redirect
+        verify(session).invalidate();
+        verify(response).sendRedirect("index.html");
+    }
 }

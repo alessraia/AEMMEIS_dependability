@@ -68,11 +68,11 @@ public class LogoutServlet extends HttpServlet {
                 wishListService.deleteWishListByEmail(utente.getEmail());//elimino ciò che è presente nel db
             }
 
-            if(carrello.getRigheCarrello()!= null) {
+            if(carrello != null && carrello.getRigheCarrello()!= null) {
                 for (RigaCarrello riga : carrello.getRigheCarrello())
                     rigaCarrelloService.doSave(riga); //ripopolo il db con le informazioni presenti in sessione
             }
-            if(wishList.getLibri()!= null) {
+            if(wishList != null && wishList.getLibri()!= null) {
                 for (Libro libro : wishList.getLibri()) {
                     wishListService.doSave(wishList, libro.getIsbn()); //ripopolo il db con le informazioni presenti in sessione
                 }

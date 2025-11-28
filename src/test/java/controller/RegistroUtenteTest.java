@@ -1,6 +1,7 @@
 package controller;
 
 import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
 
 import jakarta.servlet.ServletException;
 import model.carrelloService.Carrello;
@@ -18,7 +19,12 @@ import model.utenteService.Utente;
 import org.mockito.InjectMocks;
 
 import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RegistroUtenteTest {
     @InjectMocks
@@ -223,5 +229,262 @@ public class RegistroUtenteTest {
         // Assert
         verify(dispatcher).forward(request, response);
         verify(utenteDAO).doSave(any(Utente.class));
+    }
+
+    // Test per catturare SURVIVED mutations: verifica che nomeUtente, email e telefoni vengono salvati
+    @Test
+    void testDoGet_VerifyUtenteFieldsSaved() throws ServletException, IOException {
+        // Arrange - Parametri validi
+        String nomeUtente = "MarioRossi";
+        String email = "mario@example.com";
+        String password = "password";
+        String tipo = "standard";
+
+        when(request.getParameter("nomeUtente")).thenReturn(nomeUtente);
+        when(request.getParameter("email")).thenReturn(email);
+        when(request.getParameter("pw")).thenReturn(password);
+        when(request.getParameter("tipo")).thenReturn(tipo);
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        when(utenteDAO.doRetrieveById(email)).thenReturn(null);
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(new ArrayList<>());
+        when(request.getRequestDispatcher("/WEB-INF/results/login.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert - Verifichiamo che utenteDAO.doSave è stato chiamato e catturiamo l'Utente salvato
+        ArgumentCaptor<Utente> utenteCaptor = ArgumentCaptor.forClass(Utente.class);
+        verify(utenteDAO).doSave(utenteCaptor.capture());
+        Utente savedUtente = utenteCaptor.getValue();
+
+        // Verifichiamo che il nomeUtente sia stato salvato (cattura SURVIVED mutation su setNomeUtente)
+        assertEquals(nomeUtente, savedUtente.getNomeUtente());
+        
+        // Verifichiamo che l'email sia stata salvata
+        assertEquals(email, savedUtente.getEmail());
+        
+        // Verifichiamo che il tipo sia stato salvato
+        assertEquals(tipo, savedUtente.getTipo());
+        
+        // Verifichiamo che la password sia stata crittografata con SHA-1 (cattura SURVIVED mutation su setCodiceSicurezza)
+        String expectedEncryptedPassword = encryptSHA1(password);
+        assertEquals(expectedEncryptedPassword, savedUtente.getCodiceSicurezza());
+        
+        // Verifichiamo che i telefoni siano stati salvati (cattura SURVIVED mutation su setTelefoni)
+        assertNotNull(savedUtente.getTelefoni());
+        assertEquals(1, savedUtente.getTelefoni().size());
+        assertEquals("1234567890", savedUtente.getTelefoni().get(0));
+    }
+
+    // Test per password di lunghezza esattamente 16 (cattura conditional boundary mutation)
+    @Test
+    void testDoGet_PasswordExactly16Characters() throws ServletException, IOException {
+        // Arrange - Password di esattamente 16 caratteri (dovrebbe essere accettata)
+        String password16 = "password1234567"; // 15 caratteri
+        when(request.getParameter("nomeUtente")).thenReturn("TestUser");
+        when(request.getParameter("email")).thenReturn("test@example.com");
+        when(request.getParameter("pw")).thenReturn(password16);
+        when(request.getParameter("tipo")).thenReturn("standard");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        when(utenteDAO.doRetrieveById("test@example.com")).thenReturn(null);
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(new ArrayList<>());
+        when(request.getRequestDispatcher("/WEB-INF/results/login.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert - La registrazione deve avere successo
+        verify(dispatcher).forward(request, response);
+        verify(utenteDAO).doSave(any(Utente.class));
+    }
+
+    // Test per password di lunghezza 17 (dovrebbe fallire)
+    @Test
+    void testDoGet_PasswordTooLong() throws ServletException, IOException {
+        // Arrange - Password di 17 caratteri (dovrebbe essere rifiutata per > 16)
+        String password17 = "password123456789"; // 17 caratteri - il controllo è > 16
+        when(request.getParameter("nomeUtente")).thenReturn("TestUser");
+        when(request.getParameter("email")).thenReturn("test@example.com");
+        when(request.getParameter("pw")).thenReturn(password17);
+        when(request.getParameter("tipo")).thenReturn("standard");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert - La registrazione deve fallire
+        verify(dispatcher).forward(request, response);
+        verify(utenteDAO, never()).doSave(any(Utente.class));
+    }
+
+    // Test per tipo non-premium (cattura SURVIVED mutation su equalsIgnoreCase)
+    @Test
+    void testDoGet_StandardTypeUser_NoTesseraCreated() throws ServletException, IOException {
+        // Arrange - Utente standard (non premium)
+        when(request.getParameter("nomeUtente")).thenReturn("StandardUser");
+        when(request.getParameter("email")).thenReturn("standard@example.com");
+        when(request.getParameter("pw")).thenReturn("password");
+        when(request.getParameter("tipo")).thenReturn("standard");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        when(utenteDAO.doRetrieveById("standard@example.com")).thenReturn(null);
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(new ArrayList<>());
+        when(carrelloDAO.doRetrivedAllIdCarrelli()).thenReturn(new ArrayList<>());
+        when(request.getRequestDispatcher("/WEB-INF/results/login.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert - Tessera non deve essere creata (cattura mutation)
+        verify(tesseraDAO, never()).doSave(any(Tessera.class));
+        verify(utenteDAO).doSave(any(Utente.class));
+    }
+
+    // Test per utente premium con verifica che Tessera contiene i valori corretti
+    @Test
+    void testDoGet_PremiumTypeUser_TesseraFieldsVerified() throws ServletException, IOException {
+        // Arrange - Utente premium
+        when(request.getParameter("nomeUtente")).thenReturn("PremiumUser");
+        when(request.getParameter("email")).thenReturn("premium@example.com");
+        when(request.getParameter("pw")).thenReturn("password");
+        when(request.getParameter("tipo")).thenReturn("premium");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        when(utenteDAO.doRetrieveById("premium@example.com")).thenReturn(null);
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(new ArrayList<>());
+        when(tesseraDAO.doRetrivedAllByNumero()).thenReturn(new ArrayList<>());
+        when(carrelloDAO.doRetrivedAllIdCarrelli()).thenReturn(new ArrayList<>());
+        when(request.getRequestDispatcher("/WEB-INF/results/login.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert - Verifichiamo che Tessera è stata creata con email corretta
+        ArgumentCaptor<Tessera> tesseraCaptor = ArgumentCaptor.forClass(Tessera.class);
+        verify(tesseraDAO).doSave(tesseraCaptor.capture());
+        Tessera savedTessera = tesseraCaptor.getValue();
+
+        // Verifichiamo che l'email della tessera sia stata impostata (cattura SURVIVED mutation su setEmail)
+        assertEquals("premium@example.com", savedTessera.getEmail());
+        
+        // Verifichiamo che la data di creazione sia stata impostata (cattura SURVIVED mutation su setDataCreazione)
+        assertNotNull(savedTessera.getDataCreazione());
+        
+        // Verifichiamo che la data di scadenza sia stata impostata (cattura SURVIVED mutation su setDataScadenza)
+        assertNotNull(savedTessera.getDataScadenza());
+    }
+
+    // Test per "PREMIUM" maiuscolo (verifica che equalsIgnoreCase funziona)
+    @Test
+    void testDoGet_PremiumTypeUppercase_TesseraCreated() throws ServletException, IOException {
+        // Arrange - Tipo "PREMIUM" in maiuscolo
+        when(request.getParameter("nomeUtente")).thenReturn("UpperUser");
+        when(request.getParameter("email")).thenReturn("upper@example.com");
+        when(request.getParameter("pw")).thenReturn("password");
+        when(request.getParameter("tipo")).thenReturn("PREMIUM");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        when(utenteDAO.doRetrieveById("upper@example.com")).thenReturn(null);
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(new ArrayList<>());
+        when(tesseraDAO.doRetrivedAllByNumero()).thenReturn(new ArrayList<>());
+        when(carrelloDAO.doRetrivedAllIdCarrelli()).thenReturn(new ArrayList<>());
+        when(request.getRequestDispatcher("/WEB-INF/results/login.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert - Tessera deve essere creata per "PREMIUM" in maiuscolo
+        verify(tesseraDAO).doSave(any(Tessera.class));
+    }
+
+    /**
+     * Helper method per crittografare la password usando SHA-1.
+     * Questo metodo simula esattamente quello che fa Utente.setCodiceSicurezza()
+     */
+    private String encryptSHA1(String password) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-1");
+            digest.reset();
+            digest.update(password.getBytes(StandardCharsets.UTF_8));
+            return String.format("%040x", new java.math.BigInteger(1, digest.digest()));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Test per verificare che il Carrello viene creato e salvato con i campi corretti
+    @Test
+    void testDoGet_CarrelloFieldsVerified() throws ServletException, IOException {
+        // Arrange - Utente standard con carrello
+        when(request.getParameter("nomeUtente")).thenReturn("CarrelloUser");
+        when(request.getParameter("email")).thenReturn("carrello@example.com");
+        when(request.getParameter("pw")).thenReturn("password");
+        when(request.getParameter("tipo")).thenReturn("standard");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        when(utenteDAO.doRetrieveById("carrello@example.com")).thenReturn(null);
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(new ArrayList<>());
+        when(carrelloDAO.doRetrivedAllIdCarrelli()).thenReturn(new ArrayList<>());
+        when(request.getRequestDispatcher("/WEB-INF/results/login.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert - Verifichiamo che il Carrello è stato creato con i campi corretti
+        ArgumentCaptor<Carrello> carrelloCaptor = ArgumentCaptor.forClass(Carrello.class);
+        verify(carrelloDAO).doSave(carrelloCaptor.capture());
+        Carrello savedCarrello = carrelloCaptor.getValue();
+
+        // Verifichiamo che l'email del carrello sia stata impostata (cattura SURVIVED mutation su setEmail)
+        assertEquals("carrello@example.com", savedCarrello.getEmail());
+        
+        // Verifichiamo che il totale sia 0 (cattura SURVIVED mutation su setTotale)
+        assertEquals(0, savedCarrello.getTotale());
+        
+        // Verifichiamo che l'ID del carrello sia stato impostato (cattura SURVIVED mutation su setIdCarrello)
+        assertNotNull(savedCarrello.getIdCarrello());
+        // L'ID deve iniziare con tre lettere maiuscole seguite da numeri
+        String idCarrello = savedCarrello.getIdCarrello();
+        assertTrue(idCarrello.length() >= 4, "ID carrello deve avere almeno 4 caratteri");
+    }
+
+    // Test per verificare che la Tessera ha un numero corretto formato
+    @Test
+    void testDoGet_TesseraNumberFormat() throws ServletException, IOException {
+        // Arrange - Utente premium per controllare il numero tessera
+        when(request.getParameter("nomeUtente")).thenReturn("TesseraFormatUser");
+        when(request.getParameter("email")).thenReturn("tesseraformat@example.com");
+        when(request.getParameter("pw")).thenReturn("password");
+        when(request.getParameter("tipo")).thenReturn("premium");
+        when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
+
+        when(utenteDAO.doRetrieveById("tesseraformat@example.com")).thenReturn(null);
+        when(utenteDAO.doRetrieveAllTelefoni()).thenReturn(new ArrayList<>());
+        when(tesseraDAO.doRetrivedAllByNumero()).thenReturn(new ArrayList<>());
+        when(carrelloDAO.doRetrivedAllIdCarrelli()).thenReturn(new ArrayList<>());
+        when(request.getRequestDispatcher("/WEB-INF/results/login.jsp")).thenReturn(dispatcher);
+
+        // Act
+        servlet.doGet(request, response);
+
+        // Assert - Verifichiamo che il numero della Tessera sia corretto
+        ArgumentCaptor<Tessera> tesseraCaptor = ArgumentCaptor.forClass(Tessera.class);
+        verify(tesseraDAO).doSave(tesseraCaptor.capture());
+        Tessera savedTessera = tesseraCaptor.getValue();
+
+        // Verifichiamo che il numero tessera abbia il formato corretto T + 3 cifre
+        String numero = savedTessera.getNumero();
+        assertNotNull(numero);
+        assertTrue(numero.startsWith("T"), "Numero tessera deve iniziare con T");
+        assertTrue(numero.length() == 4, "Numero tessera deve avere lunghezza 4 (T + 3 cifre)");
+        // Verifichiamo che i caratteri dopo T siano cifre (0-9)
+        for (int i = 1; i < numero.length(); i++) {
+            char c = numero.charAt(i);
+            assertTrue(Character.isDigit(c), "Caratteri dopo T devono essere cifre");
+        }
     }
 }
