@@ -114,11 +114,20 @@ public class AggiornaLibroServletTest {
 
             new AggiornaLibroServlet().doGet(request, response);
 
-            // verify updateLibro was called with a Libro that has isbn set
+            // verify updateLibro was called with a Libro that has all fields set
             boolean called = false;
             for (LibroDAO dao : mocked.constructed()) {
                 try {
-                    verify(dao, times(1)).updateLibro(argThat(l -> l.getIsbn().equals("ISBN4") && l.getTitolo().equals("Good Book")));
+                    verify(dao, times(1)).updateLibro(argThat(l -> 
+                        l.getIsbn().equals("ISBN4") && 
+                        l.getTitolo().equals("Good Book") &&
+                        l.getGenere().equals("Drama") &&
+                        l.getAnnoPubblicazioni().equals("2023") &&
+                        l.getPrezzo() == 15.0 &&
+                        l.getSconto() == 20 &&
+                        l.getTrama().equals("Good trama") &&
+                        l.getImmagine().equals("img4.jpg")
+                    ));
                     called = true;
                 } catch (Throwable t) {
                     // ignore
