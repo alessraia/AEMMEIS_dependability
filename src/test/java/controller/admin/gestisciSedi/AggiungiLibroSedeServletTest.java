@@ -311,6 +311,94 @@ class AggiungiLibroSedeServletTest {
         }
     }
 
+    @Test
+    void testDoGet_VerifiesEmptyCheckIsPerformed() throws IOException, ServletException {
+        // Arrange
+        when(request.getParameter("idSede")).thenReturn("9");
+        when(request.getRequestDispatcher("/WEB-INF/results/admin/sedi/stampaLibri.jsp")).thenReturn(dispatcher);
+
+        Sede sede = new Sede();
+        sede.setIdSede(9);
+
+        // Create 5 total books
+        List<Libro> allBooks = createMockBooks(5);
+        
+        // Create list of 2 books already present
+        List<Libro> presentBooks = new ArrayList<>();
+        presentBooks.add(allBooks.get(0));
+        presentBooks.add(allBooks.get(1));
+
+        try (MockedConstruction<SedeDAO> sedeDAOMocked = mockConstruction(SedeDAO.class, (mock, context) -> {
+            when(mock.doRetrieveById(9)).thenReturn(sede);
+            when(mock.getPresenza(9)).thenReturn(presentBooks);
+        });
+             MockedConstruction<LibroDAO> libroDAOMocked = mockConstruction(LibroDAO.class, (mock, context) -> {
+                 when(mock.doRetriveAll()).thenReturn(new ArrayList<>(allBooks));
+             })) {
+
+            // Act
+            servlet.doGet(request, response);
+
+            // Assert: Capture the actual list set as attribute
+            @SuppressWarnings("unchecked")
+            org.mockito.ArgumentCaptor<List<Libro>> listCaptor = org.mockito.ArgumentCaptor.forClass((Class<List<Libro>>) (Class<?>) List.class);
+            verify(request).setAttribute(eq("libri"), listCaptor.capture());
+            
+            List<Libro> resultingBooks = listCaptor.getValue();
+            
+            // Verify that exactly 3 books remain (5 total - 2 already present)
+            // This ensures the if condition was executed and books were removed
+            assert resultingBooks.size() == 3 : "Expected 3 books after filtering, got " + resultingBooks.size();
+            
+            // Verify the removed books are not in the result
+            assert !resultingBooks.contains(allBooks.get(0)) : "First book should have been removed";
+            assert !resultingBooks.contains(allBooks.get(1)) : "Second book should have been removed";
+        }
+    }
+
+    /**
+     * Test that when no books are present in sede, the if block is skipped
+     * Scenario: When libriGiaPresenti is empty, the list should remain unchanged
+     */
+    @Test
+    void testDoGet_EmptyPresentBooksSkipsFiltering() throws IOException, ServletException {
+        // Arrange
+        when(request.getParameter("idSede")).thenReturn("10");
+        when(request.getRequestDispatcher("/WEB-INF/results/admin/sedi/stampaLibri.jsp")).thenReturn(dispatcher);
+
+        Sede sede = new Sede();
+        sede.setIdSede(10);
+
+        // Create 4 total books
+        List<Libro> allBooks = createMockBooks(4);
+        
+        // Empty list - no books present in sede
+        List<Libro> presentBooks = new ArrayList<>();
+
+        try (MockedConstruction<SedeDAO> sedeDAOMocked = mockConstruction(SedeDAO.class, (mock, context) -> {
+            when(mock.doRetrieveById(10)).thenReturn(sede);
+            when(mock.getPresenza(10)).thenReturn(presentBooks);
+        });
+             MockedConstruction<LibroDAO> libroDAOMocked = mockConstruction(LibroDAO.class, (mock, context) -> {
+                 when(mock.doRetriveAll()).thenReturn(new ArrayList<>(allBooks));
+             })) {
+
+            // Act
+            servlet.doGet(request, response);
+
+            // Assert: Capture the actual list set as attribute
+            @SuppressWarnings("unchecked")
+            org.mockito.ArgumentCaptor<List<Libro>> listCaptor = org.mockito.ArgumentCaptor.forClass((Class<List<Libro>>) (Class<?>) List.class);
+            verify(request).setAttribute(eq("libri"), listCaptor.capture());
+            
+            List<Libro> resultingBooks = listCaptor.getValue();
+            
+            // Verify that all 4 books remain (no filtering occurred)
+            // This ensures the if condition was skipped because presentBooks was empty
+            assert resultingBooks.size() == 4 : "Expected 4 books when no books are present in sede, got " + resultingBooks.size();
+        }
+    }
+
     /**
      * Helper method to create mock books
      *
