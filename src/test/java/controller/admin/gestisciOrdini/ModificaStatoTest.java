@@ -523,6 +523,12 @@ class ModificaStatoTest {
             // Assert - Verify updateOrdine is called for Consegnato
             OrdineDAO dao = mockOrdineDAO.constructed().get(0);
             verify(dao).updateOrdine(ordine);
+            
+            // Verify that dataArrivo is set to today (LocalDate.now())
+            assert ordine.getDataArrivo() != null : "DataArrivo should be set";
+            assert ordine.getDataArrivo().equals(LocalDate.now()) : 
+                "DataArrivo should be set to today";
+            
             verify(dispatcher).forward(request, response);
         }
     }

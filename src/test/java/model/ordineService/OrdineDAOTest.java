@@ -190,6 +190,92 @@ class OrdineDAOTest {
     }
 
     @Test
+    void testDoRetrieveById_VerifiesDataArrivoSetWhenNotNull() throws SQLException {
+        // Arrange - Verifies that setDataArrivo is called with non-null date
+        String idOrdine = "ORD001";
+        LocalDate dataArrivoValue = LocalDate.of(2024, 1, 20);
+        
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getString(1)).thenReturn("ORD001");
+        when(mockResultSet.getDouble(2)).thenReturn(99.99);
+        when(mockResultSet.getString(3)).thenReturn("Via Roma 123");
+        when(mockResultSet.getString(4)).thenReturn("Napoli");
+        when(mockResultSet.getInt(5)).thenReturn(10);
+        when(mockResultSet.getInt(6)).thenReturn(5);
+        when(mockResultSet.getDate(7)).thenReturn(Date.valueOf(dataArrivoValue)); // dataArrivo NOT null
+        when(mockResultSet.getDate(8)).thenReturn(Date.valueOf(LocalDate.of(2024, 1, 15)));
+        when(mockResultSet.getString(9)).thenReturn("In Preparazione");
+        when(mockResultSet.getString(10)).thenReturn("MAT001");
+        when(mockResultSet.getString(11)).thenReturn("user@example.com");
+        when(mockRigaOrdineDAO.doRetrivedByOrdine(idOrdine)).thenReturn(new ArrayList<>());
+
+        // Act
+        Ordine result = ordineDAO.doRetrieveById(idOrdine);
+
+        // Assert - If setDataArrivo is removed, this will fail
+        assertNotNull(result);
+        assertNotNull(result.getDataArrivo());
+        assertEquals(dataArrivoValue, result.getDataArrivo());
+    }
+
+    @Test
+    void testDoRetrieveById_VerifiesNullDataArrivoSet() throws SQLException {
+        // Arrange - Verifies that setDataArrivo(null) is called when date is null
+        String idOrdine = "ORD002";
+        
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getString(1)).thenReturn("ORD002");
+        when(mockResultSet.getDouble(2)).thenReturn(50.00);
+        when(mockResultSet.getString(3)).thenReturn("Via Milano 456");
+        when(mockResultSet.getString(4)).thenReturn("Roma");
+        when(mockResultSet.getInt(5)).thenReturn(5);
+        when(mockResultSet.getInt(6)).thenReturn(2);
+        when(mockResultSet.getDate(7)).thenReturn(null); // dataArrivo is NULL
+        when(mockResultSet.getDate(8)).thenReturn(Date.valueOf(LocalDate.of(2024, 1, 10)));
+        when(mockResultSet.getString(9)).thenReturn("In Preparazione");
+        when(mockResultSet.getString(10)).thenReturn("MAT002");
+        when(mockResultSet.getString(11)).thenReturn("user2@example.com");
+        when(mockRigaOrdineDAO.doRetrivedByOrdine(idOrdine)).thenReturn(new ArrayList<>());
+
+        // Act
+        Ordine result = ordineDAO.doRetrieveById(idOrdine);
+
+        // Assert - If setDataArrivo(null) is removed, dataArrivo would be uninitialized
+        assertNotNull(result);
+        assertNull(result.getDataArrivo());
+    }
+
+    @Test
+    void testDoRetrieveById_VerifiesRigheOrdineSet() throws SQLException {
+        // Arrange - Verifies that setRigheOrdine is called
+        String idOrdine = "ORD003";
+        List<RigaOrdine> mockRighe = new ArrayList<>();
+        RigaOrdine riga = new RigaOrdine();
+        riga.setIdOrdine(idOrdine);
+        mockRighe.add(riga);
+        
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+        when(mockResultSet.next()).thenReturn(true);
+        setupMockResultSetForOrdineWithId(idOrdine);
+        when(mockRigaOrdineDAO.doRetrivedByOrdine(idOrdine)).thenReturn(mockRighe);
+
+        // Act
+        Ordine result = ordineDAO.doRetrieveById(idOrdine);
+
+        // Assert - If setRigheOrdine is removed, righeOrdine would be null
+        assertNotNull(result);
+        assertNotNull(result.getRigheOrdine());
+        assertEquals(1, result.getRigheOrdine().size());
+        assertEquals(idOrdine, result.getRigheOrdine().get(0).getIdOrdine());
+        verify(mockRigaOrdineDAO).doRetrivedByOrdine(idOrdine);
+    }
+
+    @Test
     void testDoRetrieveById_SQLException() throws SQLException {
         // Arrange
         String idOrdine = "ORD001";
@@ -483,6 +569,23 @@ class OrdineDAOTest {
     }
 
     @Test
+    void testDeleteOrdine_VerifiesRigaOrdineDeleteCalled() throws SQLException {
+        // Arrange - Verifies that deleteRigaOrdineByIdOrdine is called before DELETE
+        String idOrdine = "ORD002";
+        when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+        when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+        doNothing().when(mockRigaOrdineDAO).deleteRigaOrdineByIdOrdine(idOrdine);
+
+        // Act
+        assertDoesNotThrow(() -> ordineDAO.deleteOrdine(idOrdine));
+
+        // Assert - If deleteRigaOrdineByIdOrdine call is removed, this verify fails
+        verify(mockRigaOrdineDAO).deleteRigaOrdineByIdOrdine(idOrdine);
+        verify(mockPreparedStatement).setString(1, idOrdine);
+        verify(mockPreparedStatement).executeUpdate();
+    }
+
+    @Test
     void testDeleteOrdine_DeleteFails() throws SQLException {
         // Arrange
         String idOrdine = "ORD001";
@@ -571,6 +674,20 @@ class OrdineDAOTest {
 
     private void setupMockResultSetForOrdine() throws SQLException {
         when(mockResultSet.getString(1)).thenReturn("ORD001");
+        when(mockResultSet.getDouble(2)).thenReturn(99.99);
+        when(mockResultSet.getString(3)).thenReturn("Via Roma 123");
+        when(mockResultSet.getString(4)).thenReturn("Napoli");
+        when(mockResultSet.getInt(5)).thenReturn(10);
+        when(mockResultSet.getInt(6)).thenReturn(5);
+        when(mockResultSet.getDate(7)).thenReturn(Date.valueOf(LocalDate.of(2024, 1, 20)));
+        when(mockResultSet.getDate(8)).thenReturn(Date.valueOf(LocalDate.of(2024, 1, 15)));
+        when(mockResultSet.getString(9)).thenReturn("In Preparazione");
+        when(mockResultSet.getString(10)).thenReturn("MAT001");
+        when(mockResultSet.getString(11)).thenReturn("user@example.com");
+    }
+
+    private void setupMockResultSetForOrdineWithId(String idOrdine) throws SQLException {
+        when(mockResultSet.getString(1)).thenReturn(idOrdine);
         when(mockResultSet.getDouble(2)).thenReturn(99.99);
         when(mockResultSet.getString(3)).thenReturn("Via Roma 123");
         when(mockResultSet.getString(4)).thenReturn("Napoli");
