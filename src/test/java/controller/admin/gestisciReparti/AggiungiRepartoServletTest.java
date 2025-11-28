@@ -7,11 +7,13 @@ import model.libroService.Reparto;
 import model.libroService.RepartoDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -236,5 +238,87 @@ class AggiungiRepartoServletTest {
         verify(response).sendRedirect("/WEB-INF/errorJsp/erroreForm.jsp");
         verify(repartoDAO, never()).doRetrivedAll();
         verify(repartoDAO, never()).doSave(any(Reparto.class));
+    }
+
+    /**
+     * Test that setDescrizione() is called with correct value on successful addition
+     * Expected: saved Reparto object has correct descrizione
+     */
+    @Test
+    void testDoGet_VerifyDescrizioneIsSet() throws Exception {
+        when(request.getParameter("nome")).thenReturn("Fantascienza");
+        when(request.getParameter("descrizione")).thenReturn("Libri di fantascienza e distopia");
+        when(request.getParameter("immagine")).thenReturn("fantascienza.jpg");
+
+        when(repartoDAO.doRetrivedAll()).thenReturn(Collections.emptyList());
+        doNothing().when(repartoDAO).doSave(any(Reparto.class));
+
+        servlet.setRepartoDAO(repartoDAO);
+
+        servlet.doGet(request, response);
+
+        // Capture the Reparto object passed to doSave
+        ArgumentCaptor<Reparto> captor = ArgumentCaptor.forClass(Reparto.class);
+        verify(repartoDAO).doSave(captor.capture());
+
+        Reparto savedReparto = captor.getValue();
+        assertEquals("Libri di fantascienza e distopia", savedReparto.getDescrizione(),
+                "setDescrizione() should set the description correctly");
+    }
+
+    /**
+     * Test that setImmagine() is called with correct value on successful addition
+     * Expected: saved Reparto object has correct immagine
+     */
+    @Test
+    void testDoGet_VerifyImmagineIsSet() throws Exception {
+        when(request.getParameter("nome")).thenReturn("Gialli");
+        when(request.getParameter("descrizione")).thenReturn("Romanzi gialli e thriller");
+        when(request.getParameter("immagine")).thenReturn("gialli.jpg");
+
+        when(repartoDAO.doRetrivedAll()).thenReturn(Collections.emptyList());
+        doNothing().when(repartoDAO).doSave(any(Reparto.class));
+
+        servlet.setRepartoDAO(repartoDAO);
+
+        servlet.doGet(request, response);
+
+        // Capture the Reparto object passed to doSave
+        ArgumentCaptor<Reparto> captor = ArgumentCaptor.forClass(Reparto.class);
+        verify(repartoDAO).doSave(captor.capture());
+
+        Reparto savedReparto = captor.getValue();
+        assertEquals("gialli.jpg", savedReparto.getImmagine(),
+                "setImmagine() should set the image correctly");
+    }
+
+    /**
+     * Test that all three setter methods are called with correct values on successful addition
+     * Expected: saved Reparto object has all fields set correctly
+     */
+    @Test
+    void testDoGet_VerifyAllSetttersAreCalled() throws Exception {
+        when(request.getParameter("nome")).thenReturn("Cucina");
+        when(request.getParameter("descrizione")).thenReturn("Libri di ricette e cucina");
+        when(request.getParameter("immagine")).thenReturn("cucina.jpg");
+
+        when(repartoDAO.doRetrivedAll()).thenReturn(Collections.emptyList());
+        doNothing().when(repartoDAO).doSave(any(Reparto.class));
+
+        servlet.setRepartoDAO(repartoDAO);
+
+        servlet.doGet(request, response);
+
+        // Capture the Reparto object passed to doSave
+        ArgumentCaptor<Reparto> captor = ArgumentCaptor.forClass(Reparto.class);
+        verify(repartoDAO).doSave(captor.capture());
+
+        Reparto savedReparto = captor.getValue();
+        assertEquals("Cucina", savedReparto.getNome(),
+                "setNome() should set the name correctly");
+        assertEquals("Libri di ricette e cucina", savedReparto.getDescrizione(),
+                "setDescrizione() should set the description correctly");
+        assertEquals("cucina.jpg", savedReparto.getImmagine(),
+                "setImmagine() should set the image correctly");
     }
 }
