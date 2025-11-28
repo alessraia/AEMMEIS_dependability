@@ -183,9 +183,13 @@ class CarrelloDAOTest {
 
     @Test
     void testDoRetriveById_Success() throws SQLException {
+        List<RigaCarrello> righeCarrello = new ArrayList<>();
+        RigaCarrello riga1 = new RigaCarrello();
+        righeCarrello.add(riga1);
+        
         try (MockedStatic<ConPool> mockedConPool = mockStatic(ConPool.class);
              MockedConstruction<RigaCarrelloDAO> mockedRiga = mockConstruction(RigaCarrelloDAO.class, 
-                (mock, context) -> when(mock.doRetrieveByIdCarrello(anyString())).thenReturn(new ArrayList<>()))) {
+                (mock, context) -> when(mock.doRetrieveByIdCarrello(anyString())).thenReturn(righeCarrello))) {
             
             mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
             when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
@@ -202,6 +206,8 @@ class CarrelloDAOTest {
             assertEquals("CARR001", result.getIdCarrello());
             assertEquals(150.0, result.getTotale());
             assertEquals("user@example.com", result.getEmail());
+            assertNotNull(result.getRigheCarrello());
+            assertEquals(1, result.getRigheCarrello().size());
             verify(mockPreparedStatement).setString(1, "CARR001");
         }
     }
@@ -235,9 +241,13 @@ class CarrelloDAOTest {
 
     @Test
     void testDoRetriveByUtente_Success() throws SQLException {
+        List<RigaCarrello> righeCarrello = new ArrayList<>();
+        RigaCarrello riga1 = new RigaCarrello();
+        righeCarrello.add(riga1);
+        
         try (MockedStatic<ConPool> mockedConPool = mockStatic(ConPool.class);
              MockedConstruction<RigaCarrelloDAO> mockedRiga = mockConstruction(RigaCarrelloDAO.class,
-                (mock, context) -> when(mock.doRetrieveByIdCarrello(anyString())).thenReturn(new ArrayList<>()))) {
+                (mock, context) -> when(mock.doRetrieveByIdCarrello(anyString())).thenReturn(righeCarrello))) {
             
             mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
             when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
@@ -254,6 +264,8 @@ class CarrelloDAOTest {
             assertEquals("CARR002", result.getIdCarrello());
             assertEquals(200.0, result.getTotale());
             assertEquals("mario@example.com", result.getEmail());
+            assertNotNull(result.getRigheCarrello());
+            assertEquals(1, result.getRigheCarrello().size());
             verify(mockPreparedStatement).setString(1, "mario@example.com");
         }
     }
@@ -310,6 +322,7 @@ class CarrelloDAOTest {
             assertTrue(result.contains("CARR002"));
             assertTrue(result.contains("CARR003"));
             verify(mockConnection).prepareStatement("SELECT * FROM Carrello");
+            verify(mockResultSet, times(4)).next(); // Verify the loop termination
         }
     }
 
@@ -325,6 +338,8 @@ class CarrelloDAOTest {
 
             assertNotNull(result);
             assertTrue(result.isEmpty());
+            assertEquals(0, result.size());
+            verify(mockResultSet, times(1)).next(); // Verify loop termination on empty result
         }
     }
 
@@ -335,6 +350,27 @@ class CarrelloDAOTest {
             when(mockConnection.prepareStatement(anyString())).thenThrow(new SQLException("Query failed"));
 
             assertThrows(RuntimeException.class, () -> carrelloDAO.doRetrivedAllIdCarrelli());
+        }
+    }
+    
+    @Test
+    void testDoRetrivedAllIdCarrelli_SingleRow() throws SQLException {
+        try (MockedStatic<ConPool> mockedConPool = mockStatic(ConPool.class)) {
+            mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
+            when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+            when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+            
+            when(mockResultSet.next())
+                    .thenReturn(true)  // First row
+                    .thenReturn(false); // No more rows
+            when(mockResultSet.getString(1)).thenReturn("CARR_SINGLE");
+
+            List<String> result = carrelloDAO.doRetrivedAllIdCarrelli();
+
+            assertNotNull(result);
+            assertEquals(1, result.size());
+            assertEquals("CARR_SINGLE", result.get(0));
+            verify(mockResultSet, times(2)).next(); // Called twice: once for the item, once to exit
         }
     }
 

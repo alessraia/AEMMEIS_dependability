@@ -52,9 +52,13 @@ class AggiungiSedeServletTest {
             // Act
             servlet.doGet(request, response);
 
-            // Assert: Verify redirect to gestisci-sedi occurs
+            // Assert: Verify redirect to gestisci-sedi occurs and doSave was called
             verify(response).sendRedirect("gestisci-sedi");
             verify(dispatcher, never()).forward(request, response);
+            
+            // Verify that doSave was called exactly once with a Sede object
+            SedeDAO sedeDAO = mockedConstruction.constructed().get(0);
+            verify(sedeDAO, times(1)).doSave(any(Sede.class));
         }
     }
 

@@ -5,6 +5,7 @@ import model.libroService.Libro;
 import model.libroService.LibroDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.mockito.MockedStatic;
 import org.mockito.MockedConstruction;
 
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -37,6 +39,7 @@ class RigaCarrelloDAOTest {
     // ==================== Tests for doRetrieveByIdCarrello ====================
 
     @Test
+    @Timeout(value = 2, unit = TimeUnit.SECONDS)
     void testDoRetrieveByIdCarrello_MultipleRows() throws SQLException {
         try (MockedStatic<ConPool> mockedConPool = mockStatic(ConPool.class);
              MockedConstruction<LibroDAO> mockedLibroDAO = mockConstruction(LibroDAO.class,
@@ -73,11 +76,46 @@ class RigaCarrelloDAOTest {
             assertEquals(2, result.get(0).getQuantita());
             assertEquals("CARR001", result.get(1).getIdCarrello());
             assertEquals(3, result.get(1).getQuantita());
+            // Verify that libro is set properly - kills survived mutation on line 38
+            assertNotNull(result.get(0).getLibro(), "Libro should be set for first item");
+            assertNotNull(result.get(1).getLibro(), "Libro should be set for second item");
             verify(mockPreparedStatement).setString(1, "CARR001");
+        }
+    }
+    
+    @Test
+    @Timeout(value = 2, unit = TimeUnit.SECONDS)
+    void testDoRetrieveByIdCarrello_VerifyLibroNotNull() throws SQLException {
+        try (MockedStatic<ConPool> mockedConPool = mockStatic(ConPool.class);
+             MockedConstruction<LibroDAO> mockedLibroDAO = mockConstruction(LibroDAO.class,
+                (mock, context) -> {
+                    Libro libro = new Libro();
+                    libro.setIsbn("978-3-16-148410-0");
+                    libro.setTitolo("Test Book");
+                    when(mock.doRetrieveById(anyString())).thenReturn(libro);
+                })) {
+
+            mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
+            when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+            when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
+
+            when(mockResultSet.next()).thenReturn(true).thenReturn(false);
+            when(mockResultSet.getString(1)).thenReturn("CARR001");
+            when(mockResultSet.getString(2)).thenReturn("978-3-16-148410-0");
+            when(mockResultSet.getInt(3)).thenReturn(2);
+
+            List<RigaCarrello> result = rigaCarrelloDAO.doRetrieveByIdCarrello("CARR001");
+
+            assertNotNull(result);
+            assertEquals(1, result.size());
+            // This assertion will fail if setLibro is removed - kills survived mutation
+            assertNotNull(result.get(0).getLibro(), "Libro must be set on RigaCarrello");
+            assertEquals("978-3-16-148410-0", result.get(0).getLibro().getIsbn());
         }
     }
 
     @Test
+    @Timeout(value = 2, unit = TimeUnit.SECONDS)
     void testDoRetrieveByIdCarrello_Empty() throws SQLException {
         try (MockedStatic<ConPool> mockedConPool = mockStatic(ConPool.class)) {
             mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
@@ -279,6 +317,21 @@ class RigaCarrelloDAOTest {
 
             verify(mockConnection).prepareStatement("DELETE FROM RigaCarrello WHERE idCarrello=?");
             verify(mockPreparedStatement).setString(1, "CARR001");
+        }
+    }
+    
+    @Test
+    void testDeleteRigheCarrelloByIdCarrello_ExactlyOneRowDeleted() throws SQLException {
+        try (MockedStatic<ConPool> mockedConPool = mockStatic(ConPool.class)) {
+            mockedConPool.when(ConPool::getConnection).thenReturn(mockConnection);
+            when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
+            // Return exactly 1 to test boundary condition (< 1 should throw, >= 1 should not)
+            when(mockPreparedStatement.executeUpdate()).thenReturn(1);
+
+            // This should succeed when 1 row is deleted - kills boundary mutation
+            assertDoesNotThrow(() -> rigaCarrelloDAO.deleteRigheCarrelloByIdCarrello("CARR002"));
+
+            verify(mockPreparedStatement).setString(1, "CARR002");
         }
     }
 
