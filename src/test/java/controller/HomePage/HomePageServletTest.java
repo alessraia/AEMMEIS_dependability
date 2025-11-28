@@ -9,6 +9,7 @@ import model.utenteService.Utente;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
+import org.mockito.ArgumentCaptor;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class HomePageServletTest {
@@ -85,7 +87,15 @@ public class HomePageServletTest {
 
         servlet.doGet(request, response);
 
-        verify(session).setAttribute(eq("carrello"), any(Carrello.class));
+        // Capture the Carrello argument passed to session.setAttribute
+        ArgumentCaptor<Carrello> carCaptor = ArgumentCaptor.forClass(Carrello.class);
+        verify(session).setAttribute(eq("carrello"), carCaptor.capture());
+        
+        // Verify that the captured Carrello has its righeCarrello initialized
+        Carrello capturedCarrello = carCaptor.getValue();
+        assertNotNull(capturedCarrello.getRigheCarrello(), "RigheCarrello should be initialized");
+        assertTrue(capturedCarrello.getRigheCarrello().isEmpty(), "RigheCarrello should be an empty list");
+        
         verify(request).setAttribute("libriHome", libriHome);
         verify(dispatcher, times(1)).forward(request, response);
     }

@@ -27,7 +27,6 @@ public class MostraRepartoServlet extends HttpServlet {
         }
         int idReparto = Integer.parseInt(request.getParameter("id"));
         String position = request.getParameter("position");
-        System.out.println(position);
         String address="/WEB-INF/results/reparto.jsp";
 
         Reparto reparto = null;
@@ -45,7 +44,6 @@ public class MostraRepartoServlet extends HttpServlet {
             session.setAttribute("repartoAttuale", idReparto);
             if (position != null) {
                 address += "#"+position;
-                System.out.println("address: "+address);
             }
         } else {
             request.setAttribute("repartoNonTrovato", true);
