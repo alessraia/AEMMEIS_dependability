@@ -1,4 +1,4 @@
-package controller.admin.gestisciProdotti;
+package controller.admin.gestisciProdotti.ModificaLibro;
 
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -9,44 +9,40 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.libroService.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet("/modifica-libro")
 public class ModificaLibroServlet extends HttpServlet {
+    private final ModificaLibroService modificaLibroService = new ModificaLibroService();
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String isbn = request.getParameter("isbn");
-        LibroDAO service = new LibroDAO();
-        Libro libro= service.doRetrieveById(isbn);
-        SedeDAO sedeService = new SedeDAO();
-        RepartoDAO repartoService = new RepartoDAO();
 
-        List<Sede> sedi= service.getPresenzaSede(libro.getIsbn());
-        List<Sede> sediNonPresenti = sedeService.doRetrivedAll();
-        for(int i=0; i<sediNonPresenti.size(); i++){
-            Sede sede=sediNonPresenti.get(i);
-            if(sedi.contains(sede)) {
-                sediNonPresenti.remove(i);
-            }
-        }
+        // Liste che passeremo al service per essere riempite
+        List<Sede> sedi = new ArrayList<>();
+        List<Sede> sediNonPresenti = new ArrayList<>();
+        List<Reparto> reparti = new ArrayList<>();
+        List<Reparto> repartiNonPresenti = new ArrayList<>();
 
+        // Chiamiamo la logica estratta nel service
+        Libro libro = modificaLibroService.preparaDati(
+                isbn,
+                sedi,
+                sediNonPresenti,
+                reparti,
+                repartiNonPresenti
+        );
 
-        List<Reparto> reparti= service.getAppartenenzaReparto(libro.getIsbn());
-        List<Reparto> repartiNonPresenti = repartoService.doRetrivedAll();
-        for(int i=0; i<repartiNonPresenti.size(); i++){
-            Reparto reparto=repartiNonPresenti.get(i);
-            if(reparti.contains(reparto)) {
-                repartiNonPresenti.remove(i);
-            }
-        }
-
+        // Esattamente gli stessi attribute di prima
         request.setAttribute("libro", libro);
         request.setAttribute("sedi", sedi);
         request.setAttribute("reparti", reparti);
         request.setAttribute("sediNonPresenti", sediNonPresenti);
         request.setAttribute("repartiNonPresenti", repartiNonPresenti);
 
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/prodotti/modificaLibro.jsp");
+        RequestDispatcher dispatcher =
+                request.getRequestDispatcher("/WEB-INF/results/admin/prodotti/modificaLibro.jsp");
         dispatcher.forward(request, response);
     }
 
