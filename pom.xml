@@ -74,6 +74,21 @@
             <version>1.1.1</version>
         </dependency>
 
+        <!-- JMH core -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>1.37</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- JMH annotation processor (genera il main per lanciare i benchmark) -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>1.37</version>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
 
@@ -125,6 +140,7 @@
                         <artifactId>pitest-junit5-plugin</artifactId>
                         <version>1.2.0</version>
                     </dependency>
+
                 </dependencies>
                 <configuration>
                     <targetClasses>
