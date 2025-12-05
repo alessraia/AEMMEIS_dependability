@@ -24,6 +24,12 @@ public class Disponibile extends HttpServlet {
         service.updateDisponibile(libro);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("gestisci-prodotti");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso gestisci-prodotti", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso gestisci-prodotti", e);
+        }
     }
 }

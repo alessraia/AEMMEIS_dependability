@@ -13,6 +13,12 @@ import java.io.IOException;
 public class NuovoProdottoServletAppoggio extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/prodotti/nuovoProdotto.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso /WEB-INF/results/admin/prodotti/nuovoProdotto.jsp", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso /WEB-INF/results/admin/prodotti/nuovoProdotto.jsp", e);
+        }
     }
 }

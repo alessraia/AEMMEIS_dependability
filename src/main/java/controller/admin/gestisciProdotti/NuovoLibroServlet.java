@@ -45,7 +45,13 @@ public class NuovoLibroServlet extends HttpServlet {
                 price == null || price.isEmpty() ||
                 sconto1 == null || trama == null || immagine == null){
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-                dispatcher.forward(request, response);
+                try {
+                    dispatcher.forward(request, response);
+                } catch (ServletException e) {
+                    log("Errore durante il forward ", e);
+                } catch (IOException e) {
+                    log("Errore di I/O durante il forward ", e);
+                }
         }else {
             try {
                 double prezzo = Double.parseDouble(price);
@@ -55,7 +61,13 @@ public class NuovoLibroServlet extends HttpServlet {
                         sconto = Integer.parseInt(sconto1);
                     }else {
                         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-                        dispatcher.forward(request, response);
+                        try {
+                            dispatcher.forward(request, response);
+                        } catch (ServletException e) {
+                            log("Errore durante il forward ", e);
+                        } catch (IOException e) {
+                            log("Errore di I/O durante il forward ", e);
+                        }
                         return;
                     }
                 }
@@ -71,7 +83,13 @@ public class NuovoLibroServlet extends HttpServlet {
                     for (int i = 0; i < nomiAutori.length; i++) {
                         if (nomiAutori[i].isEmpty() || cognomiAutori[i].isEmpty() || cfAutori[i].isEmpty()) {
                             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-                            dispatcher.forward(request, response);
+                            try {
+                                dispatcher.forward(request, response);
+                            } catch (ServletException e) {
+                                log("Errore durante il forward ", e);
+                            } catch (IOException e) {
+                                log("Errore di I/O durante il forward ", e);
+                            }
                             return;
                         }
                         Autore autore = new Autore();
@@ -99,7 +117,13 @@ public class NuovoLibroServlet extends HttpServlet {
                     if(l.getIsbn().equals(isbn)) {
                         request.setAttribute("esito", "non riuscito");//per poter mostrare un errore nell'inserimento
                         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/prodotti/nuovoProdotto.jsp");
-                        dispatcher.forward(request, response);
+                        try {
+                            dispatcher.forward(request, response);
+                        } catch (ServletException e) {
+                            log("Errore durante il forward ", e);
+                        } catch (IOException e) {
+                            log("Errore di I/O durante il forward ", e);
+                        }
                         flag = false;
                     }
                 }
@@ -110,7 +134,13 @@ public class NuovoLibroServlet extends HttpServlet {
 
             } catch (NumberFormatException e) {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-                dispatcher.forward(request, response);
+                try {
+                    dispatcher.forward(request, response);
+                } catch (ServletException ex) {
+                    log("Errore durante il forward ", ex);
+                } catch (IOException ex) {
+                    log("Errore di I/O durante il forward ", ex);
+                }
             }
         }
     }

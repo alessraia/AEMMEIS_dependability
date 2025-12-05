@@ -27,6 +27,12 @@ public class EliminaLibroSede extends HttpServlet {
         service.deleteFromPresenzaLibro(idSede, isbn);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("modifica-libro");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso modifica-libro", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso modifica-libro", e);
+        }
     }
 }

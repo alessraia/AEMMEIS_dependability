@@ -26,7 +26,13 @@ public class AggiornaLibroServlet extends HttpServlet {
         if(titolo == null || titolo.isEmpty() || isbn == null || annoPubb == null || annoPubb.isEmpty() ||
         genere == null || genere.isEmpty() || prezzo1 == null || trama == null || immagine == null) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
             return;
         }
 
@@ -35,7 +41,13 @@ public class AggiornaLibroServlet extends HttpServlet {
             prezzo = Double.parseDouble(prezzo1);
         }catch (NumberFormatException e){
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException ex) {
+                log("Errore durante il forward", ex);
+            } catch (IOException ex) {
+                log("Errore di I/O durante il forward", ex);
+            }
             return;
         }
 
@@ -44,7 +56,13 @@ public class AggiornaLibroServlet extends HttpServlet {
             sconto = Integer.parseInt(sconto1);
         else {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
             return;
         }
 
@@ -61,7 +79,13 @@ public class AggiornaLibroServlet extends HttpServlet {
 
         libroService.updateLibro(libro);
         RequestDispatcher dispatcher = request.getRequestDispatcher("modifica-libro");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
     }
 
     public boolean isValid(String str){

@@ -22,7 +22,13 @@ public class GestisciProdottiServlet extends HttpServlet {
         request.setAttribute("libri", libri);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/prodotti/gestisciProdotti.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso /WEB-INF/results/admin/prodotti/gestisciProdotti.jsp", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso /WEB-INF/results/admin/prodotti/gestisciProdotti.jsp", e);
+        }
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
