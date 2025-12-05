@@ -24,10 +24,10 @@ public class ShowWishList extends HttpServlet {
                 dispatcher.forward(request, response);
             } catch (ServletException e) {
                 log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
-                throw e;
+
             } catch (IOException e) {
                 log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
-                throw e;
+
             }
         }
         else {
@@ -45,10 +45,10 @@ public class ShowWishList extends HttpServlet {
                 dispatcher.forward(request, response);
             } catch (ServletException e) {
                 log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
-                throw e;
+
             } catch (IOException e) {
                 log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
-                throw e;
+
             }
 
         }
