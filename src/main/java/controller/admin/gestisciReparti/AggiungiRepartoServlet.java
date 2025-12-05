@@ -50,7 +50,13 @@ public class AggiungiRepartoServlet extends HttpServlet {
             if(rep.getNome().equals(reparto.getNome())){
                 request.setAttribute("esito", "non riuscito");//per poter mostrare un errore nell'inserimento
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/reparti/aggiungiReparto.jsp");
-                dispatcher.forward(request, response);
+                try {
+                    dispatcher.forward(request, response);
+                } catch (ServletException e) {
+                    log("Errore durante il forward ", e);
+                } catch (IOException e) {
+                    log("Errore di I/O durante il forward", e);
+                }
                 flag=false;
             }
         }

@@ -47,6 +47,12 @@ public class AggiornaRepartoServlet extends HttpServlet {
                     repartoService.updateReparto(reparto);
             }
             RequestDispatcher dispatcher = request.getRequestDispatcher(address);
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward ", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
     }
 }

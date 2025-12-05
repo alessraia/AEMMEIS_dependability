@@ -43,7 +43,13 @@ public class ModificaLibroServlet extends HttpServlet {
 
         RequestDispatcher dispatcher =
                 request.getRequestDispatcher("/WEB-INF/results/admin/prodotti/modificaLibro.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso /WEB-INF/results/admin/prodotti/modificaLibro.jsp", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso /WEB-INF/results/admin/prodotti/modificaLibro.jsp", e);
+        }
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
