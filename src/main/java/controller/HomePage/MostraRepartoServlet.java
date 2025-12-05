@@ -22,7 +22,15 @@ public class MostraRepartoServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if(Validator.checkIfUserAdmin((Utente) request.getSession().getAttribute("utente"))) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
+                throw e;
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
+                throw e;
+            }
             return;
         }
         int idReparto = Integer.parseInt(request.getParameter("id"));
@@ -48,12 +56,28 @@ public class MostraRepartoServlet extends HttpServlet {
         } else {
             request.setAttribute("repartoNonTrovato", true);
             RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
+                throw e;
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
+                throw e;
+            }
             return;
         }
 
         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            throw e;
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            throw e;
+        }
     }
 }
 

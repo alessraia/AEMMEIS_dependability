@@ -29,7 +29,15 @@ public class HomePageServlet extends HttpServlet {
 
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
+                throw e;
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
+                throw e;
+            }
             return;
         }
 
@@ -59,7 +67,15 @@ public class HomePageServlet extends HttpServlet {
         }
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/homepage.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            throw e;
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            throw e;
+        }
 
     }
 }

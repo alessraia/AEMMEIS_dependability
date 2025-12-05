@@ -30,7 +30,15 @@ public class AreaPersonaleServlet extends HttpServlet {
         }
 
         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            throw e;
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            throw e;
+        }
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

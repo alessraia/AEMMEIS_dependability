@@ -11,12 +11,21 @@ import java.io.IOException;
 
 @WebServlet("/about-us")
 public class AboutUsServlet extends HttpServlet {
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Imposta il tipo di contenuto
-        //response.setContentType("text/html;charset=UTF-8");
 
         // Inoltra la richiesta alla JSP
-        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/about-us.jsp");
-        dispatcher.forward(request, response);
+        RequestDispatcher dispatcher =
+                request.getRequestDispatcher("/WEB-INF/results/about-us.jsp");
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            throw e;
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            throw e;
+        }
     }
 }
