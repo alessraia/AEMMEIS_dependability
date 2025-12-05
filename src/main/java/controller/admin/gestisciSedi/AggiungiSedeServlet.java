@@ -44,7 +44,13 @@ public class AggiungiSedeServlet extends HttpServlet {
                         && s.getCivico() == sede.getCivico()) {
                     request.setAttribute("esito", "non riuscito");//per poter mostrare un errore nell'inserimento
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/sedi/aggiungiSedi.jsp");
-                    dispatcher.forward(request, response);
+                    try {
+                        dispatcher.forward(request, response);
+                    } catch (ServletException e) {
+                        log("Errore durante il forward ", e);
+                    } catch (IOException e) {
+                        log("Errore di I/O durante il forward", e);
+                    }
                     flag = false;
                 }
 

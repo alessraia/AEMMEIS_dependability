@@ -31,6 +31,12 @@ public class AggiungiLibroSedeServlet extends HttpServlet {
         request.setAttribute("libri", libri);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/sedi/stampaLibri.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward ", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
     }
 }
