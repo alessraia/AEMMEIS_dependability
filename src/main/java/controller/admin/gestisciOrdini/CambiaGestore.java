@@ -24,6 +24,12 @@ public class CambiaGestore extends HttpServlet {
         request.setAttribute("utenteScelto", request.getParameter("utenteScelto"));
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("gestisci-ordiniByUtente");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso gestisci-ordiniByUtente", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso gestisci-ordiniByUtente", e);
+        }
     }
 }

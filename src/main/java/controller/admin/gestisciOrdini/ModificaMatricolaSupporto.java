@@ -43,6 +43,12 @@ public class ModificaMatricolaSupporto extends HttpServlet {
         request.setAttribute("utenteScelto", utente);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/ordini/modificaMatricola.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso /WEB-INF/results/admin/ordini/modificaMatricola.jsp", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso /WEB-INF/results/admin/ordini/modificaMatricola.jsp", e);
+        }
     }
 }

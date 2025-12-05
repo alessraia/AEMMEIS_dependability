@@ -26,7 +26,13 @@ public class ModificaStato extends HttpServlet {
         String newStato = request.getParameter("stato");
         if(ordine == null || newStato == null){
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+            }
             return;
         }
 
@@ -39,6 +45,12 @@ public class ModificaStato extends HttpServlet {
         }
         request.setAttribute("utenteScelto", request.getParameter("utenteScelto"));
         RequestDispatcher dispatcher = request.getRequestDispatcher("gestisci-ordiniByUtente");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward verso gestisci-ordiniByUtente", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward verso gestisci-ordiniByUtente", e);
+        }
     }
 }
