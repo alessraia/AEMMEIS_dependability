@@ -22,10 +22,10 @@ public class ServiziServlet extends HttpServlet {
         try {
             dispatcher.forward(request, response);
         } catch (ServletException e) {
-            log("Errore durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            log("Errore durante il forward verso /WEB-INF/results/services.jsp", e);
 
         } catch (IOException e) {
-            log("Errore di I/O durante il forward verso /WEB-INF/results/about-us.jsp", e);
+            log("Errore di I/O durante il forward verso /WEB-INF/results/services.jsp", e);
 
         }
     }
