@@ -45,7 +45,7 @@
 
         <input type="hidden" id="costoIniziale" value="${ordine.costo}" name="costo">
         <input type="hidden" id="citta" value="${ordine.citta}" name="citta">
-        <input type="hidden" id="indirizzoSpedizione" value="${ordine.indirizzoSpedizione}" name="indirizzoSpedizione">
+        <input type="hidden" id="indirizzoSpedizione" value="${ordine.indirizzoSpedizione}" name="indirizzo">
 
         <input type="submit" name="Vai al pagamento">
     </form>
