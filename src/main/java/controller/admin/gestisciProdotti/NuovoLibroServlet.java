@@ -1,5 +1,6 @@
 package controller.admin.gestisciProdotti;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -129,7 +130,7 @@ public class NuovoLibroServlet extends HttpServlet {
                 }
                 if(flag) {
                     libroService.doSave(libro);
-                    response.sendRedirect("gestisci-prodotti");
+                    ControlMethod.safeRedirect(response, "gestisci-prodotti", this);
                 }
 
             } catch (NumberFormatException e) {
