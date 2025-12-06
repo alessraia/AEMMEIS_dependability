@@ -62,7 +62,13 @@ public class LoginServlet extends HttpServlet {
 
             if (service.doRetrieveByEmailPassword(utente.getEmail(), utente.getCodiceSicurezza()) == null) {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/loginError.jsp");
-                dispatcher.forward(request, response);
+                try {
+                    dispatcher.forward(request, response);
+                } catch (ServletException e) {
+                    log("Errore durante il forward", e);
+                } catch (IOException e) {
+                    log("Errore di I/O durante il forward", e);
+                }
             } else {
                 HttpSession session = request.getSession();
                 utente = service.doRetrieveById(email);

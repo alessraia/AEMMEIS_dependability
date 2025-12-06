@@ -1,6 +1,8 @@
 package controller.admin.gestisciSedi;
 
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,11 +27,17 @@ class AggiungiSedeServletAppoggioTest {
     private RequestDispatcher dispatcher;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws ServletException {
         servlet = new AggiungiSedeServletAppoggio();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         dispatcher = mock(RequestDispatcher.class);
+        
+        // Initialize servlet with mock ServletConfig and ServletContext to allow logging
+        ServletConfig config = mock(ServletConfig.class);
+        ServletContext context = mock(ServletContext.class);
+        when(config.getServletContext()).thenReturn(context);
+        servlet.init(config);
     }
 
     /**
@@ -134,8 +142,8 @@ class AggiungiSedeServletAppoggioTest {
     }
 
     /**
-     * Test ServletException is propagated
-     * Scenario: If forward throws ServletException, it should be propagated
+     * Test ServletException is caught and logged
+     * Scenario: If forward throws ServletException, it should be caught and logged
      */
     @Test
     void testDoGet_ServletExceptionPropagated() throws IOException, ServletException {
@@ -143,18 +151,16 @@ class AggiungiSedeServletAppoggioTest {
         when(request.getRequestDispatcher("/WEB-INF/results/admin/sedi/aggiungiSedi.jsp")).thenReturn(dispatcher);
         doThrow(new ServletException("Forward failed")).when(dispatcher).forward(request, response);
 
-        // Act & Assert: ServletException should be thrown
-        try {
-            servlet.doGet(request, response);
-        } catch (ServletException e) {
-            // Expected
-            assert e.getMessage().contains("Forward failed");
-        }
+        // Act: Call doGet - exception should be caught and logged, not thrown
+        servlet.doGet(request, response);
+
+        // Assert: Verify dispatcher.forward was called
+        verify(dispatcher).forward(request, response);
     }
 
     /**
-     * Test IOException is propagated
-     * Scenario: If forward throws IOException, it should be propagated
+     * Test IOException is caught and logged
+     * Scenario: If forward throws IOException, it should be caught and logged
      */
     @Test
     void testDoGet_IOExceptionPropagated() throws IOException, ServletException {
@@ -162,13 +168,11 @@ class AggiungiSedeServletAppoggioTest {
         when(request.getRequestDispatcher("/WEB-INF/results/admin/sedi/aggiungiSedi.jsp")).thenReturn(dispatcher);
         doThrow(new IOException("IO error during forward")).when(dispatcher).forward(request, response);
 
-        // Act & Assert: IOException should be thrown
-        try {
-            servlet.doGet(request, response);
-        } catch (IOException e) {
-            // Expected
-            assert e.getMessage().contains("IO error during forward");
-        }
+        // Act: Call doGet - exception should be caught and logged, not thrown
+        servlet.doGet(request, response);
+
+        // Assert: Verify dispatcher.forward was called
+        verify(dispatcher).forward(request, response);
     }
 
     /**

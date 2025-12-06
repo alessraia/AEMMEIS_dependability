@@ -65,7 +65,13 @@ public class RegistroUtente extends HttpServlet{
                     if (telefoniDB.contains(telefono)) {
                         address = "/WEB-INF/errorJsp/erroreTelefonoDB.jsp";
                         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
-                        dispatcher.forward(request, response);
+                        try {
+                            dispatcher.forward(request, response);
+                        } catch (ServletException e) {
+                            log("Errore durante il forward verso /WEB-INF/errorJsp/erroreTelefonoDB.jsp", e);
+                        } catch (IOException e) {
+                            log("Errore di I/O durante il forward verso /WEB-INF/errorJsp/erroreTelefonoDB.jsp", e);
+                        }
                         return;
                     }
                 }
@@ -125,7 +131,13 @@ public class RegistroUtente extends HttpServlet{
         }
 
         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
 
     }
 

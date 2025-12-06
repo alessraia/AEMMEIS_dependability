@@ -22,7 +22,13 @@ public class RicercaServlet extends HttpServlet {
         Utente utente = (Utente) session.getAttribute("utente");
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward verso /WEB-INF/results/admin/homepageAdmin.jsp", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward verso /WEB-INF/results/admin/homepageAdmin.jsp", e);
+            }
             return;
         }
         String query = request.getParameter("q");
@@ -43,7 +49,13 @@ public class RicercaServlet extends HttpServlet {
         }
 
         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
 
     }
 

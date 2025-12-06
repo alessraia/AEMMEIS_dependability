@@ -27,7 +27,13 @@ public class RimuoviDalCartServlet extends HttpServlet {
         Utente utente = (Utente) session.getAttribute("utente");
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward verso /WEB-INF/results/admin/homepageAdmin.jsp", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward verso /WEB-INF/results/admin/homepageAdmin.jsp", e);
+            }
             return;
         }
         Carrello carrello = (Carrello) session.getAttribute("carrello");
