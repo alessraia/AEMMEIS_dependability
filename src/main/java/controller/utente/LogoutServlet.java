@@ -81,7 +81,8 @@ public class LogoutServlet extends HttpServlet {
 
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            ControlMethod.safeSendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Si è verificato un errore interno", this);
+            return;
         }
 
         //Se l'admin modifica i reparti è necessario apportare modifiche alla lista salvata del serveltContext
