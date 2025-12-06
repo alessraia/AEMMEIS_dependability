@@ -1,5 +1,6 @@
 package controller.admin.gestisciSedi;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,6 +12,7 @@ import model.libroService.RepartoDAO;
 import model.libroService.Sede;
 import model.libroService.SedeDAO;
 
+import javax.sound.sampled.Control;
 import java.io.IOException;
 import java.util.List;
 
@@ -24,8 +26,10 @@ public class AggiungiSedeServlet extends HttpServlet {
         String cap = request.getParameter("cap");
         //controllo paramentri del form
         if(citta==null || citta.length()==0 || via==null || via.length()==0|| civ==null || civ.length()==0 ||
-                cap==null || cap.length()==0)
-            response.sendRedirect("/WEB-INF/errorJsp/erroreForm.jsp");
+                cap==null || cap.length()==0) {
+            ControlMethod.safeRedirect(response, "/WEB-INF/errorJsp/erroreForm.jsp", this);
+            return;
+        }
 
         int civico;
         Sede sede = new Sede();
@@ -57,11 +61,10 @@ public class AggiungiSedeServlet extends HttpServlet {
             }
             if (flag){
                 sedeService.doSave(sede);
-            response.sendRedirect("gestisci-sedi");
+                ControlMethod.safeRedirect(response, "gestisci-sedi", this);
             }
-
         }catch (NumberFormatException e){
-            response.sendRedirect("/WEB-INF/errorJsp/erroreForm.jsp");
+            ControlMethod.safeRedirect(response, "/WEB-INF/errorJsp/erroreForm.jsp", this);
         }
 
 

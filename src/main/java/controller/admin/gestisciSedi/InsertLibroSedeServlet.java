@@ -1,5 +1,6 @@
 package controller.admin.gestisciSedi;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -39,6 +40,6 @@ public class InsertLibroSedeServlet extends HttpServlet {
 
             }
         }
-        response.sendRedirect("gestisci-sedi");
+        ControlMethod.safeRedirect(response, "gestisci-sedi", this);
     }
 }

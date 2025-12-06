@@ -1,5 +1,6 @@
 package controller.admin.gestisciReparti;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -47,6 +48,6 @@ public class InsertLibroRepartoServlet extends HttpServlet {
                 repartoDAO.aggiungiLibroReparto(repartoDAO.doRetrieveById(id), isbn);
             }
         }
-        response.sendRedirect("gestisci-reparti");
+        ControlMethod.safeRedirect(response, "gestisci-reparti", this);
     }
 }

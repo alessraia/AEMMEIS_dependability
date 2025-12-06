@@ -1,5 +1,6 @@
 package controller.admin.gestisciReparti;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -41,7 +42,7 @@ public class EliminaRepartoServlet extends HttpServlet {
         }
         repartoService.deleteReparto(idReparto);
 
-        response.sendRedirect("gestisci-reparti"); //credo
+        ControlMethod.safeRedirect(response, "gestisci-reparti", this);
        /* RequestDispatcher dispatcher = request.getRequestDispatcher("gestisci-reparti");
         dispatcher.forward(request, response);*/
     }

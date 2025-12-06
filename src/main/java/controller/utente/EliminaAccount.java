@@ -1,5 +1,6 @@
 package controller.utente;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,6 @@ public class EliminaAccount extends HttpServlet {
         dao.deleteUtente(utente.getEmail());
 
         session.invalidate();
-        response.sendRedirect("index.html");
+        ControlMethod.safeRedirect(response, "index.html", this);
     }
 }

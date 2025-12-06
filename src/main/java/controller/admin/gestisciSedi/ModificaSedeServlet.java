@@ -1,5 +1,6 @@
 package controller.admin.gestisciSedi;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -36,6 +37,6 @@ public class ModificaSedeServlet extends HttpServlet {
         SedeDAO sedeDAO = new SedeDAO();
         sedeDAO.removeLibroSede(idSede, isbn);
 
-        response.sendRedirect("gestisci-sedi");
+        ControlMethod.safeRedirect(response, "gestisci-sedi", this);
     }
 }

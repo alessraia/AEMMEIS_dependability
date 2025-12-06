@@ -1,6 +1,7 @@
 package controller.utente.ordine;
 
 
+import controller.utils.ControlMethod;
 import controller.utils.Validator;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -202,7 +203,7 @@ public class OrdineServlet extends HttpServlet {
 
         ordineDAO.doSave(ordine);
 
-        response.sendRedirect("index.html");
+        ControlMethod.safeRedirect(response, "index.html", this);
     }
 }
 

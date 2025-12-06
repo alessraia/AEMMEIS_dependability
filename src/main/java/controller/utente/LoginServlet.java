@@ -1,5 +1,6 @@
 package controller.utente;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -50,7 +51,7 @@ public class LoginServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("pw");
         if((email==null || email.isEmpty() || !email.contains("@")) || (password== null || (password.isEmpty()) || password.length()>16)){
-            response.sendRedirect("/WEB-INF/errorJsp/loginError.jsp");
+            ControlMethod.safeRedirect(response, "/WEB-INF/errorJsp/loginError.jsp", this);
             return;
         }
         else {
@@ -109,7 +110,7 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("carrello", carrelloDb);
                 session.setAttribute("wishList", wishList);
 
-                response.sendRedirect("index.html");
+                ControlMethod.safeRedirect(response, "index.html", this);
             }
 
         }

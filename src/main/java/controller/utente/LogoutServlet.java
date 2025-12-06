@@ -1,5 +1,6 @@
 package controller.utente;
 
+import controller.utils.ControlMethod;
 import controller.utils.Validator;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -47,7 +48,7 @@ public class LogoutServlet extends HttpServlet {
             List<Reparto> reparti = service.doRetrivedAll();
             getServletContext().setAttribute("reparti", reparti);
             session.invalidate();
-            response.sendRedirect("index.html");
+            ControlMethod.safeRedirect(response, "index.html", this);
             return;
         }
 
@@ -91,7 +92,6 @@ public class LogoutServlet extends HttpServlet {
             getServletContext().setAttribute("reparti", reparti);
         }
         session.invalidate();
-        response.sendRedirect("index.html");
-
+        ControlMethod.safeRedirect(response, "index.html", this);
     }
 }

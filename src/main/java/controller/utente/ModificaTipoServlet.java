@@ -1,5 +1,6 @@
 package controller.utente;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -47,7 +48,7 @@ public class ModificaTipoServlet extends HttpServlet {
         }
 
         utenteDAO.updateUtente(utente); //cambio nel db i parametri cambiati
-        response.sendRedirect("area-personale");
+        ControlMethod.safeRedirect(response, "area-personale", this);
     }
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {

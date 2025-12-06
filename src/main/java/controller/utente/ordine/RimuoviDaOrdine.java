@@ -1,5 +1,6 @@
 package controller.utente.ordine;
 
+import controller.utils.ControlMethod;
 import controller.utils.Validator;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -55,7 +56,7 @@ public class RimuoviDaOrdine extends HttpServlet {
             }
 
             // Reindirizza alla pagina di riepilogo dell'ordine
-            response.sendRedirect("riepilogoOrdine.jsp");
+            ControlMethod.safeRedirect(response, "riepilogoOrdine.jsp", this);
         }
     }
 }

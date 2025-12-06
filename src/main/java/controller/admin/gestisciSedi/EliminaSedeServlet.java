@@ -1,5 +1,6 @@
 package controller.admin.gestisciSedi;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -34,6 +35,6 @@ public class EliminaSedeServlet extends HttpServlet {
 
         sedeService.deleteSede(idSede);
 
-        response.sendRedirect("gestisci-sedi");
+        ControlMethod.safeRedirect(response, "gestisci-sedi", this);
     }
 }

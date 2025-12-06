@@ -1,5 +1,6 @@
 package controller.admin.gestisciReparti;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -33,7 +34,7 @@ public class AggiungiRepartoServlet extends HttpServlet {
         
         if(nome==null || nome.isEmpty() || descrizione==null || descrizione.isEmpty() || immagine==null || immagine.isEmpty()){
             //pagina di errore per inserimento parametri errato
-            response.sendRedirect("/WEB-INF/errorJsp/erroreForm.jsp");//forse
+            ControlMethod.safeRedirect(response, "/WEB-INF/errorJsp/erroreForm.jsp", this);
             return;
         }
 
@@ -62,7 +63,7 @@ public class AggiungiRepartoServlet extends HttpServlet {
         }
         if(flag) {
             repartoService.doSave(reparto);
-            response.sendRedirect("gestisci-reparti");
+            ControlMethod.safeRedirect(response,"gestisci-reparti", this);
         }
 
     }
