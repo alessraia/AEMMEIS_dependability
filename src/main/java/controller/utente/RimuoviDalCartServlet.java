@@ -1,5 +1,6 @@
 package controller.utente;
 
+import controller.utils.ControlMethod;
 import controller.utils.Validator;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -62,7 +63,7 @@ public class RimuoviDalCartServlet extends HttpServlet {
             response.getWriter().write(jsonResponse.toJSONString());
         } else {
             // Se il carrello non esiste, restituisci un errore
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Il carrello non è stato trovato");
+            ControlMethod.safeSendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Il carrello non è stato trovato", this);
         }
 
 

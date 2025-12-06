@@ -1,5 +1,6 @@
 package controller.utente;
 
+import controller.utils.ControlMethod;
 import controller.utils.Validator;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -41,7 +42,7 @@ public class AggiungiAiPrefServlet extends HttpServlet {
                 log("Errore di I/O durante il forward verso /WEB-INF/results/admin/homepageAdmin.jsp", e);
             }
         } else if(utente==null){
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not logged in");
+            ControlMethod.safeSendError(response, HttpServletResponse.SC_UNAUTHORIZED, "User not logged in", this);
         }
         else {
             JSONObject jsonResponse = new JSONObject();

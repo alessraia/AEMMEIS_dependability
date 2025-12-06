@@ -1,6 +1,7 @@
 package controller.utente;
 
 import com.oracle.wls.shaded.org.apache.xml.utils.SystemIDResolver;
+import controller.utils.ControlMethod;
 import controller.utils.Validator;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -48,7 +49,7 @@ public class AggiornaCartServlet extends HttpServlet {
         Carrello carrello = (Carrello) session.getAttribute("carrello");
 
         if (carrello == null) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Carrello non trovato");
+            ControlMethod.safeSendError(response, HttpServletResponse.SC_BAD_REQUEST, "Carrello non trovato", this);
             return;
         }
 
@@ -67,7 +68,7 @@ public class AggiornaCartServlet extends HttpServlet {
 
 
             if (!itemFound) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Elemento non trovato nel carrello.");
+                ControlMethod.safeSendError(response, HttpServletResponse.SC_BAD_REQUEST, "Elemento non trovato nel carrello.", this);
                 return;
             }
 
@@ -75,7 +76,7 @@ public class AggiornaCartServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_OK);
 
         } catch (ParseException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+            ControlMethod.safeSendError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage(), this);
             e.printStackTrace();
         }
     }
