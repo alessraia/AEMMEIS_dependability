@@ -1,5 +1,6 @@
 package controller.utente;
 
+import controller.utils.ControlMethod;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -61,6 +62,9 @@ public class RimuoviTelefonoServlet extends HttpServlet {
             response.setContentType("text/plain");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write("Telefono rimosso con successo.");
+        } catch (IOException e) {
+            ControlMethod.safeSendError(response, HttpServletResponse.SC_BAD_REQUEST, "Errore nella lettura della richiesta", this);
+            return;
         } catch (ParseException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("Errore nella lettura del JSON.");

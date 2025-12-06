@@ -74,7 +74,9 @@ public class AggiornaCartServlet extends HttpServlet {
 
             session.setAttribute("carrello", carrello);
             response.setStatus(HttpServletResponse.SC_OK);
-
+        } catch (IOException e) {
+            ControlMethod.safeSendError(response, HttpServletResponse.SC_BAD_REQUEST, "Errore nella lettura della richiesta", this);
+            return;
         } catch (ParseException e) {
             ControlMethod.safeSendError(response, HttpServletResponse.SC_BAD_REQUEST, e.getMessage(), this);
             e.printStackTrace();
