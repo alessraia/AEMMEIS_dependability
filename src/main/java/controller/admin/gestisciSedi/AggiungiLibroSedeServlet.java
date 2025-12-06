@@ -16,7 +16,24 @@ public class AggiungiLibroSedeServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         SedeDAO sedeDAO = new SedeDAO();
-        Sede s = sedeDAO.doRetrieveById(Integer.parseInt(request.getParameter("idSede")));
+
+        String idParam = request.getParameter("idSede");
+        int idSede;
+
+        try {
+            idSede = Integer.parseInt(idParam);
+        } catch (NumberFormatException ex) {
+            log("Parametro 'id' non valido: " + idParam, ex);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+            }
+            return;
+        }
+
+        Sede s = sedeDAO.doRetrieveById(idSede);
         request.setAttribute("sede", s);
 
         LibroDAO libroService = new LibroDAO();

@@ -1,6 +1,8 @@
 package controller.admin.gestisciProdotti;
 
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.libroService.SedeDAO;
@@ -22,12 +24,18 @@ class EliminaLibroSedeTest {
     private SedeDAO sedeDAO;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         servlet = new EliminaLibroSede();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         dispatcher = mock(RequestDispatcher.class);
         sedeDAO = mock(SedeDAO.class);
+        
+        // Initialize servlet with ServletConfig
+        ServletConfig servletConfig = mock(ServletConfig.class);
+        ServletContext servletContext = mock(ServletContext.class);
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
+        servlet.init(servletConfig);
     }
 
     /**
@@ -69,23 +77,20 @@ class EliminaLibroSedeTest {
 
     /**
      * Test when idSede parameter is invalid (null, empty, or non-numeric)
-     * Expected: NumberFormatException is thrown
+     * Expected: NumberFormatException is caught and forwards to error page
      */
     @Test
     void testDoGet_IdSedeInvalid() throws Exception {
         when(request.getParameter("isbn")).thenReturn("1234567890123");
         when(request.getParameter("idSede")).thenReturn("abc");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp")).thenReturn(errorDispatcher);
 
         servlet.setSedeDAO(sedeDAO);
-
-        try {
-            servlet.doGet(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
+        servlet.doGet(request, response);
 
         verify(sedeDAO, never()).deleteFromPresenzaLibro(anyInt(), anyString());
-        verify(dispatcher, never()).forward(request, response);
+        verify(errorDispatcher).forward(request, response);
     }
 
 

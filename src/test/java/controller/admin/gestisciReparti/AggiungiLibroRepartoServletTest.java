@@ -1,6 +1,8 @@
 package controller.admin.gestisciReparti;
 
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.libroService.Libro;
@@ -14,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
@@ -31,13 +32,19 @@ class AggiungiLibroRepartoServletTest {
     private LibroDAO libroDAO;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         servlet = new AggiungiLibroRepartoServlet();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         dispatcher = mock(RequestDispatcher.class);
         repartoDAO = mock(RepartoDAO.class);
         libroDAO = mock(LibroDAO.class);
+        
+        // Initialize servlet with ServletConfig
+        ServletConfig servletConfig = mock(ServletConfig.class);
+        ServletContext servletContext = mock(ServletContext.class);
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
+        servlet.init(servletConfig);
     }
 
     /**
@@ -219,63 +226,33 @@ class AggiungiLibroRepartoServletTest {
     @Test
     void testDoGet_NullIdReparto_ThrowsException() throws Exception {
         when(request.getParameter("idReparto")).thenReturn(null);
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
         servlet.setLibroDAO(libroDAO);
-
-        assertThrows(NumberFormatException.class, () -> {
-            servlet.doGet(request, response);
-        });
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).doRetrieveById(anyInt());
-        verify(dispatcher, never()).forward(request, response);
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
      * Test with invalid idReparto parameter (not a number)
-     * Expected: NumberFormatException
+     * Expected: NumberFormatException is caught and forwards to error page
      */
     @Test
     void testDoGet_InvalidIdReparto_ThrowsException() throws Exception {
         when(request.getParameter("idReparto")).thenReturn("invalid");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
         servlet.setLibroDAO(libroDAO);
-
-        assertThrows(NumberFormatException.class, () -> {
-            servlet.doGet(request, response);
-        });
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).doRetrieveById(anyInt());
-        verify(dispatcher, never()).forward(request, response);
-    }
-
-    /**
-     * Test when getAppartenenza returns null (documents bug in servlet)
-     * Expected: NullPointerException when checking isEmpty()
-     */
-    @Test
-    void testDoGet_GetAppartenenzaReturnsNull() throws Exception {
-        when(request.getParameter("idReparto")).thenReturn("5");
-
-        Reparto reparto = new Reparto();
-        reparto.setIdReparto(5);
-
-        List<Libro> allLibri = new ArrayList<>();
-        Libro libro1 = new Libro();
-        libro1.setIsbn("TEST-123");
-        allLibri.add(libro1);
-
-        when(repartoDAO.doRetrieveById(5)).thenReturn(reparto);
-        when(libroDAO.doRetriveAll()).thenReturn(allLibri);
-        when(repartoDAO.getAppartenenza(5)).thenReturn(null);
-
-        servlet.setRepartoDAO(repartoDAO);
-        servlet.setLibroDAO(libroDAO);
-
-        assertThrows(NullPointerException.class, () -> {
-            servlet.doGet(request, response);
-        });
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**

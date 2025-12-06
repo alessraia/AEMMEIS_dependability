@@ -1,5 +1,7 @@
 package controller.admin.gestisciSedi;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,7 +16,22 @@ public class ModificaSedeServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String isbn = request.getParameter("isbn");
-        int idSede = Integer.parseInt(request.getParameter("idSede"));
+
+        String idParam = request.getParameter("idSede");
+        int idSede;
+
+        try {
+            idSede = Integer.parseInt(idParam);
+        } catch (NumberFormatException ex) {
+            log("Parametro 'id' non valido: " + idParam, ex);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+            }
+            return;
+        }
 
         SedeDAO sedeDAO = new SedeDAO();
         sedeDAO.removeLibroSede(idSede, isbn);

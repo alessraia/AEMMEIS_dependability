@@ -36,7 +36,23 @@ public class AggiungiLibroRepartoServlet extends HttpServlet {
             libroService = new LibroDAO();
         }
 
-        Reparto r = repartoDAO.doRetrieveById(Integer.parseInt(request.getParameter("idReparto")));
+        String idParam = request.getParameter("idReparto");
+        int id;
+
+        try {
+            id = Integer.parseInt(idParam);
+        } catch (NumberFormatException ex) {
+            log("Parametro 'id' non valido: " + idParam, ex);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/ErroreReparto.jsp", e);
+            }
+            return;
+        }
+
+        Reparto r = repartoDAO.doRetrieveById(id);
         request.setAttribute("reparto", r);
 
         List<Libro> libri = libroService.doRetriveAll();

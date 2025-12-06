@@ -11,7 +11,6 @@ import org.mockito.MockedConstruction;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class AggiungiLibroRepartoTest {
@@ -84,9 +83,13 @@ class AggiungiLibroRepartoTest {
         // Quando un ID reparto non è un numero valido
         when(request.getParameterValues("repartoSelezionato")).thenReturn(new String[]{"invalid"});
         when(request.getParameter("isbn")).thenReturn("789-GHI");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp")).thenReturn(errorDispatcher);
 
         try (MockedConstruction<RepartoDAO> mocked = mockConstruction(RepartoDAO.class)) {
-            assertThrows(NumberFormatException.class, () -> servlet.doGet(request, response));
+            servlet.doGet(request, response);
+            // Verifica che il servlet abbia fatto forward verso la pagina di errore
+            verify(errorDispatcher, times(1)).forward(request, response);
         }
     }
 

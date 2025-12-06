@@ -1,5 +1,8 @@
 package controller.admin.gestisciReparti;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.libroService.RepartoDAO;
@@ -20,11 +23,17 @@ class EliminaRepartoServletTest {
     private RepartoDAO repartoDAO;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         servlet = new EliminaRepartoServlet();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         repartoDAO = mock(RepartoDAO.class);
+        
+        // Initialize servlet with ServletConfig
+        ServletConfig servletConfig = mock(ServletConfig.class);
+        ServletContext servletContext = mock(ServletContext.class);
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
+        servlet.init(servletConfig);
     }
 
     /**
@@ -98,17 +107,14 @@ class EliminaRepartoServletTest {
     @Test
     void testDoGet_IdRepartoNull() throws Exception {
         when(request.getParameter("idReparto")).thenReturn(null);
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        try {
-            servlet.doGet(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).deleteReparto(anyInt());
-        verify(response, never()).sendRedirect(anyString());
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
@@ -118,17 +124,14 @@ class EliminaRepartoServletTest {
     @Test
     void testDoGet_IdRepartoEmpty() throws Exception {
         when(request.getParameter("idReparto")).thenReturn("");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        try {
-            servlet.doGet(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).deleteReparto(anyInt());
-        verify(response, never()).sendRedirect(anyString());
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
@@ -138,17 +141,14 @@ class EliminaRepartoServletTest {
     @Test
     void testDoGet_IdRepartoNotANumber() throws Exception {
         when(request.getParameter("idReparto")).thenReturn("abc");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        try {
-            servlet.doGet(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).deleteReparto(anyInt());
-        verify(response, never()).sendRedirect(anyString());
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
@@ -158,17 +158,14 @@ class EliminaRepartoServletTest {
     @Test
     void testDoGet_IdRepartoWithSpecialCharacters() throws Exception {
         when(request.getParameter("idReparto")).thenReturn("1@#$");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        try {
-            servlet.doGet(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).deleteReparto(anyInt());
-        verify(response, never()).sendRedirect(anyString());
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
@@ -178,17 +175,14 @@ class EliminaRepartoServletTest {
     @Test
     void testDoGet_IdRepartoDecimal() throws Exception {
         when(request.getParameter("idReparto")).thenReturn("10.5");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        try {
-            servlet.doGet(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).deleteReparto(anyInt());
-        verify(response, never()).sendRedirect(anyString());
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
@@ -198,17 +192,14 @@ class EliminaRepartoServletTest {
     @Test
     void testDoGet_IdRepartoWithWhitespace() throws Exception {
         when(request.getParameter("idReparto")).thenReturn("  10  ");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        try {
-            servlet.doGet(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).deleteReparto(anyInt());
-        verify(response, never()).sendRedirect(anyString());
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**

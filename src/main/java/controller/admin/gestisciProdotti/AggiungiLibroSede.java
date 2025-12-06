@@ -21,8 +21,19 @@ public class AggiungiLibroSede extends HttpServlet {
             SedeDAO sedeService = new SedeDAO();
             if(idSedi!=null) {
                 for (String idSede : idSedi) {
-                    int id = Integer.parseInt(idSede);
-                    sedeService.doSavePresenza(id, isbn);
+                    int id;
+                    try {
+                        id = Integer.parseInt(idSede);
+                        sedeService.doSavePresenza(id, isbn);
+                    } catch (NumberFormatException ex) {
+                        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                        try {
+                            dispatcher.forward(request, response);
+                        } catch (ServletException | IOException e) {
+                            log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+                        }
+                        return;
+                    }
                 }
             }
 

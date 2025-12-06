@@ -21,7 +21,21 @@ public class EliminaLibroReparto extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String isbn= request.getParameter("isbn");
-        int idReparto = Integer.parseInt(request.getParameter("idReparto"));
+        String idParam = request.getParameter("idReparto");
+        int idReparto;
+
+        try {
+            idReparto = Integer.parseInt(idParam);
+        } catch (NumberFormatException ex) {
+            log("Parametro 'id' non valido: " + idParam, ex);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/ErroreReparto.jsp", e);
+            }
+            return;
+        }
 
         if (service == null) {
             service = new RepartoDAO();

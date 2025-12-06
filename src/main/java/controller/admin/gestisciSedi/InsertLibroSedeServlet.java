@@ -1,5 +1,7 @@
 package controller.admin.gestisciSedi;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,8 +18,25 @@ public class InsertLibroSedeServlet extends HttpServlet {
         SedeDAO sedeDAO = new SedeDAO();
         if(libriIsbn!=null){
             for(String isbn : libriIsbn){
-                sedeDAO.addLibroSede(sedeDAO.doRetrieveById(Integer.parseInt(request.getParameter("idSede")
-                )), isbn);
+
+                String idParam = request.getParameter("idSede");
+                int idSede;
+
+                try {
+                    idSede = Integer.parseInt(idParam);
+                    sedeDAO.addLibroSede(sedeDAO.doRetrieveById(idSede), isbn);
+                } catch (NumberFormatException ex) {
+                    log("Parametro 'id' non valido: " + idParam, ex);
+                    RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                    try {
+                        dispatcher.forward(request, response);
+                    } catch (ServletException | IOException e) {
+                        log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+                    }
+                    return;
+                }
+
+
             }
         }
         response.sendRedirect("gestisci-sedi");

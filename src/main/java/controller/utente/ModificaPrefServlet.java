@@ -41,7 +41,23 @@ public class ModificaPrefServlet extends HttpServlet {
             }
             else if(source!= null && source.equals("reparto")){// controllo se il bottone è stato selezionato nel reparto
                 if(request.getParameter("repartoAttuale")!=null) {
-                    int idReparto = Integer.parseInt(request.getParameter("repartoAttuale"));
+
+                    String idParam = request.getParameter("repartoAttuale");
+                    int idReparto;
+
+                    try {
+                        idReparto = Integer.parseInt(idParam);
+                    } catch (NumberFormatException ex) {
+                        log("Parametro 'id' non valido: " + idParam, ex);
+                        RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                        try {
+                            dispatcher.forward(request, response);
+                        } catch (ServletException | IOException e) {
+                            log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+                        }
+                        return;
+                    }
+
                     List<Reparto> reparti = (List<Reparto>) getServletContext().getAttribute("reparti");
                     for(Reparto r : reparti) {
                         if(r.getIdReparto()==idReparto) {

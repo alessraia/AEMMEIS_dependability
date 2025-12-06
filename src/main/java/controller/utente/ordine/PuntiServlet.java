@@ -39,10 +39,33 @@ public class PuntiServlet extends HttpServlet {
         String puntiString = request.getParameter("punti");
         int punti = 0;
         if(puntiString != null && !puntiString.isEmpty())
-            punti = Integer.parseInt(puntiString);
+            try {
+                punti = Integer.parseInt(puntiString);
+            }catch(NumberFormatException ex) {
+                RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                try {
+                    dispatcher.forward(request, response);
+                } catch (ServletException | IOException e) {
+                    log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+                }
+                return;
+            }
         ordine.setPuntiSpesi(punti);
 
-        double costo = Double.parseDouble(request.getParameter("costo"));
+        String costoString = request.getParameter("costo");
+        double costo;
+
+        try {
+            costo = Double.parseDouble(costoString);
+        }catch(NumberFormatException ex) {
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+            }
+            return;
+        }
         double costoAggiornato=costo - (ordine.getPuntiSpesi() * 0.10);
         BigDecimal bd = new BigDecimal(costoAggiornato).setScale(2, RoundingMode.HALF_UP);
         double costoArrotondato = bd.doubleValue();

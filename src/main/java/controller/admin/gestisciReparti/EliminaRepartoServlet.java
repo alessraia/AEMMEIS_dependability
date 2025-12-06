@@ -23,7 +23,22 @@ public class EliminaRepartoServlet extends HttpServlet {
         if (repartoService == null) {
             repartoService = new RepartoDAO();
         }
-        int idReparto = Integer.parseInt(request.getParameter("idReparto"));
+
+        String idParam = request.getParameter("idReparto");
+        int idReparto;
+
+        try {
+            idReparto = Integer.parseInt(idParam);
+        } catch (NumberFormatException ex) {
+            log("Parametro 'id' non valido: " + idParam, ex);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/ErroreReparto.jsp", e);
+            }
+            return;
+        }
         repartoService.deleteReparto(idReparto);
 
         response.sendRedirect("gestisci-reparti"); //credo

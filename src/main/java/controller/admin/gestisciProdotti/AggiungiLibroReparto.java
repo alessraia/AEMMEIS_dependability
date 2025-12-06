@@ -19,8 +19,19 @@ public class AggiungiLibroReparto extends HttpServlet {
         RepartoDAO repartoService = new RepartoDAO();
         if(idReparti!=null) {
             for (String idReparto : idReparti) {
-                int id= Integer.parseInt(idReparto);
-                repartoService.doSaveAppartenenza(id,isbn);
+                int id;
+                try {
+                    id = Integer.parseInt(idReparto);
+                    repartoService.doSaveAppartenenza(id,isbn);
+                } catch (NumberFormatException ex) {
+                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                    try {
+                        dispatcher.forward(request, response);
+                    } catch (ServletException | IOException e) {
+                        log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+                    }
+                    return;
+                }
             }
         }
         RequestDispatcher dispatcher = request.getRequestDispatcher("modifica-libro");

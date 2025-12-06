@@ -19,8 +19,22 @@ public class EliminaLibroSede extends HttpServlet {
 
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         String isbn= request.getParameter("isbn");
-        int idSede = Integer.parseInt(request.getParameter("idSede"));
 
+        String idParam = request.getParameter("idSede");
+        int idSede;
+
+        try {
+            idSede = Integer.parseInt(idParam);
+        } catch (NumberFormatException ex) {
+            log("Parametro 'id' non valido: " + idParam, ex);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+            }
+            return;
+        }
         if (service == null) {
             service = new SedeDAO();
         }

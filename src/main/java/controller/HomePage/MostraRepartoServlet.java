@@ -33,7 +33,22 @@ public class MostraRepartoServlet extends HttpServlet {
             }
             return;
         }
-        int idReparto = Integer.parseInt(request.getParameter("id"));
+        String idParam = request.getParameter("id");
+        int idReparto;
+
+        try {
+            idReparto = Integer.parseInt(idParam);
+        } catch (NumberFormatException ex) {
+            log("Parametro 'id' non valido: " + idParam, ex);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/ErroreReparto.jsp", e);
+            }
+            return;
+        }
+
         String position = request.getParameter("position");
         String address="/WEB-INF/results/reparto.jsp";
 

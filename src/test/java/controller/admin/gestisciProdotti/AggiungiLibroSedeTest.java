@@ -11,7 +11,6 @@ import org.mockito.MockedConstruction;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class AggiungiLibroSedeTest {
@@ -84,9 +83,13 @@ class AggiungiLibroSedeTest {
         // Quando un ID sede non è un numero valido
         when(request.getParameterValues("sedeSelezionata")).thenReturn(new String[]{"invalid"});
         when(request.getParameter("isbn")).thenReturn("789-GHI");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp")).thenReturn(errorDispatcher);
 
         try (MockedConstruction<SedeDAO> mocked = mockConstruction(SedeDAO.class)) {
-            assertThrows(NumberFormatException.class, () -> servlet.doGet(request, response));
+            servlet.doGet(request, response);
+            // Verifica che il servlet abbia fatto forward verso la pagina di errore
+            verify(errorDispatcher, times(1)).forward(request, response);
         }
     }
 
@@ -242,9 +245,13 @@ class AggiungiLibroSedeTest {
         // Test con un numero troppo grande (oltre Integer.MAX_VALUE)
         when(request.getParameterValues("sedeSelezionata")).thenReturn(new String[]{"2147483648"});
         when(request.getParameter("isbn")).thenReturn("OVERFLOW-TEST");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp")).thenReturn(errorDispatcher);
 
         try (MockedConstruction<SedeDAO> mocked = mockConstruction(SedeDAO.class)) {
-            assertThrows(NumberFormatException.class, () -> servlet.doGet(request, response));
+            servlet.doGet(request, response);
+            // Verifica che il servlet abbia fatto forward verso la pagina di errore
+            verify(errorDispatcher, times(1)).forward(request, response);
         }
     }
 }

@@ -1,5 +1,7 @@
 package controller.admin.gestisciReparti;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,8 +29,22 @@ public class InsertLibroRepartoServlet extends HttpServlet {
         
         if(libriIsbn!=null){
             for(String isbn : libriIsbn){
-                repartoDAO.aggiungiLibroReparto(repartoDAO.doRetrieveById(Integer.parseInt(request.getParameter("idReparto")
-                        )), isbn);
+                String idParam = request.getParameter("idReparto");
+                int id;
+
+                try {
+                    id = Integer.parseInt(idParam);
+                } catch (NumberFormatException ex) {
+                    log("Parametro 'id' non valido: " + idParam, ex);
+                    RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp");
+                    try {
+                        dispatcher.forward(request, response);
+                    } catch (ServletException | IOException e) {
+                        log("Errore durante il forward verso /WEB-INF/errorJsp/ErroreReparto.jsp", e);
+                    }
+                    return;
+                }
+                repartoDAO.aggiungiLibroReparto(repartoDAO.doRetrieveById(id), isbn);
             }
         }
         response.sendRedirect("gestisci-reparti");

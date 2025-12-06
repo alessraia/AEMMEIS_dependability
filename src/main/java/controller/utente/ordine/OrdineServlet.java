@@ -95,7 +95,17 @@ public class OrdineServlet extends HttpServlet {
             String puntiString = request.getParameter("punti");
             int punti = 0;
             if(puntiString != null && !puntiString.isEmpty())
-                punti = Integer.parseInt(puntiString);
+                try {
+                    punti = Integer.parseInt(puntiString);
+                }catch(NumberFormatException ex) {
+                    RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                    try {
+                        dispatcher.forward(request, response);
+                    } catch (ServletException | IOException e) {
+                        log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+                    }
+                    return;
+                }
             ordine.setPuntiSpesi(punti);
        // }
 

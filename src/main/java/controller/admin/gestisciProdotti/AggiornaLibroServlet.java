@@ -52,9 +52,19 @@ public class AggiornaLibroServlet extends HttpServlet {
         }
 
         int sconto = 0;
-        if(isValid(sconto1))
-            sconto = Integer.parseInt(sconto1);
-        else {
+        if(isValid(sconto1)) {
+            try {
+                sconto = Integer.parseInt(sconto1);
+            } catch (NumberFormatException ex){
+                RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                try {
+                    dispatcher.forward(request, response);
+                } catch (ServletException | IOException e) {
+                    log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+                }
+                return;
+            }
+        }else {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
             try {
                 dispatcher.forward(request, response);

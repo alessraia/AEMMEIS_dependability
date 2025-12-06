@@ -1,6 +1,8 @@
 package controller.admin.gestisciProdotti;
 
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.libroService.RepartoDAO;
@@ -22,12 +24,18 @@ class EliminaLibroRepartoTest {
     private RepartoDAO repartoDAO;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         servlet = new EliminaLibroReparto();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         dispatcher = mock(RequestDispatcher.class);
         repartoDAO = mock(RepartoDAO.class);
+        
+        // Initialize servlet with ServletConfig
+        ServletConfig servletConfig = mock(ServletConfig.class);
+        ServletContext servletContext = mock(ServletContext.class);
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
+        servlet.init(servletConfig);
     }
 
     /**
@@ -69,23 +77,20 @@ class EliminaLibroRepartoTest {
 
     /**
      * Test when idReparto parameter is invalid (null, empty, or non-numeric)
-     * Expected: NumberFormatException is thrown
+     * Expected: NumberFormatException is caught and forwards to error page
      */
     @Test
     void testDoGet_IdRepartoInvalid() throws Exception {
         when(request.getParameter("isbn")).thenReturn("1234567890123");
         when(request.getParameter("idReparto")).thenReturn("abc");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        try {
-            servlet.doGet(request, response);
-        } catch (NumberFormatException e) {
-            // Expected exception
-        }
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).deleteFromAppartenenzaLibro(anyInt(), anyString());
-        verify(dispatcher, never()).forward(request, response);
+        verify(errorDispatcher).forward(request, response);
     }
 
 

@@ -88,7 +88,24 @@ public class Pagamento extends HttpServlet {
                 address = "/WEB-INF/errorJsp/erroreForm.jsp";
                // response.sendRedirect("/WEB-INF/errorJsp/erroreForm.jsp");//forse
             else {
-                Sede sede = sedeDAO.doRetrieveById(Integer.parseInt(request.getParameter("sede")));
+
+                String idParam = request.getParameter("sede");
+                int idSede;
+
+                try {
+                    idSede = Integer.parseInt(idParam);
+                } catch (NumberFormatException ex) {
+                    log("Parametro 'id' non valido: " + idParam, ex);
+                    RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                    try {
+                        dispatcher.forward(request, response);
+                    } catch (ServletException | IOException e) {
+                        log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+                    }
+                    return;
+                }
+
+                Sede sede = sedeDAO.doRetrieveById(idSede);
                 ordine.setCitta(sede.getCitta());
                 ordine.setIndirizzoSpedizione(sede.getVia() + ", " + sede.getCivico() + ", " + sede.getCap());
                 if(utente.getTipo().equalsIgnoreCase("Standard"))

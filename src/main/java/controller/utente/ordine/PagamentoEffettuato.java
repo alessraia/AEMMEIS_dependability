@@ -42,15 +42,43 @@ public class PagamentoEffettuato extends HttpServlet {
         //dubbio sul metterlo direttamente in sessione...anche se non credo sia giusto salvarlo in sessione.
         ordine.setCitta(request.getParameter("citta"));
         ordine.setIndirizzoSpedizione(request.getParameter("indirizzo"));
-        ordine.setCosto(Double.parseDouble(request.getParameter("costo")));
+
+        String costoString = request.getParameter("costo");
+        double costo;
+
+        try {
+            costo = Double.parseDouble(costoString);
+            ordine.setCosto(costo);
+
+        } catch (NumberFormatException ex) {
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+            }
+            return;
+        }
 
         int punti = 0;
         if(utente.getTipo().equalsIgnoreCase("premium")){
             String puntiString = request.getParameter("punti");
 
-            if(isNumeric(puntiString)) {
-                punti = Integer.parseInt(puntiString);
-                if (punti < 0 || punti > tesseraDAO.doRetrieveByEmail(utente.getEmail()).getPunti()) {
+            try {
+                if (isNumeric(puntiString)) {
+                    punti = Integer.parseInt(puntiString);
+                    if (punti < 0 || punti > tesseraDAO.doRetrieveByEmail(utente.getEmail()).getPunti()) {
+                        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+                        try {
+                            dispatcher.forward(request, response);
+                        } catch (ServletException e) {
+                            log("Errore durante il forward", e);
+                        } catch (IOException e) {
+                            log("Errore di I/O durante il forward", e);
+                        }
+                        return;
+                    }
+                } else if (!(puntiString.isEmpty())) {
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
                     try {
                         dispatcher.forward(request, response);
@@ -61,19 +89,15 @@ public class PagamentoEffettuato extends HttpServlet {
                     }
                     return;
                 }
-            }else if(!(puntiString.isEmpty())){
-                RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+            }catch (NumberFormatException ex){
+                RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
                 try {
                     dispatcher.forward(request, response);
-                } catch (ServletException e) {
-                    log("Errore durante il forward", e);
-                } catch (IOException e) {
-                    log("Errore di I/O durante il forward", e);
+                } catch (ServletException | IOException e) {
+                    log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
                 }
                 return;
             }
-
-
         }
         ordine.setPuntiSpesi(punti);
 

@@ -1,5 +1,8 @@
 package controller.admin.gestisciReparti;
 
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.libroService.RepartoDAO;
@@ -21,11 +24,17 @@ class ModificaRepartoServletTest {
     private RepartoDAO repartoDAO;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         servlet = new ModificaRepartoServlet();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         repartoDAO = mock(RepartoDAO.class);
+        
+        // Initialize servlet with ServletConfig
+        ServletConfig servletConfig = mock(ServletConfig.class);
+        ServletContext servletContext = mock(ServletContext.class);
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
+        servlet.init(servletConfig);
     }
 
     /**
@@ -57,14 +66,14 @@ class ModificaRepartoServletTest {
     void testDoGet_IdRepartoNull_ThrowsException() throws Exception {
         when(request.getParameter("isbn")).thenReturn("123-456");
         when(request.getParameter("idReparto")).thenReturn(null);
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        assertThrows(NumberFormatException.class, () -> {
-            servlet.doGet(request, response);
-        });
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).removeLibroReparto(anyInt(), anyString());
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
@@ -75,14 +84,14 @@ class ModificaRepartoServletTest {
     void testDoGet_IdRepartoInvalid_ThrowsException() throws Exception {
         when(request.getParameter("isbn")).thenReturn("123-456");
         when(request.getParameter("idReparto")).thenReturn("invalid");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        assertThrows(NumberFormatException.class, () -> {
-            servlet.doGet(request, response);
-        });
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).removeLibroReparto(anyInt(), anyString());
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**

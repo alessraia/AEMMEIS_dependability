@@ -1,5 +1,6 @@
 package controller.admin.gestisciSedi;
 
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -14,7 +15,23 @@ import java.io.IOException;
 public class EliminaSedeServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         SedeDAO sedeService = new SedeDAO();
-        int idSede = Integer.parseInt(request.getParameter("idSede"));
+
+        String idParam = request.getParameter("idSede");
+        int idSede;
+
+        try {
+            idSede = Integer.parseInt(idParam);
+        } catch (NumberFormatException ex) {
+            log("Parametro 'id' non valido: " + idParam, ex);
+            RequestDispatcher dispatcher=request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException | IOException e) {
+                log("Errore durante il forward verso /WEB-INF/errorJsp/erroreForm.jsp", e);
+            }
+            return;
+        }
+
         sedeService.deleteSede(idSede);
 
         response.sendRedirect("gestisci-sedi");

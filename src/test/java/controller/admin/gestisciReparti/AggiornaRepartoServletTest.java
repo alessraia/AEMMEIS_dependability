@@ -1,6 +1,8 @@
 package controller.admin.gestisciReparti;
 
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.libroService.Reparto;
@@ -8,7 +10,6 @@ import model.libroService.RepartoDAO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 /**
@@ -24,12 +25,18 @@ class AggiornaRepartoServletTest {
     private RepartoDAO repartoDAO;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         servlet = new AggiornaRepartoServlet();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         dispatcher = mock(RequestDispatcher.class);
         repartoDAO = mock(RepartoDAO.class);
+        
+        // Initialize servlet with ServletConfig
+        ServletConfig servletConfig = mock(ServletConfig.class);
+        ServletContext servletContext = mock(ServletContext.class);
+        when(servletConfig.getServletContext()).thenReturn(servletContext);
+        servlet.init(servletConfig);
     }
 
     /**
@@ -172,14 +179,14 @@ class AggiornaRepartoServletTest {
         when(request.getParameter("idReparto")).thenReturn(null);
         when(request.getParameter("descrizione")).thenReturn("Descrizione");
         when(request.getParameter("immagine")).thenReturn("image.jpg");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        assertThrows(NumberFormatException.class, () -> {
-            servlet.doGet(request, response);
-        });
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).updateReparto(any(Reparto.class));
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
@@ -191,14 +198,14 @@ class AggiornaRepartoServletTest {
         when(request.getParameter("idReparto")).thenReturn("invalid");
         when(request.getParameter("descrizione")).thenReturn("Descrizione");
         when(request.getParameter("immagine")).thenReturn("image.jpg");
+        RequestDispatcher errorDispatcher = mock(RequestDispatcher.class);
+        when(request.getRequestDispatcher("/WEB-INF/errorJsp/ErroreReparto.jsp")).thenReturn(errorDispatcher);
 
         servlet.setRepartoDAO(repartoDAO);
-
-        assertThrows(NumberFormatException.class, () -> {
-            servlet.doGet(request, response);
-        });
+        servlet.doGet(request, response);
 
         verify(repartoDAO, never()).updateReparto(any(Reparto.class));
+        verify(errorDispatcher).forward(request, response);
     }
 
     /**
