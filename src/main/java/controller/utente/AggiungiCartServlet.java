@@ -42,7 +42,7 @@ public class AggiungiCartServlet extends HttpServlet {
             // Utente utente = (Utente) session.getAttribute("utente");
             Carrello carrello = (Carrello) session.getAttribute("carrello");
 
-            String address = "index.html";
+            /*String address = "index.html";
             if (source != null) { //ho aggiunto il controllo per source potrebbe essere null
                 if (source.equals("mostraLibro"))
                     address = "mostra-libro";
@@ -53,6 +53,28 @@ public class AggiungiCartServlet extends HttpServlet {
                 } else if (source.equals("aggiungi-carrello")) {
                     address = "mostra-reparto";
 
+                }
+            }*/
+            String address = "/index.html";
+            if (source != null) {
+                switch (source) {
+                    case "mostraLibro":
+                        address = "/mostra-libro";
+                        break;
+                    case "riepilogoOrdine":
+                        address = "/riepilogo-ordine";
+                        break;
+                    case "ricerca":
+                        // non serve aggiungere ?q=... :
+                        // il parametro "q" è già nella request e viene passato al forward
+                        address = "/ricerca-servlet";
+                        break;
+                    case "aggiungi-carrello":
+                        address = "/mostra-reparto";
+                        break;
+                    default:
+                        // mantieni /index.html
+                        break;
                 }
             }
 
@@ -83,7 +105,8 @@ public class AggiungiCartServlet extends HttpServlet {
             session.setAttribute("carrello", carrello);
 
             if (position != null) {
-                address += "#" + position;
+               // address += "#" + position;
+                request.setAttribute("position", position);
             }
 
             //response.sendRedirect(address);//supporta l'ancoraggio*/

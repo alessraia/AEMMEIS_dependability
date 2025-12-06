@@ -71,7 +71,7 @@ public class AggiungiCartServletTest {
         when(session.getAttribute("carrello")).thenReturn(carrello);
         when(request.getParameter("isbn")).thenReturn("ABC-1");
         when(request.getParameter("source")).thenReturn("mostraLibro");
-        when(request.getRequestDispatcher("mostra-libro")).thenReturn(dispatcher);
+        when(request.getRequestDispatcher("/mostra-libro")).thenReturn(dispatcher);
 
         // Mock LibroDAO to return a Libro with same ISBN
         Libro daoLibro = new Libro();
@@ -107,7 +107,7 @@ public class AggiungiCartServletTest {
         when(session.getAttribute("carrello")).thenReturn(carrello);
         when(request.getParameter("isbn")).thenReturn("NEW-123");
         when(request.getParameter("source")).thenReturn("aggiungi-carrello");
-        when(request.getRequestDispatcher("mostra-reparto")).thenReturn(dispatcher);
+        when(request.getRequestDispatcher("/mostra-reparto")).thenReturn(dispatcher);
 
         // Mock DAO to return the Libro
         Libro daoLibro = new Libro();
@@ -164,7 +164,7 @@ public class AggiungiCartServletTest {
         when(session.getAttribute("carrello")).thenReturn(carrello);
         when(request.getParameter("isbn")).thenReturn("BOOK-2");
         when(request.getParameter("source")).thenReturn("mostraLibro");
-        when(request.getRequestDispatcher("mostra-libro")).thenReturn(dispatcher);
+        when(request.getRequestDispatcher("/mostra-libro")).thenReturn(dispatcher);
 
         // Mock DAO to return libro2
         Libro daoLibro = new Libro();
@@ -202,7 +202,7 @@ public class AggiungiCartServletTest {
         when(session.getAttribute("carrello")).thenReturn(carrello);
         when(request.getParameter("isbn")).thenReturn("ISBN-999");
         when(request.getParameter("source")).thenReturn("mostraLibro");
-        when(request.getRequestDispatcher("mostra-libro")).thenReturn(dispatcher);
+        when(request.getRequestDispatcher("/mostra-libro")).thenReturn(dispatcher);
 
         Libro daoLibro = new Libro();
         daoLibro.setIsbn("ISBN-999");
@@ -255,7 +255,7 @@ public class AggiungiCartServletTest {
         when(session.getAttribute("carrello")).thenReturn(carrello);
         when(request.getParameter("isbn")).thenReturn("NEW-BOOK");
         when(request.getParameter("source")).thenReturn("mostraLibro");
-        when(request.getRequestDispatcher("mostra-libro")).thenReturn(dispatcher);
+        when(request.getRequestDispatcher("/mostra-libro")).thenReturn(dispatcher);
 
         // Mock DAO to return a NEW book (not in cart)
         Libro daoLibro = new Libro();
