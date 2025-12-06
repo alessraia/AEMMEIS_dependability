@@ -66,9 +66,13 @@ public class SearchBarServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         // Inviare la risposta JSON al client
-        PrintWriter out = response.getWriter();
-        out.print(jsonArray);
-        out.flush();
+        try {
+            PrintWriter out = response.getWriter();
+            out.print(jsonArray);
+            out.flush();
+        }catch (IOException ex) {
+            log("Errore durante la scrittura della risposta JSON", ex);
+        }
 
 
         // Simula una ricerca nei dati

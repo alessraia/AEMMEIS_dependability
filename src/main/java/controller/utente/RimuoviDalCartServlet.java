@@ -60,7 +60,11 @@ public class RimuoviDalCartServlet extends HttpServlet {
             response.setContentType("application/json");
 
             // Invia la risposta JSON al client
-            response.getWriter().write(jsonResponse.toJSONString());
+            try {
+                response.getWriter().write(jsonResponse.toString());
+            } catch (IOException e) {
+                log("Errore durante la scrittura della risposta JSON", e);
+            }
         } else {
             // Se il carrello non esiste, restituisci un errore
             ControlMethod.safeSendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Il carrello non è stato trovato", this);

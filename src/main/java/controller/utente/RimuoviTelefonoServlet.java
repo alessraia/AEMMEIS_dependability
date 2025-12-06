@@ -61,13 +61,21 @@ public class RimuoviTelefonoServlet extends HttpServlet {
             // Invia una risposta al client
             response.setContentType("text/plain");
             response.setCharacterEncoding("UTF-8");
-            response.getWriter().write("Telefono rimosso con successo.");
+            try {
+                response.getWriter().write("Telefono rimosso con successo.");
+            } catch (IOException e) {
+                log("Errore durante la scrittura della risposta JSON", e);
+            }
         } catch (IOException e) {
             ControlMethod.safeSendError(response, HttpServletResponse.SC_BAD_REQUEST, "Errore nella lettura della richiesta", this);
             return;
         } catch (ParseException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Errore nella lettura del JSON.");
+            try {
+                response.getWriter().write("Errore nella lettura del JSON.");
+            } catch (IOException ex) {
+                log("Errore durante la scrittura della risposta JSON", ex);
+            }
         }
     }
 }

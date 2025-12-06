@@ -73,7 +73,11 @@ public class AggiungiAiPrefServlet extends HttpServlet {
 
             // Invia una risposta al client (ad esempio, un oggetto JSON)
             response.setContentType("application/json");
-            response.getWriter().write(jsonResponse.toString());
+            try {
+                response.getWriter().write(jsonResponse.toString());
+            } catch (IOException e) {
+                log("Errore durante la scrittura della risposta JSON per la wishlist", e);
+            }
         }
     }
 
