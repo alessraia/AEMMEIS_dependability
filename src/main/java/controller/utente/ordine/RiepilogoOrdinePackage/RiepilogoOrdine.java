@@ -55,7 +55,13 @@ public class RiepilogoOrdine extends HttpServlet {
             // Ramo admin: identico al comportamento originale
             RequestDispatcher dispatcher =
                     request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
             return;
         }
 
@@ -65,6 +71,12 @@ public class RiepilogoOrdine extends HttpServlet {
 
         RequestDispatcher dispatcher =
                 request.getRequestDispatcher("/WEB-INF/results/areaPservices/riepilogoOrdine.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
     }
 }

@@ -65,7 +65,13 @@ public class OrdineServlet extends HttpServlet {
         HttpSession session= request.getSession();
         if(Validator.checkIfUserAdmin((Utente) session.getAttribute("utente"))) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
         }
 
         //non faccio il controllo poichè lo faccio negli step prima...quindi se non ci fossero righe non dovrebbe

@@ -28,7 +28,13 @@ public class PagamentoEffettuato extends HttpServlet {
         Utente utente = (Utente) session.getAttribute("utente");
         if (Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
         }
         Ordine ordine = new Ordine();
         String address = null;
@@ -46,12 +52,24 @@ public class PagamentoEffettuato extends HttpServlet {
                 punti = Integer.parseInt(puntiString);
                 if (punti < 0 || punti > tesseraDAO.doRetrieveByEmail(utente.getEmail()).getPunti()) {
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-                    dispatcher.forward(request, response);
+                    try {
+                        dispatcher.forward(request, response);
+                    } catch (ServletException e) {
+                        log("Errore durante il forward", e);
+                    } catch (IOException e) {
+                        log("Errore di I/O durante il forward", e);
+                    }
                     return;
                 }
             }else if(!(puntiString.isEmpty())){
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/erroreForm.jsp");
-                dispatcher.forward(request, response);
+                try {
+                    dispatcher.forward(request, response);
+                } catch (ServletException e) {
+                    log("Errore durante il forward", e);
+                } catch (IOException e) {
+                    log("Errore di I/O durante il forward", e);
+                }
                 return;
             }
 
@@ -76,7 +94,13 @@ public class PagamentoEffettuato extends HttpServlet {
         }
 
         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
     }
 
     private static boolean isNumeric(String str) {//metodo che utilizza espressione regolare per verificare che una stringa contenga solo numeri

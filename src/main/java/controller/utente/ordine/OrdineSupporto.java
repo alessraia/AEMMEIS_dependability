@@ -23,12 +23,24 @@ public class OrdineSupporto extends HttpServlet {
         Utente utente = (Utente) session.getAttribute("utente");
         if (Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
         }
 
         if (utente == null) { //controllo che l'utente sia in sessione altrimenti non può acquistare
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/login.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
             return;
         }
 
@@ -45,6 +57,12 @@ public class OrdineSupporto extends HttpServlet {
         session.setAttribute("righeDisponibili", nuoveRighe);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/revisioneOrdine.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
     }
 }

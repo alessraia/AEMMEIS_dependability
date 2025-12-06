@@ -24,7 +24,13 @@ public class PuntiServlet extends HttpServlet {
         String address = null;
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
             return;
         }
         Ordine ordine = new Ordine();
@@ -46,6 +52,12 @@ public class PuntiServlet extends HttpServlet {
         request.setAttribute("ordine", ordine);
         request.setAttribute("costo", request.getAttribute("costo"));
         RequestDispatcher dispatcher = request.getRequestDispatcher(address);
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
     }
 }

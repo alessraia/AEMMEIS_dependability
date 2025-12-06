@@ -31,7 +31,13 @@ public class VisualizzaOrdini extends HttpServlet {
         Utente utente = (Utente) session.getAttribute("utente");
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
             return;
         }
         // Usa l'istanza iniettata (per i test) o crea una nuova istanza di default
@@ -40,6 +46,12 @@ public class VisualizzaOrdini extends HttpServlet {
         session.setAttribute("ordini", ordini);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/areaPservices/visualizzaOrdini.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
     }
 }

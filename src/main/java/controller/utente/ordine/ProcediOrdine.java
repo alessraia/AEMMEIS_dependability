@@ -37,7 +37,13 @@ public class ProcediOrdine extends HttpServlet {
         Utente utente = (Utente) session.getAttribute("utente");
         if(Validator.checkIfUserAdmin(utente)) {
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
-            dispatcher.forward(request, response);
+            try {
+                dispatcher.forward(request, response);
+            } catch (ServletException e) {
+                log("Errore durante il forward", e);
+            } catch (IOException e) {
+                log("Errore di I/O durante il forward", e);
+            }
         }
 
         List<Sede> sedi = sedeDAO.doRetrivedAll(); //tutte le sedi che abbiamo
@@ -62,6 +68,12 @@ public class ProcediOrdine extends HttpServlet {
         request.setAttribute("sedi", sediDaAggiungere);
 
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/results/procediOrdine.jsp");
-        dispatcher.forward(request, response);
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            log("Errore durante il forward", e);
+        } catch (IOException e) {
+            log("Errore di I/O durante il forward", e);
+        }
     }
 }
