@@ -45,13 +45,13 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.28</version>
+            <version>8.0.31</version>   <!-- versione che Snyk indica come fix per 3 issue -->
         </dependency>
 
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jdbc</artifactId>
-            <version>10.1.34</version>
+            <version>10.1.45</version>   <!-- versione suggerita da Snyk -->
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-catalina -->
   <!--      <dependency>
