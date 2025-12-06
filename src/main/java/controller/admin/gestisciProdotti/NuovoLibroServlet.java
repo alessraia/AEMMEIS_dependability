@@ -163,6 +163,10 @@ public class NuovoLibroServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.doGet(req, resp);
+        try {
+            this.doGet(req, resp);
+        } catch (ServletException | IOException e) {
+            log("Errore durante la gestione POST (doGet)", e);
+        }
     }
 }

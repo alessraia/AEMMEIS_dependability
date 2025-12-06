@@ -23,6 +23,10 @@ public class ModificaUtenteSupporto extends HttpServlet {
     }
 
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        doGet(request, response);
+        try {
+            this.doGet(request, response);
+        } catch (ServletException | IOException e) {
+            log("Errore durante la gestione POST (doGet)", e);
+        }
     }
 }

@@ -113,7 +113,11 @@ public class Pagamento extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.doGet(req, resp);
+        try {
+            this.doGet(req, resp);
+        } catch (ServletException | IOException e) {
+            log("Errore durante la gestione POST (doGet)", e);
+        }
     }
 
     private static boolean isNumeric(String str) {//metodo che utilizza espressione regolare per verificare che una stringa contenga solo numeri
