@@ -6,6 +6,7 @@ import model.carrelloService.CarrelloDAO;
 import model.carrelloService.RigaCarrelloDAO;
 import model.ordineService.OrdineDAO;
 import model.tesseraService.TesseraDAO;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class UtenteDAO {
      @            && \result.getCodiceSicurezza() != null && \result.getTipo() != null && \result.getTelefoni() != null);
      @   signals (RuntimeException e) true;
      @*/
-    public Utente doRetrieveByEmailPassword(String email, String password) {
+    /*public Utente doRetrieveByEmailPassword(String email, String password) {
         try (Connection con = ConPool.getConnection()) {
 
             PreparedStatement ps =
@@ -93,7 +94,37 @@ public class UtenteDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }*/
+    public Utente doRetrieveByEmailPassword(String email, String password) {
+        try (Connection con = ConPool.getConnection()) {
+
+            PreparedStatement ps =
+                    con.prepareStatement("SELECT nomeUtente, email, codiceSicurezza, tipo FROM Utente WHERE email=?");
+            ps.setString(1, email);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                String hashedPassword = rs.getString("codiceSicurezza");
+
+                // Verifica della password con bcrypt
+                if (!BCrypt.checkpw(password, hashedPassword)) {
+                    return null; // password sbagliata
+                }
+
+                Utente p = new Utente();
+                p.setNomeUtente(rs.getString("nomeUtente"));
+                p.setEmail(rs.getString("email"));
+                p.setCodiceSicurezzaNoHash(hashedPassword);
+                p.setTipo(rs.getString("tipo"));
+                p.setTelefoni(this.cercaTelefoni(p.getEmail()));
+                return p;
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
 
     /*@ public behavior

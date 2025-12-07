@@ -6,6 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import org.mindrot.jbcrypt.BCrypt;
+
 
 
 /*@ nullable_by_default @*/
@@ -37,7 +39,7 @@ public class Utente {
     @   ensures this.codiceSicurezza.length() == 40;
     @   signals (RuntimeException e) true;
     @*/
-  public void setCodiceSicurezza(String codiceSicurezza) {// password è inserita dall’utente
+  /*public void setCodiceSicurezza(String codiceSicurezza) {// password è inserita dall’utente
     //this.codiceSicurezza=codiceSicurezza;
      try {
         MessageDigest digest =
@@ -50,6 +52,11 @@ public class Utente {
         throw new RuntimeException(e);
 
       }
+  }*/
+  public void setCodiceSicurezza(String codiceSicurezza) {
+    // bcrypt gestisce internamente SALT + cost
+    String salt = BCrypt.gensalt(12); // cost factor 12 va benissimo per l’esame
+    this.codiceSicurezza = BCrypt.hashpw(codiceSicurezza, salt);
   }
 
   /*@ public normal_behavior

@@ -57,11 +57,11 @@ public class LoginServlet extends HttpServlet {
         else {
             Utente utente = new Utente();
             utente.setEmail(email);
-            utente.setCodiceSicurezza(password);
+           // utente.setCodiceSicurezza(password); con bcrypt non va bene
 
             UtenteDAO service = (this.utenteDAO != null) ? this.utenteDAO : new UtenteDAO();
-
-            if (service.doRetrieveByEmailPassword(utente.getEmail(), utente.getCodiceSicurezza()) == null) {
+            utente = service.doRetrieveByEmailPassword(utente.getEmail(), password);
+            if (utente == null) {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/errorJsp/loginError.jsp");
                 try {
                     dispatcher.forward(request, response);

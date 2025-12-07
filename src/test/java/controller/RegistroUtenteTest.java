@@ -268,8 +268,12 @@ public class RegistroUtenteTest {
         assertEquals(tipo, savedUtente.getTipo());
         
         // Verifichiamo che la password sia stata crittografata con SHA-1 (cattura SURVIVED mutation su setCodiceSicurezza)
-        String expectedEncryptedPassword = encryptSHA1(password);
-        assertEquals(expectedEncryptedPassword, savedUtente.getCodiceSicurezza());
+       /* String expectedEncryptedPassword = encryptSHA1(password);
+        assertEquals(expectedEncryptedPassword, savedUtente.getCodiceSicurezza());*/
+        // Verifichiamo che la password salvata sia compatibile con bcrypt
+        assertTrue(
+                org.mindrot.jbcrypt.BCrypt.checkpw(password, savedUtente.getCodiceSicurezza())
+        );
         
         // Verifichiamo che i telefoni siano stati salvati (cattura SURVIVED mutation su setTelefoni)
         assertNotNull(savedUtente.getTelefoni());
@@ -401,11 +405,11 @@ public class RegistroUtenteTest {
         verify(tesseraDAO).doSave(any(Tessera.class));
     }
 
-    /**
+    /*
      * Helper method per crittografare la password usando SHA-1.
      * Questo metodo simula esattamente quello che fa Utente.setCodiceSicurezza()
      */
-    private String encryptSHA1(String password) {
+  /*  private String encryptSHA1(String password) {
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-1");
             digest.reset();
@@ -414,7 +418,7 @@ public class RegistroUtenteTest {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-    }
+    }*/
 
     // Test per verificare che il Carrello viene creato e salvato con i campi corretti
     @Test
