@@ -49,7 +49,7 @@ public class ConPool {
 			String dbPort = getEnvOrDefault("DB_PORT", "3306");
 			String dbName = getEnvOrDefault("DB_NAME", "aemmetsw");
 			String dbUser = getEnvOrDefault("DB_USER", "root");
-			String dbPass = getEnvOrDefault("DB_PASS", "aless04");
+			String dbPass = getRequiredEnv("DB_PASS");
 
 			String tz = TimeZone.getDefault().getID();
 			p.setUrl("jdbc:mysql://" + dbHost + ":" + dbPort + "/" + dbName + "?serverTimezone=" + tz);
@@ -73,6 +73,14 @@ public class ConPool {
 		String value = System.getenv(key);
 		if (value == null || value.isBlank()) {
 			return defaultValue;
+		}
+		return value;
+	}
+	// per valori SENSIBILI (password)
+	private static String getRequiredEnv(String key) {
+		String value = System.getenv(key);
+		if (value == null || value.isBlank()) {
+			throw new IllegalStateException("Missing required environment variable: " + key);
 		}
 		return value;
 	}
