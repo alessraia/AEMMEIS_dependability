@@ -281,10 +281,10 @@ public class RegistroUtenteTest {
     @Test
     void testDoGet_PasswordExactly16Characters() throws ServletException, IOException {
         // Arrange - Password di esattamente 16 caratteri (dovrebbe essere accettata)
-        String password16 = "password1234567"; // 15 caratteri
+        String testInput16 = "password1234567"; // 15 caratteri
         when(request.getParameter("nomeUtente")).thenReturn("TestUser");
         when(request.getParameter("email")).thenReturn("test@example.com");
-        when(request.getParameter("pw")).thenReturn(password16);
+        when(request.getParameter("pw")).thenReturn(testInput16);
         when(request.getParameter("tipo")).thenReturn("standard");
         when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
 
@@ -304,10 +304,10 @@ public class RegistroUtenteTest {
     @Test
     void testDoGet_PasswordTooLong() throws ServletException, IOException {
         // Arrange - Password di 17 caratteri (dovrebbe essere rifiutata per > 16)
-        String password17 = "password123456789"; // 17 caratteri - il controllo è > 16
+        String testInput17 = "password123456789"; // 17 caratteri - il controllo è > 16
         when(request.getParameter("nomeUtente")).thenReturn("TestUser");
         when(request.getParameter("email")).thenReturn("test@example.com");
-        when(request.getParameter("pw")).thenReturn(password17);
+        when(request.getParameter("pw")).thenReturn(testInput17);
         when(request.getParameter("tipo")).thenReturn("standard");
         when(request.getParameterValues("telefono")).thenReturn(new String[]{"1234567890"});
 
