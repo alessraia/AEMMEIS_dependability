@@ -126,8 +126,8 @@ class UtenteDAOTest {
     void testDoRetrieveByEmailPassword_Found() throws SQLException {
         // Arrange
         String email = "test@example.com";
-        String plainPassword = "password123"; // password in plain text
-        String bcryptHash = "$2a$12$WLlo2IQZrQNA69ZFCw2s4O4WckAtOlxsgMj1nGFwz8s7A5ac7M1/e"; // bcrypt hash of "password123"
+        String plainPassword = "test_password_" + System.currentTimeMillis();// password in plain text
+        String bcryptHash = BCrypt.hashpw(plainPassword, BCrypt.gensalt());; // bcrypt hash of "password123"
         List<String> telefoni = Arrays.asList("1234567890");
 
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
