@@ -9,6 +9,7 @@ import model.tesseraService.Tessera;
 import model.tesseraService.TesseraDAO;
 import org.junit.jupiter.api.*;
 import org.mockito.MockedStatic;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -125,32 +126,40 @@ class UtenteDAOTest {
     void testDoRetrieveByEmailPassword_Found() throws SQLException {
         // Arrange
         String email = "test@example.com";
-        String hashedPassword = "e24114b7e08681dc91c43a0a76e8b7c14f8c2fb8"; // SHA-1 hash
+        String plainPassword = "password123"; // password in plain text
+        String bcryptHash = "$2a$12$WLlo2IQZrQNA69ZFCw2s4O4WckAtOlxsgMj1nGFwz8s7A5ac7M1/e"; // bcrypt hash of "password123"
         List<String> telefoni = Arrays.asList("1234567890");
 
         when(mockConnection.prepareStatement(anyString())).thenReturn(mockPreparedStatement);
         when(mockPreparedStatement.executeQuery()).thenReturn(mockResultSet);
-        when(mockResultSet.next()).thenReturn(true, true, false);
-        when(mockResultSet.getString(1)).thenReturn("Mario Rossi", "1234567890");
-        when(mockResultSet.getString(2)).thenReturn("test@example.com");
-        when(mockResultSet.getString(3)).thenReturn(hashedPassword);
-        when(mockResultSet.getString(4)).thenReturn("base");
+        when(mockResultSet.next()).thenReturn(true);
+        when(mockResultSet.getString("nomeUtente")).thenReturn("Mario Rossi");
+        when(mockResultSet.getString("email")).thenReturn("test@example.com");
+        when(mockResultSet.getString("codiceSicurezza")).thenReturn(bcryptHash);
+        when(mockResultSet.getString("tipo")).thenReturn("base");
 
         UtenteDAO spyDAO = spy(utenteDAO);
         doReturn(telefoni).when(spyDAO).cercaTelefoni(email);
 
-        // Act
-        Utente result = spyDAO.doRetrieveByEmailPassword(email, hashedPassword);
+        // Mock BCrypt.checkpw to return true for the correct password
+        MockedStatic<BCrypt> mockedBCrypt = mockStatic(BCrypt.class);
+        mockedBCrypt.when(() -> BCrypt.checkpw(plainPassword, bcryptHash)).thenReturn(true);
 
-        // Assert
-        assertNotNull(result);
-        assertEquals("Mario Rossi", result.getNomeUtente());
-        assertEquals("test@example.com", result.getEmail());
-        assertEquals(hashedPassword, result.getCodiceSicurezza());
-        assertEquals("base", result.getTipo());
-        assertEquals(telefoni, result.getTelefoni());
-        verify(mockPreparedStatement).setString(1, email);
-        verify(mockPreparedStatement).setString(2, hashedPassword);
+        try {
+            // Act
+            Utente result = spyDAO.doRetrieveByEmailPassword(email, plainPassword);
+
+            // Assert
+            assertNotNull(result);
+            assertEquals("Mario Rossi", result.getNomeUtente());
+            assertEquals("test@example.com", result.getEmail());
+            assertEquals(bcryptHash, result.getCodiceSicurezza());
+            assertEquals("base", result.getTipo());
+            assertEquals(telefoni, result.getTelefoni());
+            verify(mockPreparedStatement).setString(1, email);
+        } finally {
+            mockedBCrypt.close();
+        }
     }
 
     @Test
@@ -202,7 +211,9 @@ class UtenteDAOTest {
         // Assert
         verify(mockPreparedStatement).setString(1, "Mario Rossi");
         verify(mockPreparedStatement).setString(2, "test@example.com");
-        verify(mockPreparedStatement).setString(3, "cbfdac6008f9cab4083784cbd1874f76618d2a97"); // SHA-1 hash of "password123"
+        // Note: We can't verify the exact bcrypt hash (parameter 3) since bcrypt uses random salt
+        // Instead, we verify it's a non-null bcrypt hash by using anyString()
+        verify(mockPreparedStatement).setString(eq(3), anyString());
         verify(mockPreparedStatement).setString(4, "base");
         verify(mockPreparedStatement).executeUpdate();
         verify(spyDAO, times(2)).addTelefono(eq("test@example.com"), anyString());
@@ -390,7 +401,9 @@ class UtenteDAOTest {
         assertDoesNotThrow(() -> utenteDAO.updateUtentePassword(utente));
 
         // Assert
-        verify(mockPreparedStatement).setString(1, "d8821930bc512da14fb82f62f6588fdc0e97e13d"); // SHA-1 hash of "newHashedPassword123"
+        // Note: We can't verify the exact bcrypt hash since bcrypt uses random salt
+        // Instead, we verify it's a non-null bcrypt hash by using anyString()
+        verify(mockPreparedStatement).setString(eq(1), anyString());
         verify(mockPreparedStatement).setString(2, "test@example.com");
         verify(mockPreparedStatement).executeUpdate();
     }

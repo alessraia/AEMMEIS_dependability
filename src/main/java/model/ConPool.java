@@ -48,7 +48,8 @@ public class ConPool {
 			String dbHost = getEnvOrDefault("DB_HOST", "localhost");
 			String dbPort = getEnvOrDefault("DB_PORT", "3306");
 			String dbName = getEnvOrDefault("DB_NAME", "aemmetsw");
-			String dbUser = getEnvOrDefault("DB_USER", "root");
+			//String dbUser = getEnvOrDefault("DB_USER", "root");
+			String dbUser = getRequiredEnv("DB_USER");
 			String dbPass = getRequiredEnv("DB_PASS");
 
 			String tz = TimeZone.getDefault().getID();
