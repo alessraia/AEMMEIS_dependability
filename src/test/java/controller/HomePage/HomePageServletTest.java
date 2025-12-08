@@ -14,10 +14,12 @@ import org.mockito.ArgumentCaptor;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -299,5 +301,111 @@ public class HomePageServletTest {
 
         verify(dispatcher, times(1)).forward(request, response);
         verify(request, never()).getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp");
+    }
+
+    @Test
+    public void whenAdminDispatcherThrowsServletException_logsError() throws Exception {
+        HomePageServlet spyServlet = spy(servlet);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher adminDispatcher = mock(RequestDispatcher.class);
+
+        Utente admin = new Utente();
+        admin.setTipo("GestoreProdotti");
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("carrello")).thenReturn(null);
+        when(session.getAttribute("utente")).thenReturn(admin);
+        when(request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp")).thenReturn(adminDispatcher);
+        doThrow(new ServletException("Test exception")).when(adminDispatcher).forward(request, response);
+
+        spyServlet.doGet(request, response);
+
+        verify(adminDispatcher, times(1)).forward(request, response);
+        verify(spyServlet).log(contains("Errore durante il forward verso /WEB-INF/results/admin/homepageAdmin.jsp"), any(ServletException.class));
+    }
+
+    @Test
+    public void whenAdminDispatcherThrowsIOException_logsError() throws Exception {
+        HomePageServlet spyServlet = spy(servlet);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher adminDispatcher = mock(RequestDispatcher.class);
+
+        Utente admin = new Utente();
+        admin.setTipo("GestoreProdotti");
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("carrello")).thenReturn(null);
+        when(session.getAttribute("utente")).thenReturn(admin);
+        when(request.getRequestDispatcher("/WEB-INF/results/admin/homepageAdmin.jsp")).thenReturn(adminDispatcher);
+        doThrow(new IOException("Test IO exception")).when(adminDispatcher).forward(request, response);
+
+        spyServlet.doGet(request, response);
+
+        verify(adminDispatcher, times(1)).forward(request, response);
+        verify(spyServlet).log(contains("Errore di I/O durante il forward verso /WEB-INF/results/admin/homepageAdmin.jsp"), any(IOException.class));
+    }
+
+    @Test
+    public void whenHomepageDispatcherThrowsServletException_logsError() throws Exception {
+        HomePageServlet spyServlet = spy(servlet);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        Reparto repartoTendenza = new Reparto();
+        repartoTendenza.setNome("Libri di Tendenza");
+        List<Libro> libriHome = new ArrayList<>();
+        repartoTendenza.setLibri(libriHome);
+
+        List<Reparto> reparti = new ArrayList<>();
+        reparti.add(repartoTendenza);
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("carrello")).thenReturn(null);
+        when(session.getAttribute("utente")).thenReturn(null);
+        when(request.getAttribute("libriHome")).thenReturn(null);
+        when(servletContext.getAttribute("reparti")).thenReturn(reparti);
+        when(request.getRequestDispatcher("/WEB-INF/results/homepage.jsp")).thenReturn(dispatcher);
+        doThrow(new ServletException("Test exception")).when(dispatcher).forward(request, response);
+
+        spyServlet.doGet(request, response);
+
+        verify(dispatcher, times(1)).forward(request, response);
+        verify(spyServlet).log(contains("Errore durante il forward verso /WEB-INF/results/homepage.jsp"), any(ServletException.class));
+    }
+
+    @Test
+    public void whenHomepageDispatcherThrowsIOException_logsError() throws Exception {
+        HomePageServlet spyServlet = spy(servlet);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        HttpSession session = mock(HttpSession.class);
+        RequestDispatcher dispatcher = mock(RequestDispatcher.class);
+
+        Reparto repartoTendenza = new Reparto();
+        repartoTendenza.setNome("Libri di Tendenza");
+        List<Libro> libriHome = new ArrayList<>();
+        repartoTendenza.setLibri(libriHome);
+
+        List<Reparto> reparti = new ArrayList<>();
+        reparti.add(repartoTendenza);
+
+        when(request.getSession()).thenReturn(session);
+        when(session.getAttribute("carrello")).thenReturn(null);
+        when(session.getAttribute("utente")).thenReturn(null);
+        when(request.getAttribute("libriHome")).thenReturn(null);
+        when(servletContext.getAttribute("reparti")).thenReturn(reparti);
+        when(request.getRequestDispatcher("/WEB-INF/results/homepage.jsp")).thenReturn(dispatcher);
+        doThrow(new IOException("Test IO exception")).when(dispatcher).forward(request, response);
+
+        spyServlet.doGet(request, response);
+
+        verify(dispatcher, times(1)).forward(request, response);
+        verify(spyServlet).log(contains("Errore di I/O durante il forward verso /WEB-INF/results/homepage.jsp"), any(IOException.class));
     }
 }
