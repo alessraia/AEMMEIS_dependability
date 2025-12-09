@@ -32,25 +32,23 @@ jobs:
           GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
 
-      # --- SECURITY 2a: Snyk Open Source (Dipendenze / pom.xml) ---
-      # Questo controlla le librerie esterne.
-      # Manteniamo la soglia 'high' per via di una vulnerability low
-      - name: Snyk Open Source Monitor
-        uses: snyk/actions/maven@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: test
-          args: --file=pom.xml --severity-threshold=high
+      # --- INSTALLAZIONE SNYK CLI (Soluzione all'errore JAVA_HOME) ---
+      # Installiamo Snyk direttamente nel runner invece di usare il container Docker
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
 
-      # --- SECURITY 2b: Snyk Code (Il TUO codice Java) ---
-      # Questo analizza Code Analysis
-      - name: Snyk Code Scan (SAST)
-        uses: snyk/actions/maven@master
+      # --- SECURITY 2a: Snyk Open Source (Dipendenze) ---
+      - name: Snyk Open Source Monitor
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: code test
+        # Eseguiamo il comando shell diretto. Usa il Java 11 del sistema.
+        run: snyk test --file=pom.xml --severity-threshold=medium
+
+      # --- SECURITY 2b: Snyk Code (Code Analysis) ---
+      - name: Snyk Code Scan (SAST)
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk code test
 
       # --- BUILD, TEST & COVERAGE (JaCoCo) ---
       # Esegue la build e genera il report di copertura
