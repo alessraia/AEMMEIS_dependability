@@ -37,6 +37,10 @@ jobs:
       - name: Install Snyk CLI
         uses: snyk/actions/setup@master
 
+      # [NUOVO STEP] Rende eseguibile il wrapper maven per evitare errore -13
+      - name: Fix Maven Wrapper permissions
+        run: chmod +x mvnw
+
       # --- SECURITY 2a: Snyk Open Source (Dipendenze) ---
       - name: Snyk Open Source Monitor
         env:
