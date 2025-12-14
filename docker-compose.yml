@@ -1,6 +1,7 @@
 services:
   db:
     image: alessraia/aemmeis_dependability-db:main
+    platform: linux/amd64
     container_name: aemmetsw-db
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
@@ -19,8 +20,8 @@ services:
     restart: unless-stopped
 
   app:
-
     image: alessraia/aemmeis_dependability:main
+    platform: linux/amd64
     container_name: aemmetsw-app
     depends_on:
       db:
