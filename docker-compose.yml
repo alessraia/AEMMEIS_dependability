@@ -1,15 +1,15 @@
-version: "3.9"
-
 services:
   db:
-    image: mysql:8.0
+    image: alessraia/aemmeis_dependability-db:main
     container_name: aemmetsw-db
     environment:
-      MYSQL_ROOT_PASSWORD: "RootDocker_123!"
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      TZ: Europe/Rome
     ports:
       - "3307:3306"    # opzionale, ma utile se vuoi collegarti da MySQL Workbench
     volumes:
-      - ./docker/mysql/initdb:/docker-entrypoint-initdb.d
+      - dbdata:/var/lib/mysql
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-pRootDocker_123!"]
       interval: 5s
@@ -28,9 +28,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DB_HOST: "db"     # questo è il nome del servizio db qui sopra
+      DB_HOST: "aemmetsw-db"     # questo è il nome del servizio db qui sopra
       DB_PORT: "3306"
-      DB_NAME: "aemmetsw"
-      DB_USER: "root"
-      DB_PASS: "RootDocker_123!"
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      TZ: Europe/Rome
 
+# Definizione del volume
+volumes:
+  dbdata:
