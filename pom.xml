@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jdbc</artifactId>
-            <version>10.1.45</version>   <!-- versione suggerita da Snyk -->
+            <version>10.1.50</version>   <!-- versione suggerita da Snyk -->
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-catalina -->
   <!--      <dependency>
